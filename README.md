@@ -1,5 +1,5 @@
 # Internet Relay Chat  
-## 42 Paris' ft_irc project by yu-chen, ftanon, and lmoran  
+###### 42 Paris' ft_irc project by yu-chen, ftanon, and lmoran  
   
 ### What is an IRC?  
 An Internet Relay Chat is a text-based chat system for instant messaging.  

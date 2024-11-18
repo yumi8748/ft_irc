@@ -43,9 +43,18 @@ int main(void){
 	// 4. Accept
 	struct sockaddr_storage client_addr;
     socklen_t addr_size;
+	int	client_fd;
 	addr_size = sizeof client_addr;
-	check_return_fd("client socket",  accept(socket_fd, (struct sockaddr *)&client_addr, &addr_size));
+	client_fd = accept(socket_fd, (struct sockaddr *)&client_addr, &addr_size);
+	check_return_fd("client socket", client_fd);
 
+	// 5. Receive Data
+	char buffer[1024] = {0};
+	recv(client_fd, buffer, sizeof(buffer), 0);
+    std::cout << "Message from client: " << buffer;
+
+	// 6. CLose server socket fd
+	close(socket_fd);
 	return 0;
 }
 

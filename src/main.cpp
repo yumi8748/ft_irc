@@ -24,7 +24,7 @@ int main(int ac, char **av){
 	memset(&srv_addr.sin_zero, 0, sizeof(srv_addr.sin_zero));
 	srv_addr.sin_family = AF_INET;
 	srv_addr.sin_addr.s_addr = INADDR_ANY;
-	srv_addr.sin_port = htons(port);
+	srv_addr.sin_port = htons(port); //host to network short
 
 	memset(&client_addr.sin_zero, 0, sizeof(client_addr.sin_zero));
 	client_addr.sin_family = AF_INET;

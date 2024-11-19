@@ -4,26 +4,28 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <map>
 #include "Client.hpp"
 
 class Channel{
     private:
         std::string name;
-        std::vector<Client*> client;
+        std::vector<Client*> clients;
         std::string password;
-        int limits;
+        unsigned int limits;
         std::string topic;
+        std::map<std::string, std::string> modes;
     public:
         // Channel();
         // ~Channel();
         // Channel(const Channel &src);
         // Channel &operator=(const Channel &src);
-        addClient(Client* client);
-        removeClient(Client* client);
-        broadcastMessage(std::string message);
-        setTopic(std::string newTopic);
-        changePassword(std::string newPassword);
-
+        Channel(const std::string& n);
+        void addClient(Client* client);
+        void removeClient(Client* client);
+        void broadcastMessage(std::string message);
+        void setTopic(std::string newTopic);
+        void changePassword(std::string newPassword);
 
 };
 

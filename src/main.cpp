@@ -31,6 +31,9 @@ void	sigint_not_blocking(int signal)
 
 int main(void){
 	
+	// 0. signals
+	signal(SIGINT, sigint_not_blocking);
+	
 	struct pollfd pfds[2];
 	
 	struct addrinfo hints;
@@ -47,59 +50,70 @@ int main(void){
 	check_return_fd("server socket", socket_fd);
 	check_return_zero("bind", bind(socket_fd, res->ai_addr, res->ai_addrlen));
 	check_return_zero("listen", listen(socket_fd, 5));
+	std::cout << std::endl;
+
 	pfds[0].fd = socket_fd;
 	pfds[0].events = POLLIN;
 
-	// Client socket
-	struct sockaddr_storage client_addr;
-    socklen_t addr_size;
-	int	client_fd;
-	addr_size = sizeof client_addr;
-	client_fd = accept(socket_fd, (struct sockaddr *)&client_addr, &addr_size);
-	check_return_fd("client socket", client_fd);
-	pfds[1].fd = client_fd;
-	pfds[1].events = POLLIN;
-
+	int j = 0;
 	while (signalisation == 0)
 	{
-		std::cout << std::endl;
-		std::cout << "before" << std::endl;
-		poll(pfds, 2, 10000);
-		std::cout << "after" << std::endl;
-		std::cout << std::endl;
-		if (pfds[0].revents & POLLIN)
-		{
-			std::cout << "Connect\n";
-			struct sockaddr_storage client_addr;
-			socklen_t addr_size;
-			int	client_fd;
-			addr_size = sizeof client_addr;
-			client_fd = accept(socket_fd, (struct sockaddr *)&client_addr, &addr_size);
-		}		
-		if (pfds[1].revents & POLLIN)
-		{
-			std::cout << "Message\n";
-			int bytes_read;
-			char buffer[1024] = {0};
-			bytes_read = recv(pfds[1].fd, buffer, sizeof(buffer), 0);
-			if (bytes_read == 0) {
-				std::cout << "Client socket " << client_fd << " closed connection." << std::endl;
-				break ;
-			}
-			else {
-				std::cout << "Client Message: " << buffer;
-				const char *msg = "Received.\n";
-				int msg_len = strlen(msg);
-				int bytes_sent;
-				bytes_sent = send(client_fd, msg, msg_len, 0);
-				std::cout << "Server message to client socket " << client_fd << " : " << msg;
-			}
-		}
-	
-	}
-	std::cout << std::endl;
+		std::cout << "poll " << j << std::endl;
+		std::cout << "before fds0 : " << pfds[0].revents << std::endl;
+		std::cout << "before fds1 : " << pfds[1].revents << std::endl;
+		poll(pfds, 2, 5000);
+		std::cout << "after fds0 : " << pfds[0].revents << std::endl;
+		std::cout << "after fds1 : " << pfds[1].revents << std::endl;
 
-	// 6. CLose server and client socket fd
+		int i = 0;
+		while (i < 2)
+		{
+			std::cout << "\nenter loop fds " << i << std::endl;
+			if (pfds[i].revents & POLLIN)
+			{
+				std::cout << "there is revents for : "<<i  << std::endl;
+				if (pfds[i].fd == socket_fd)
+				{
+					std::cout << "it is server socker" << std::endl;
+					struct sockaddr_storage client_addr;
+					socklen_t addr_size;
+					int	client_fd;
+					addr_size = sizeof client_addr;
+					client_fd = accept(socket_fd, (struct sockaddr *)&client_addr, &addr_size);
+					check_return_fd("client socket", client_fd);
+					pfds[1].fd = client_fd;
+					pfds[1].events = POLLIN;
+				}
+				else
+				{
+					std::cout << "it is client socket" << std::endl;
+					int bytes_read;
+					char buffer[1024] = {0};
+					bytes_read = recv(pfds[1].fd, buffer, sizeof(buffer), 0);
+					if (bytes_read == 0) 
+					{
+						std::cout << "Client socket " << pfds[1].fd << " closed connection." << std::endl;
+						signalisation = 1;
+					}
+					else {
+						std::cout << "Client Message: " << buffer;
+						const char *msg = "Received.\n";
+						int msg_len = strlen(msg);
+						int bytes_sent;
+						bytes_sent = send(pfds[1].fd, msg, msg_len, 0);
+						std::cout << "Server message to client socket " << pfds[1].fd << " : " << msg;
+					}
+				}
+				
+			}		
+			else
+				std::cout << "there no revents for : "<< i  << std::endl;
+			i++;
+		}
+		std::cout << std::endl;
+		j++;
+	}
+
      if (pfds[1].fd)
 	    close(pfds[1].fd);
     close(pfds[0].fd);

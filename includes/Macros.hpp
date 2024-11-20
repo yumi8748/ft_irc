@@ -1,11 +1,16 @@
 #ifndef IRC_HPP
 #define IRC_HPP
 #include <iostream>
+#include <vector>
 #include <string>
 #include <sstream>
 #include <cstring>
-#include <sys/socket.h>
-#include <sys/types.h>
+#include <csignal>
+#include <poll.h> // poll
+#include <fcntl.h>
+#include <arpa/inet.h>
+#include <sys/socket.h> // socket
+#include <sys/types.h> // socket
 #include <netdb.h>
 #include <netinet/in.h>
 #include <unistd.h>

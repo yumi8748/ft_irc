@@ -1,4 +1,4 @@
-#include "../includes/Irc.hpp"
+#include "../includes/Macros.hpp"
 
 int close_and_ret(std::string msg, int srv, int cli){
 	if (srv > 0)

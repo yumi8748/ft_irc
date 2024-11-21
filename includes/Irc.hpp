@@ -10,6 +10,11 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
+#include <poll.h>
+#include <signal.h>
+#include <vector>
+#include <algorithm>
+
 // Recommended useful macros
 #define user_id(nickname, username) (":" + nickname + "!" + username + "@localhost")
 #define RPL_INVITE(user_id, invited, channel) (user_id + " INVITE " + invited + " #" + channel + "\r\n")
@@ -35,6 +40,32 @@
 
 #define RESET "\033[0m"
 
+class Server {
 
+
+	public:
+
+	Server(void);
+	~Server(void);
+	Server(Server const & src);
+	Server & operator=(Server const & rhs);
+
+
+	std::vector<struct pollfd> getfds(void);
+	void	createServer(void);
+	void	serverListen(void);
+	void	acceptNewClients(void);
+	void	receiveExistingClients(int i);
+
+	private:
+
+	std::vector<struct pollfd> 	pfds;
+
+};
+
+void	check_return_zero(std::string string, int return_value);
+void	check_return_fd(std::string string, int return_value);
+
+extern int signalisation;
 
 #endif /*IRC_HPP*/

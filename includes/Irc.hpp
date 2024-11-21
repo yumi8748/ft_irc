@@ -35,4 +35,6 @@
 
 #define RESET "\033[0m"
 
+
+
 #endif /*IRC_HPP*/

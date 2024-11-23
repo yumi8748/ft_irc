@@ -1,5 +1,20 @@
 #include "../includes/Irc.hpp"
 
+void handleClientCommand(Client* client, const std::string& command, const std::vector<std::string>& args)
+{
+    if (command == "KICK" && args.size() >= 2) {
+        handleKickCommand(client, args[0], args[1]);
+    } else if (command == "INVITE" && args.size() >= 2) {
+        handleInviteCommand(client, args[0], args[1]);
+    } else if (command == "TOPIC" && args.size() >= 2) {
+        handleTopicCommand(client, args[0], args[1]);
+    } else if (command == "MODE" && args.size() >= 3) {
+        handleModeCommand(client, args[0], args[1], args[2]);
+    } else {
+        client->sendMessage("Error: Invalid command or arguments.");
+    }
+}
+
 int close_and_ret(std::string msg, int srv, int cli){
 	if (srv > 0)
 		close(srv);

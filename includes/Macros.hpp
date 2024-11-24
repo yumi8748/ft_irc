@@ -6,6 +6,7 @@
 #include <sstream>
 #include <cstring>
 #include <csignal>
+#include <cstdio>
 #include <poll.h> // poll
 #include <fcntl.h>
 #include <arpa/inet.h>

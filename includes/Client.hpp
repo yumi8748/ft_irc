@@ -6,6 +6,9 @@
 #include <vector>
 #include "Channel.hpp"
 #include "Irc.hpp"
+#include <stdio.h>
+
+class Channel;
 
 class Client{
     private:

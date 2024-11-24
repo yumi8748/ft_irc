@@ -1,4 +1,4 @@
-#include "Commands.hpp"
+#include "../includes/Commands.hpp"
 
 Channel* findChannelByName(const std::vector<Channel*>& channels, const std::string& channelName) {
     for (std::vector<Channel*>::const_iterator it = channels.begin(); it != channels.end(); ++it) {

@@ -35,11 +35,11 @@ void Client::addChannel(Channel* ch)
 
 void Client::removeChannel(Channel* ch)
 {
-    for (std::vector<Channel *>::iterator it = channels.begin(); it != channel.end(); ++it)
+    for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
     {
         if (*it == ch)
         {
-            channel.erase(it);
+            channels.erase(it);
             break ;
         }
     }

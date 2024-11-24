@@ -8,6 +8,8 @@
 #include "Client.hpp"
 #include <algorithm>
 
+class Client;
+
 class Channel{
     private:
         std::string name;

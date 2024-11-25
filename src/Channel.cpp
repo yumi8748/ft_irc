@@ -18,7 +18,7 @@ void Channel::addClient(Client* client)
         return ;
     }
     clients.push_back(client);
-    std::cerr << "Client added to channel: " << name << std::endl;
+    std::cerr << "Client" << client->getNickname() << " joined channel: " << name << std::endl;
 }
 
 void Channel::removeClient(Client* client)
@@ -28,7 +28,7 @@ void Channel::removeClient(Client* client)
         if (*it == client)
         {
             clients.erase(it);
-            std::cout << "Client removed from channel: " << name << std::endl;
+            std::cout << "Client" << client->getNickname() << " left channel: " << name << std::endl;
             break ;
         }
     }

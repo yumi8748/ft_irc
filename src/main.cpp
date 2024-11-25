@@ -28,6 +28,15 @@ int close_and_ret(std::string msg, int srv, int cli){
 	return 1;
 }
 
+void parseCommand(const std::string& input, std::string& cmd, std::vector<std::string>& args) {
+    std::istringstream stream(input);
+    stream >> cmd; // get cmds
+    std::string arg;
+    while (stream >> arg) { // get parameters
+        args.push_back(arg);
+    }
+}
+
 int main(int ac, char **av){
 	// initial parsings
 	/*if (ac != 3)
@@ -74,6 +83,28 @@ int main(int ac, char **av){
 		close_and_ret("client read", srv_status, client_fd);
 	buf[bytes_read] = 0;
 	HERE("read")
+
+	// initialize Channels&Clients
+    std::vector<Channel*> channels;
+    std::vector<Client*> clients;
+
+    Client* currentClient = new Client(client_fd);
+    clients.push_back(currentClient);
+
+    // parsing
+    std::string command;
+    std::vector<std::string> arguments;
+    parseCommand(buf, command, arguments);
+
+    handleClientCommand(currentClient, command, arguments, channels, clients);
+
+    for (size_t i = 0; i < clients.size(); ++i) {
+        delete clients[i];
+    }
+    for (size_t i = 0; i < channels.size(); ++i) {
+        delete channels[i];
+    }
+
 	close(srv_status);
 	close(client_fd);
 	(void)av;

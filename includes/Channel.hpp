@@ -4,9 +4,11 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <sstream>
 #include <map>
 #include "Client.hpp"
 #include <algorithm>
+#include "Commands.hpp"
 
 class Client;
 
@@ -16,7 +18,9 @@ class Channel{
         std::vector<Client*> clients;
         std::vector<Client*> operators;
         std::string password;
-        unsigned int limits;
+        bool inviteOnly;
+        bool topicRestricted;
+        int userLimits; // -1 for none
         std::string topic;
         std::map<std::string, std::string> modes;
     public:

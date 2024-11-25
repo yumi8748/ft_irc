@@ -2,8 +2,12 @@
 #define COMMANDS_HPP
 
 #include <string>
+#include <vector>
 #include "Client.hpp"
 #include "Channel.hpp"
+
+class Channel;
+class Client;
 
 Channel* findChannelByName(const std::vector<Channel*>& channels, const std::string& channelName);
 Client* findClientByNickname(const std::vector<Client*>& clients, const std::string& nickname);

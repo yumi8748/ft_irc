@@ -1,6 +1,6 @@
 #include "../includes/Channel.hpp"
 
-Channel::Channel(const std::string& n): name(n), limits(100), topic("")  // limits set to?
+Channel::Channel(const std::string& n): name(n), userLimits(100), topic("")  // limits set to?
 {
 
 }
@@ -12,7 +12,7 @@ const std::string& Channel::getName() const
 
 void Channel::addClient(Client* client)
 {
-    if (clients.size() >= limits)
+    if (clients.size() >= static_cast<std::size_t>(userLimits))
     {
         std::cerr << "Channel is full! Cannot add client." << std::endl;
         return ;
@@ -109,11 +109,42 @@ std::string Channel::getTopic() const
     return (topic);
 }
 
+int stringToInt(const std::string& value) {
+    std::istringstream iss(value);
+    int result;
+    if (!(iss >> result)) {
+        throw std::invalid_argument("Invalid integer value: " + value);
+    }
+    return result;
+}
 
 void Channel::setMode(const std::string& mode, const std::string& value)
 {
-    modes[mode] = value;
-    std::cout << "Channel mode " << mode << " set to " << value << " in channel " << name << std::endl;
+    // modes[mode] = value;
+    // std::cout << "Channel mode " << mode << " set to " << value << " in channel " << name << std::endl;
+     if (mode == "i") {
+        inviteOnly = (value == "1");
+        std::cout << "Invite-only mode " << (inviteOnly ? "enabled" : "disabled") << " in channel " << name << std::endl;
+    } else if (mode == "t") {
+        topicRestricted = (value == "1");
+        std::cout << "Topic-restricted mode " << (topicRestricted ? "enabled" : "disabled") << " in channel " << name << std::endl;
+    } else if (mode == "k") {
+        password = value;
+        std::cout << "Channel password set to '" << value << "' in channel " << name << std::endl;
+    } else if (mode == "o") {
+        Client* targetClient = findClientByNickname(clients, value);
+        if (targetClient) {
+            operators.push_back(targetClient);
+            std::cout << "Client " << value << " granted operator privileges in channel " << name << std::endl;
+        } else {
+            std::cerr << "Error: Client " << value << " not found in channel " << name << std::endl;
+        }
+    } else if (mode == "l") {
+        userLimits = stringToInt(value);
+        std::cout << "User limit set to " << userLimits << " in channel " << name << std::endl;
+    } else {
+        std::cerr << "Error: Unknown mode '" << mode << "' in channel " << name << std::endl;
+    }
 }
 
 std::string Channel::getMode(const std::string& mode) const

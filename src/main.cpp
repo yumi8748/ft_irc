@@ -4,7 +4,7 @@ void	sigint_not_blocking(int signal)
 {
 	if (signal == SIGINT)
 	{
-		std::cout << "OKK"<< std::endl;
+		std::cout << "Signal INT"<< std::endl;
 		signalisation = 1;
 	}
 }

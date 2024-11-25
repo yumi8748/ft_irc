@@ -4,12 +4,12 @@ int signalisation = 0;
 
 Server::Server(void)
 {
-	std::cout << "Server Constructor" << std::endl;
+	// std::cout << "Server Constructor" << std::endl;
 }
 
 Server::~Server(void)
 {
-	std::cout << "Server Destructor" << std::endl;
+	// std::cout << "Server Destructor" << std::endl;
 }
 Server::Server(Server const & src)
 {
@@ -33,16 +33,16 @@ void	check_return_zero(std::string string, int return_value)
 {
 	if (return_value != 0)
         std::cout << "error : " << string;
-	else
-		std::cout << " | Success : " << string;
+	// else
+		// std::cout << " | Success : " << string;
 }
 
 void	check_return_fd(std::string string, int return_value)
 {
 	if (return_value == -1)
 		std::cout << "error : " << string << "setup failed : " << return_value;
-	else
-		std::cout << " | Success : " << string << " fd is : " << return_value;
+	// else
+		// std::cout << " | Success : " << string << " fd is : " << return_value;
 }
 
 void	Server::createServer(void)
@@ -63,7 +63,7 @@ void	Server::createServer(void)
 	check_return_fd("server socket", socket_fd);
 	check_return_zero("bind", bind(socket_fd, res->ai_addr, res->ai_addrlen));
 	check_return_zero("listen", listen(socket_fd, 5));
-	std::cout << std::endl;
+	// std::cout << std::endl;
 
 	NewPoll.fd = socket_fd;
 	NewPoll.events = POLLIN;
@@ -75,7 +75,7 @@ void	Server::createServer(void)
 void	Server::acceptNewClients(void)
 {
 	struct pollfd NewPoll;
-	std::cout << "[server socket]";
+	// std::cout << "[server socket]";
 	struct sockaddr_storage client_addr;
 	socklen_t addr_size;
 	int	client_fd;
@@ -90,22 +90,24 @@ void	Server::acceptNewClients(void)
 
 void	Server::receiveExistingClients(int i)
 {
-	std::cout << "[client socket]";
+	// std::cout << "[client socket]";
 	int bytes_read;
 	char buffer[1024] = {0};
 	bytes_read = recv(this->pfds[i].fd, buffer, sizeof(buffer), 0);
+	std::string str(buffer);
 	if (bytes_read == 0) 
 	{
 		std::cout << "Client socket " << this->pfds[i].fd << " closed connection." << std::endl;
 		signalisation = 1;
 	}
 	else {
-		std::cout << " | Client Message: " << buffer;
-		const char *msg = "Received.\n";
-		int msg_len = strlen(msg);
-		int bytes_sent;
-		bytes_sent = send(this->pfds[i].fd, msg, msg_len, 0);
-		std::cout << "Server message to client socket " << this->pfds[i].fd << " : " << msg;
+		this->commandParsing(i, buffer);
+		// std::cout << " | Client Message: " << buffer;
+		// const char *msg = "Received.\n";
+		// int msg_len = strlen(msg);
+		// int bytes_sent;
+		// bytes_sent = send(this->pfds[i].fd, msg, msg_len, 0);
+		// std::cout << "Server message to client socket " << this->pfds[i].fd << " : " << msg;
 	}
 }
 
@@ -120,31 +122,31 @@ void	Server::serverListen(void)
 	int j = 0;
 	while (signalisation == 0)
 	{
-		std::cout << "\npoll " << j ;
-		std::cout << " | before : " ;
-		for_each (this->pfds.begin(), this->pfds.end(), myfunction);
+		// std::cout << "\npoll " << j ;
+		// std::cout << " | before : " ;
+		// for_each (this->pfds.begin(), this->pfds.end(), myfunction);
 		poll(&this->pfds[0], static_cast<int>(this->pfds.size()), 5000);
-		std::cout << " | after : " ;
-		for_each (this->pfds.begin(), this->pfds.end(), myfunction);
+		// std::cout << " | after : " ;
+		// for_each (this->pfds.begin(), this->pfds.end(), myfunction);
 
 		int i = 0;
 		while (i < static_cast<int>(this->pfds.size()))
 		{
-			std::cout << "\nloop fds " << i << " : ";
+			// std::cout << "\nloop fds " << i << " : ";
 			if (this->pfds[i].revents & POLLIN)
 			{
-				std::cout << "yes";
+				// std::cout << "yes";
 				if (this->pfds[i].fd == this->pfds[0].fd)
 					acceptNewClients();
 				else
 					receiveExistingClients(i);
 				
 			}		
-			else
-				std::cout << "no";
+			// else
+				// std::cout << "no";
 			i++;
 		}
-		std::cout << std::endl;
+		// std::cout << std::endl;
 		j++;
 	}
 }

@@ -14,6 +14,7 @@
 #include <signal.h>
 #include <vector>
 #include <algorithm>
+#include <map>
 
 // Recommended useful macros
 #define user_id(nickname, username) (":" + nickname + "!" + username + "@localhost")
@@ -56,6 +57,8 @@ class Server {
 	void	serverListen(void);
 	void	acceptNewClients(void);
 	void	receiveExistingClients(int i);
+
+	void	commandParsing(int i, std::string buffer);
 
 	private:
 

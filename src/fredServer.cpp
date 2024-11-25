@@ -75,7 +75,7 @@ void	Server::createServer(void)
 
 void	Server::acceptNewClients(void)
 {
-	// Client client;
+	Client client;
 	struct pollfd NewPoll;
 	// std::cout << "[server socket]";
 	struct sockaddr_storage client_addr;
@@ -88,8 +88,8 @@ void	Server::acceptNewClients(void)
 	NewPoll.events = POLLIN;
 	NewPoll.revents = 0;
 	this->pfds.push_back(NewPoll);
-	// client.setFd(client_fd);
-	// this->_clients.push_back(client);
+	client.setFd(client_fd);
+	this->_clients.push_back(client);
 }
 
 void	Server::receiveExistingClients(int i)

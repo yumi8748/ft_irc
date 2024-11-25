@@ -43,9 +43,9 @@ void Channel::broadcastMessage(std::string msg)
     }
 }
 
-void Channel::changePassword(std::string newPassword)
+void Channel::changeCh_pwd(std::string newCh_pwd)
 {
-    password = newPassword;
+    Ch_pwd = newCh_pwd;
     std::cout << "Channel password updated.\n";
 }
 
@@ -129,7 +129,7 @@ void Channel::setMode(const std::string& mode, const std::string& value)
         topicRestricted = (value == "1");
         std::cout << "Topic-restricted mode " << (topicRestricted ? "enabled" : "disabled") << " in channel " << name << std::endl;
     } else if (mode == "k") {
-        password = value;
+        Ch_pwd = value;
         std::cout << "Channel password set to '" << value << "' in channel " << name << std::endl;
     } else if (mode == "o") {
         Client* targetClient = findClientByNickname(clients, value);

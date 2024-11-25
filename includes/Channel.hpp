@@ -17,7 +17,7 @@ class Channel{
         std::string name;
         std::vector<Client*> clients;
         std::vector<Client*> operators;
-        std::string password;
+        std::string Ch_pwd;
         bool inviteOnly;
         bool topicRestricted;
         int userLimits; // -1 for none
@@ -33,7 +33,10 @@ class Channel{
         void addClient(Client* client);
         void removeClient(Client* client);
         void broadcastMessage(std::string message);
-        void changePassword(std::string newPassword);
+        void changeCh_pwd(std::string newCh_pwd);
+        //join&leave channel(s)
+        void joinChannel(Client* client, const std::string& password);
+        void partChannel(Client* client, const std::string& message = "");
         //channel operators commands:
         bool isOperator(Client* client) const;
         void addOperator(Client* client);

@@ -45,8 +45,10 @@ class Client{
 
 	public:
 
-		void	setFd(int fd);
-		int		getFd(void);
+		void		setFd(int fd);
+		int			getFd(void);
+		void		setNickname(std::string name);
+		std::string	getNickname(void);
 
     private:
         std::string nick;

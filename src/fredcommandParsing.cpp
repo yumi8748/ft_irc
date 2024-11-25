@@ -1,9 +1,21 @@
 #include "../includes/Irc.hpp"
 
+void	Client::setNickname(std::string name)
+{
+	this->nick = name;
+}
+
+std::string	Client::getNickname(void)
+{
+	return this->nick;
+}
+
 void	Server::setNickname(int i, std::string buffer)
 {
 	std::cout << "setnickname" << " "  << i << buffer << std::endl;
-	std::cout << this->_clients[i - 1].getFd() << std::endl;
+	// std::cout << this->_clients[i - 1].getFd() << std::endl;
+	this->_clients[i - 1].setNickname("fred");
+	std::cout << this->_clients[i - 1].getNickname() << std::endl;
 }
 
 void	Server::setUsername(int i, std::string buffer)

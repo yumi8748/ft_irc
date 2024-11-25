@@ -16,17 +16,20 @@ class Server{
         ~Server(){};
 
         // INITS:
-        void initServer();
-        void initSockets();
+        void InitServer();
+        void InitSockets();
 
         // FD:
-        void closeServer();
-        void closeClients(int);
-        void sigHandler(int);
+        void CloseServer();
+        void CloseClients(int);
+        void SigHandler(int);
 
         // CLIENT:
-        void acceptClient();
-        void receiveData(int);
+        void AcceptClient();
+        void ReceiveData(int);
+
+        // METHODS:
+        void CloseMessage(std::string);
 
     private:
         // VARIABLES:

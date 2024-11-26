@@ -11,7 +11,6 @@ void handleClientCommand(Client* client, const std::string& cmd, const std::vect
         handleTopicCmd(client, args[0], args[1], channels);
     } else if (cmd == "MODE" && args.size() >= 3) {
         handleModeCmd(client, args[0], args[1], args[2], channels);
-	else if ()
     } else {
         client->sendMessage("Error: Invalid command or arguments.");
     }
@@ -44,6 +43,8 @@ int main(int ac, char **av){
 		return 1; // handle return msg
 	Server server;
 	try {
+    signal(SIGINT, Server::SigHandler);
+    signal(SIGQUIT, Server::SigHandler);
 		server.InitServer();
 	}
 	catch (ErrThrow &e){

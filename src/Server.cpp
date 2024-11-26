@@ -8,7 +8,7 @@ int Server::_sig = 0;
 
 void Server::SigHandler(int signum){
   (void)signum;
-  // _sig = 1; This would stop the server from the while loop
+  _sig = 1;
 }
 
 void Server::InitServer(){
@@ -18,18 +18,18 @@ void Server::InitServer(){
   else
     return;
   while (_sig == 0){
-    HERE("while")
     if ((poll(&_fds[0], _fds.size(), -1) == -1) && _sig == 0)
       throw ErrThrow("Poll error");
-    HERE("poll")
     for (size_t i = 0; i < _fds.size(); i++){
-      std::cout<<".";
-      if (_fds[i].revents & POLLIN) // comparing bitmasks, POLLIN == 0001, if it is true, there is data to read
-        AcceptClient(); // ACCEPT CLIENT HERE? CHECK IF CLIENT? UNSURE
-      //else
-        // WHAT ELSE?JO
+      if (_sig == 0 && (_fds[i].revents & POLLIN)){
+        if (_fds[i].fd == _fd)
+          AcceptClient();
+        else
+          ReceiveData(_fds[i].fd, i); 
+      }
     }
   }
+  CloseServer();
 }
 
 void Server::InitSockets(){
@@ -51,10 +51,8 @@ void Server::InitSockets(){
     throw ErrThrow("Bind error");
   if (fcntl(_fd, F_SETFL, O_NONBLOCK) < 0) // fd operations are reaaed instantly
     throw ErrThrow("Fcntl error");
-  HERE("fcntl")
   if (listen(_fd, SOMAXCONN) < 0)
     throw ErrThrow("Listen error");
-  HERE("listen")
 
   // ADDING TO THE POLL VECTOR
   struct pollfd pollNew;
@@ -67,13 +65,13 @@ void Server::InitSockets(){
 
 void Server::AcceptClient(){
   // CREATING A CLIENT SOCKET (ACCEPT)
-  Client client;
   struct sockaddr_in addr;
   struct pollfd pollNew;
   socklen_t len = sizeof(addr);
   int lisFd = accept(_fd, (sockaddr *)&addr, &len);
   if (lisFd < 0)
     perror("listen");
+  Client client(lisFd);
 
   // ADDING TO THE POLL VECTOR
   pollNew.fd = lisFd;
@@ -83,10 +81,10 @@ void Server::AcceptClient(){
   // client.do_stuff?
   client.setFd(lisFd);
   _clients.push_back(client);
-  // ADD TO CLIENT VECTOR?
+  std::cout<<PURPLE<<user_id(client.getNickname(), client.getUsername())<<GREEN<<" connected successfully to "<<PURPLE<<"Server["<<_fd<<"]"<<RESET;  
 }
 
-void Server::ReceiveData(int fd){
+void Server::ReceiveData(int fd, int i){
   char buf[1024] = {0};
   ssize_t recData = recv(fd, buf, sizeof(buf) - 1, 0);
   if (recData <= 0){
@@ -97,8 +95,9 @@ void Server::ReceiveData(int fd){
   else{
     buf[recData] = 0;
     // parse?
-    std::cout << PURPLE << "Client["<<fd<<"]: "<< RESET << buf << std::endl; 
-    // process?
+    std::cout << PURPLE << "Client["<<fd<<"]: "<< RESET << buf; 
+    std::string buffer(buf);
+    commandParsing(i, buffer);
   }
 }
 

@@ -120,6 +120,6 @@ void	Server::commandParsing(int i, std::string buffer)
 		case 8: this->inviteChannel(i, buffer); break;
 		case 9: this->topicChannel(i, buffer); break;
 		case 10: this->modeChannel(i, buffer); break;
-		default : std::cout << "not a command" << std::endl;
+    default : break;
 	}
 }

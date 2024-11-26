@@ -2,8 +2,8 @@
 
 Client::Client(int fd): client_fd(fd)
 {
-    nick = "";
-    usr = "";
+    nick = "testNick";
+    usr = "testUsr";
     recv_buf = "";
 }
 
@@ -26,6 +26,10 @@ const std::string& Client::getNickname() const
     return (nick);
 }
 
+const std::string& Client::getUsername() const
+{
+    return (usr);
+}
 void Client::sendMessage(const std::string &message)
 {
     if (send(client_fd, message.c_str(), message.length(), 0) == -1)

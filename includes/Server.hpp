@@ -15,11 +15,11 @@ class Server{
         // FD:
         void CloseServer();
         void CloseClients(int);
-        void SigHandler(int);
+        static void SigHandler(int);
 
         // CLIENT:
         void AcceptClient();
-        void ReceiveData(int);
+        void ReceiveData(int, int);
 	    
         // GTRS/STRS
         std::vector<struct pollfd> getfds(void);

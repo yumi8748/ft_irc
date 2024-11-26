@@ -1,5 +1,5 @@
-#ifndef IRC_HPP
-#define IRC_HPP
+#ifndef MACROS_HPP
+#define MACROS_HPP
 #include <iostream>
 #include <vector>
 #include <string>
@@ -17,6 +17,12 @@
 #include <unistd.h>
 #include <map>
 #include <algorithm>
+
+#include <poll.h>
+#include <signal.h>
+#include <vector>
+#include <algorithm>
+#include <map>
 
 // Recommended useful macros
 #define user_id(nickname, username) (":" + nickname + "!" + username + "@localhost")

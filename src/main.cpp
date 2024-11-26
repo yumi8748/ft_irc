@@ -1,7 +1,4 @@
-#include "../includes/Client.hpp"
-#include "../includes/Channel.hpp"
-#include "../includes/Commands.hpp"
-#include "../includes/Server.hpp"
+#include "../includes/Irc.hpp"
 
 void handleClientCommand(Client* client, const std::string& cmd, const std::vector<std::string>& args, 
                          const std::vector<Channel*>& channels, const std::vector<Client*>& clients)

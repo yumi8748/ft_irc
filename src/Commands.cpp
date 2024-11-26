@@ -1,6 +1,4 @@
-#include "../includes/Commands.hpp"
-#include "../includes/Channel.hpp"
-#include "../includes/Client.hpp"
+#include "../includes/Irc.hpp"
 
 
 Channel* findChannelByName(const std::vector<Channel*>& channels, const std::string& channelName) {

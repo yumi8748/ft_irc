@@ -98,6 +98,7 @@ void	Server::receiveExistingClients(int i)
 	int bytes_read;
 	char buffer[1024] = {0};
 	bytes_read = recv(this->pfds[i].fd, buffer, sizeof(buffer), 0);
+	// std::cout << "ici : " << buffer[bytes_read - 1] << std::endl;
 	std::string str(buffer);
 	if (bytes_read == 0) 
 	{
@@ -105,6 +106,7 @@ void	Server::receiveExistingClients(int i)
 		signalisation = 1;
 	}
 	else {
+		buffer[bytes_read - 1] = '\0';
 		this->commandParsing(i, buffer);
 		// std::cout << " | Client Message: " << buffer;
 		// const char *msg = "Received.\n";

@@ -68,26 +68,42 @@ void	Server::modeChannel(int i, std::string buffer)
 	std::cout << "modeChannel" << " " << i << buffer << std::endl;
 }
 
+void printvector (std::string str)
+{
+  std::cout << str << std::endl;
+}
+
 void	Server::commandParsing(int i, std::string buffer)
 {
+	std::stringstream ss(buffer);
+	std::string tmp;
+	std::vector<std::string> string_array;
+
+	// std::cout << string_array.size() << std::endl;
+	while (std::getline(ss, tmp, ' '))
+	{
+		string_array.push_back(tmp);
+	}
+	// std::cout << string_array.size() << std::endl;
+	// for_each (string_array.begin(), string_array.end(), printvector);
 	std::string cmd_array[] = {
-		"/NICK\n",
-		"/PASS\n",
-		"/USER\n",
-		"/QUIT\n",
-		"/PRIVMSG\n",
-		"/JOIN\n",
-		"/PART\n",
-		"/KICK\n",
-		"/INVITE\n",
-		"/TOPIC\n",
-		"/MODE\n"
+		"/NICK",
+		"/PASS",
+		"/USER",
+		"/QUIT",
+		"/PRIVMSG",
+		"/JOIN",
+		"/PART",
+		"/KICK",
+		"/INVITE",
+		"/TOPIC",
+		"/MODE"
 	};
 	int len = sizeof(cmd_array) / sizeof(cmd_array[0]);
 	int j = 0;
 	while (j < len)
 	{
-		if (cmd_array[j] == buffer)
+		if (cmd_array[j] == string_array[0])
 			break;
 		j++;
 	}

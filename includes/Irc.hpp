@@ -97,7 +97,6 @@ class Server {
 
 
 
-
 void	check_return_zero(std::string string, int return_value);
 void	check_return_fd(std::string string, int return_value);
 

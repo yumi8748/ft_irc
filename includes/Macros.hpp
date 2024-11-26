@@ -15,6 +15,8 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <map>
+#include <algorithm>
 
 // Recommended useful macros
 #define user_id(nickname, username) (":" + nickname + "!" + username + "@localhost")

@@ -1,14 +1,7 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 #include "Macros.hpp"
-
-// prototype for compilation
-class Client{
-    public:
-        Client(){};
-        ~Client(){};
-        int getFd(){return 1;};
-};
+#include "Client.hpp"
 
 class Server{
     public:

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include "Channel.hpp"
+#include "Commands.hpp"
 #include "Irc.hpp"
 #include <stdio.h>
 
@@ -15,6 +16,7 @@ class Client{
         std::string nick;
         std::string usr;
         std::vector<Channel*> channels;
+        std::vector<Channel*> joinedChannels; // 用戶加入的頻道
         int client_fd;
         std::string recv_buf;
     public:
@@ -28,6 +30,7 @@ class Client{
         void Recv();
         void Send();
         int getFd() const;
+        bool isInvited(Client* client, Channel* channel);
 };
 
 #endif

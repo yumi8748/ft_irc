@@ -16,6 +16,7 @@ class Channel{
     private:
         std::string name;
         std::vector<Client*> clients;
+        std::vector<Client*> invitedClients;
         std::vector<Client*> operators;
         std::string Ch_pwd;
         bool inviteOnly;
@@ -34,7 +35,7 @@ class Channel{
         void removeClient(Client* client);
         void broadcastMessage(std::string message);
         void changeCh_pwd(std::string newCh_pwd);
-        //join&leave channel(s)
+        //client join&leave channel(s)
         void joinChannel(Client* client, const std::string& password);
         void partChannel(Client* client, const std::string& message = "");
         //channel operators commands:
@@ -43,6 +44,11 @@ class Channel{
         void removeOperator(Client* client);
         void kickClient(Client* client);
         void inviteClient(Client* client);
+        void addInvitedClient(Client* client);
+        void removeInvitedClient(Client* client);
+        bool isClientInChannel(Client* client) const;
+        bool isEmpty() const;
+        const std::vector<Client*>& getInvitedClients() const;
         void setTopic(const std::string& newTopic);
         std::string getTopic() const;
         void setMode(const std::string& mode, const std::string& value);

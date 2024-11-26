@@ -98,6 +98,23 @@ void Channel::inviteClient(Client* client)
     std::cout << "Client " << client->getNickname() << " has been invited to channel " << name << std::endl;
 }
 
+void Channel::addInvitedClient(Client* client) {
+    if (std::find(invitedClients.begin(), invitedClients.end(), client) == invitedClients.end()) {
+        invitedClients.push_back(client);
+    }
+}
+
+void Channel::removeInvitedClient(Client* client) {
+    std::vector<Client*>::iterator it = std::find(invitedClients.begin(), invitedClients.end(), client);
+    if (it != invitedClients.end()) {
+        invitedClients.erase(it);
+    }
+}
+
+const std::vector<Client*>& Channel::getInvitedClients() const {
+    return invitedClients;
+}
+
 void Channel::setTopic(const std::string& newTopic)
 {
     topic = newTopic;
@@ -120,8 +137,6 @@ int stringToInt(const std::string& value) {
 
 void Channel::setMode(const std::string& mode, const std::string& value)
 {
-    // modes[mode] = value;
-    // std::cout << "Channel mode " << mode << " set to " << value << " in channel " << name << std::endl;
      if (mode == "i") {
         inviteOnly = (value == "1");
         std::cout << "Invite-only mode " << (inviteOnly ? "enabled" : "disabled") << " in channel " << name << std::endl;
@@ -153,6 +168,65 @@ std::string Channel::getMode(const std::string& mode) const
     if (it != modes.end())
         return (it->second);
     return ("");
+}
+
+bool Channel::isEmpty() const
+{
+    return clients.empty();
+}
+
+bool Channel::isClientInChannel(Client* client) const
+{
+    return std::find(clients.begin(), clients.end(), client) != clients.end();
+}
+
+void Channel::joinChannel(Client* client, const std::string& password)
+{
+    if (std::find(clients.begin(), clients.end(), client) != clients.end()) {
+        client->sendMessage("Error: You are already in the channel " + name);
+        return;
+    }
+    // check invite
+    if (inviteOnly) {
+        if (!client->isInvited(client, this))
+        {
+            client->sendMessage("Error: You need an invitation to join " + name);
+            return;
+        }
+    }
+    // check password
+    if (!Ch_pwd.empty() && Ch_pwd != password) {
+        client->sendMessage("Error: Incorrect password for channel " + name);
+        return;
+    }
+    // check amount of clients
+    if (clients.size() >= static_cast<std::size_t>(userLimits)) {
+        client->sendMessage("Error: Channel is full!");
+        return;
+    }
+    clients.push_back(client);
+    client->addChannel(this);
+    broadcastMessage(client->getNickname() + " has joined the channel " + name);
+    std::cout << "Client " << client->getNickname() << " successfully joined channel " << name << std::endl;
+}
+
+
+void Channel::partChannel(Client* client, const std::string& message)
+{
+    std::vector<Client*>::iterator it = std::find(clients.begin(), clients.end(), client);
+    if (it == clients.end()) {
+        client->sendMessage("Error: You are not in the channel " + name);
+        return;
+    }
+    std::string partMessage = client->getNickname() + " has left the channel " + name;
+    if (!message.empty()) {
+        partMessage += " (" + message + ")";
+    }
+    broadcastMessage(partMessage);
+    clients.erase(it);
+    client->removeChannel(this);
+
+    std::cout << "Client " << client->getNickname() << " has left channel " << name << std::endl;
 }
 
 

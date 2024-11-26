@@ -93,3 +93,32 @@ void handleModeCmd(Client* operatorClient, const std::string& channelName, const
     channel->setMode(mode, value);
     operatorClient->sendMessage("Mode updated successfully.");
 }
+
+void handleJoinCmd(Client* client, const std::string& channelName, const std::string& password, std::vector<Channel*>& channels) {
+    Channel* channel = findChannelByName(channels, channelName);
+    if (!channel) {
+        channel = new Channel(channelName);
+        channel->addOperator(client); //channel creator becomes operator automatically
+        channels.push_back(channel);
+    }
+    channel->joinChannel(client, password);
+}
+
+void handlePartCmd(Client* client, const std::string& channelName, const std::string& message, std::vector<Channel*>& channels){
+    Channel* channel = findChannelByName(channels, channelName);
+    if (!channel) {
+        client->sendMessage("Error: Channel " + channelName + " does not exist.");
+        return;
+    }
+    if (!channel->isClientInChannel(client)) {
+        client->sendMessage("Error: You are not in the channel " + channelName);
+        return;
+    }
+    channel->partChannel(client, message);
+
+    //if no one in the channel->delete channel
+    if (channel->isEmpty()) {
+        channels.erase(std::remove(channels.begin(), channels.end(), channel), channels.end());
+        delete channel;
+    }
+}

@@ -33,15 +33,10 @@ void Client::addChannel(Channel* ch)
     channels.push_back(ch);
 }
 
-void Client::removeChannel(Channel* ch)
-{
-    for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it)
-    {
-        if (*it == ch)
-        {
-            channels.erase(it);
-            break ;
-        }
+void Client::removeChannel(Channel* channel) {
+    std::vector<Channel*>::iterator it = std::find(channels.begin(), channels.end(), channel);
+    if (it != channels.end()) {
+        channels.erase(it);
     }
 }
 
@@ -78,4 +73,21 @@ void Client::Send()
 int Client::getFd() const
 {
     return client_fd;
+}
+
+bool Client::isInvited(Client* client, Channel* channel)
+{
+    if (!client || !channel) {
+        return false;
+    }
+
+    const std::vector<Client*>& invitedClients = channel->getInvitedClients();
+
+    for (std::vector<Client*>::const_iterator it = invitedClients.begin(); it != invitedClients.end(); ++it) {
+        if (*it == client) {
+            return true;
+        }
+    }
+
+    return false;
 }

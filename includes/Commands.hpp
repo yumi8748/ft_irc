@@ -16,5 +16,8 @@ void handleKickCmd(Client* operatorClient, const std::string& targetNickname, co
 void handleInviteCmd(Client* operatorClient, const std::string& targetNickname, const std::string& channelName, const std::vector<Channel*>& channels, const std::vector<Client*>& clients);
 void handleTopicCmd(Client* operatorClient, const std::string& channelName, const std::string& newTopic, const std::vector<Channel*>& channels);
 void handleModeCmd(Client* operatorClient, const std::string& channelName, const std::string& mode, const std::string& value, const std::vector<Channel*>& channels);
+void handleJoinCmd(Client* client, const std::string& channelName, const std::string& password, std::vector<Channel*>& channels);
+void handlePartCmd(Client* client, const std::string& channelName, const std::string& message, std::vector<Channel*>& channels);
+
 
 #endif

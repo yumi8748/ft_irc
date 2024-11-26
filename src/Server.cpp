@@ -18,13 +18,16 @@ void Server::InitServer(){
   else
     return;
   while (_sig == 0){
-  if ((poll(&_fds[0], _fds.size(), -1) == -1) && _sig == 0)
-    perror("poll");
-  for (size_t i = 0; i < _fds.size(); i++){
-    if (_fds[i].revents & POLLIN) // comparing bitmasks, POLLIN == 0001, if it is true, there is data to read
-      AcceptClient(); // ACCEPT CLIENT HERE? CHECK IF CLIENT? UNSURE
-    //else
-      // WHAT ELSE?
+    HERE("while")
+    if ((poll(&_fds[0], _fds.size(), -1) == -1) && _sig == 0)
+      throw ErrThrow("Poll error");
+    HERE("poll")
+    for (size_t i = 0; i < _fds.size(); i++){
+      std::cout<<".";
+      if (_fds[i].revents & POLLIN) // comparing bitmasks, POLLIN == 0001, if it is true, there is data to read
+        AcceptClient(); // ACCEPT CLIENT HERE? CHECK IF CLIENT? UNSURE
+      //else
+        // WHAT ELSE?JO
     }
   }
 }
@@ -43,13 +46,15 @@ void Server::InitSockets(){
   // SOCKET OPTIONS AND BIND
   int enable = 1;
   if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)) < 0) // speeds up restart times
-    return CloseMessage("setsockopt"); 
+    throw ErrThrow("SetSockOpt error");
   if (bind(_fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) // bind to address and port in addr
-    return (CloseMessage("bind"));
-  if (fcntl(_fd, F_SETFL, O_NONBLOCK) < 0) // fd operations are returned instantly
-    return CloseMessage("fcntl");
+    throw ErrThrow("Bind error");
+  if (fcntl(_fd, F_SETFL, O_NONBLOCK) < 0) // fd operations are reaaed instantly
+    throw ErrThrow("Fcntl error");
+  HERE("fcntl")
   if (listen(_fd, SOMAXCONN) < 0)
-    return CloseMessage("listen");
+    throw ErrThrow("Listen error");
+  HERE("listen")
 
   // ADDING TO THE POLL VECTOR
   struct pollfd pollNew;
@@ -76,14 +81,15 @@ void Server::AcceptClient(){
   pollNew.revents = 0;
   _fds.push_back(pollNew);
   // client.do_stuff?
-  // _clients.push_back(client);
+  client.setFd(lisFd);
+  _clients.push_back(client);
   // ADD TO CLIENT VECTOR?
 }
 
 void Server::ReceiveData(int fd){
   char buf[1024] = {0};
   ssize_t recData = recv(fd, buf, sizeof(buf) - 1, 0);
-  if (recData < 0){
+  if (recData <= 0){
     CloseClients(fd);
     close(fd);
     // maybe put close in closeClients?

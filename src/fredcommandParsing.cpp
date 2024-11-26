@@ -1,14 +1,14 @@
 #include "../includes/Irc.hpp"
 
-void	Client::setNickname(const std::string &name)
-{
-	this->nick = name;
-}
+// void	Client::setNickname(const std::string &name)
+// {
+// 	this->nick = name;
+// }
 
-const std::string	&Client::getNickname(void) const
-{
-	return this->nick;
-}
+// const std::string	&Client::getNickname(void) const
+// {
+// 	return this->nick;
+// }
 
 void	Server::setNickname(int i, std::string buffer)
 {

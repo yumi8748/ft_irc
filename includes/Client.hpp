@@ -17,17 +17,21 @@ class Client{
         int client_fd;
         std::string recv_buf;
     public:
+        Client(){};
+        ~Client(){};
         Client(int fd);
+        void setFd(int fd);
         void setNickname(const std::string& nickname);
         void setUsername(const std::string& username);
         const std::string& getNickname() const;
         void sendMessage(const std::string &message);
         void addChannel(Channel* ch);
         void removeChannel(Channel* channel);
-        void Recv();
         void Send();
         int getFd() const;
         bool isInvited(Client* client, Channel* channel);
+        
+        // void Recv();
 };
 
 #endif

@@ -49,4 +49,13 @@
 
 #define RESET "\033[0m"
 
+class ErrThrow : public std::exception{
+	private:
+		std::string errMsg;
+	public:
+		ErrThrow(const char* msg) : errMsg(msg){}
+		~ErrThrow() _GLIBCXX_TXN_SAFE_DYN _GLIBCXX_NOTHROW{};
+		const char* what() const throw(){return errMsg.c_str();};
+};
+
 #endif /*IRC_HPP*/

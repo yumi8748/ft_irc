@@ -79,13 +79,13 @@ void	Server::commandParsing(int i, std::string buffer)
 	std::string tmp;
 	std::vector<std::string> string_array;
 
-	// std::cout << string_array.size() << std::endl;
+	std::cout << string_array.size() << std::endl;
 	while (std::getline(ss, tmp, ' '))
 	{
 		string_array.push_back(tmp);
 	}
-	// std::cout << string_array.size() << std::endl;
-	// for_each (string_array.begin(), string_array.end(), printvector);
+	std::cout << string_array.size() << std::endl;
+	for_each (string_array.begin(), string_array.end(), printvector);
 	std::string cmd_array[] = {
 		"/NICK",
 		"/PASS",

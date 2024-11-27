@@ -25,19 +25,20 @@ class Server{
         std::vector<struct pollfd> getfds(void);
 
         // METHODS:
-        void CloseMessage(std::string);
+        void 	CloseMessage(std::string);
         void	commandParsing(int i, std::string buffer);
-	    void	setNickname(int i, std::string buffer);
-	    void	setUsername(int i, std::string buffer);
-	    void	checkPassword(int i, std::string buffer);
-	    void	quitServer(int i, std::string buffer);
-	    void	privateMessage(int i, std::string buffer);
-	    void	joinChannel(int i, std::string buffer);
-	    void	partChannel(int i, std::string buffer);
-	    void	kickChannel(int i, std::string buffer);
-	    void	inviteChannel(int i, std::string buffer);
-	    void	topicChannel(int i, std::string buffer);
-	    void	modeChannel(int i, std::string buffer);
+	    void	cmdNick(int i, std::vector<std::string> string_array);
+	    void	cmdUser(int i, std::vector<std::string> string_array);
+	    void	cmdPass(int i, std::vector<std::string> string_array);
+	    void	cmdQuit(int i, std::vector<std::string> string_array);
+	    void	cmdPrivmsg(int i, std::vector<std::string> string_array);
+	    void	cmdJoin(int i, std::vector<std::string> string_array);
+	    void	cmdPart(int i, std::vector<std::string> string_array);
+	    void	cmdKick(int i, std::vector<std::string> string_array);
+	    void	cmdInvite(int i, std::vector<std::string> string_array);
+	    void	cmdTopic(int i, std::vector<std::string> string_array);
+	    void	cmdMode(int i, std::vector<std::string> string_array);
+		int		isRegistered(int i);
 
     private:
         // VARIABLES:

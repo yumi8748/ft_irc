@@ -2,8 +2,6 @@
 
 Client::Client(int fd): client_fd(fd)
 {
-    nick = "testNick";
-    usr = "testUsr";
     recv_buf = "";
 }
 

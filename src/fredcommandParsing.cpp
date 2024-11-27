@@ -1,72 +1,6 @@
 #include "../includes/Irc.hpp"
 
-// void	Client::setNickname(const std::string &name)
-// {
-// 	this->nick = name;
-// }
-
-// const std::string	&Client::getNickname(void) const
-// {
-// 	return this->nick;
-// }
-
-void	Server::setNickname(int i, std::string buffer)
-{
-	std::cout << "setnickname" << " "  << i << buffer << std::endl;
-	// std::cout << this->_clients[i - 1].getFd() << std::endl;
-	this->_clients[i - 1].setNickname("fred");
-	std::cout << this->_clients[i - 1].getNickname() << std::endl;
-}
-
-void	Server::setUsername(int i, std::string buffer)
-{
-	std::cout << "setusername" << " "  << i << buffer << std::endl;
-}
-
-void	Server::checkPassword(int i, std::string buffer)
-{
-	std::cout << "checkPassword" << " "  << i << buffer << std::endl;
-}
-
-void	Server::quitServer(int i, std::string buffer)
-{
-	std::cout << "quitServer" << " "  << i << buffer << std::endl;
-}
-
-void	Server::privateMessage(int i, std::string buffer)
-{
-	std::cout << "privateMessage" << " "  << i << buffer << std::endl;
-}
-
-void	Server::joinChannel(int i, std::string buffer)
-{
-	std::cout << "joinChannel" << " "  << i << buffer << std::endl;
-}
-
-void	Server::partChannel(int i, std::string buffer)
-{
-	std::cout << "partChannel" << " "  << i << buffer << std::endl;
-}
-
-void	Server::kickChannel(int i, std::string buffer)
-{
-	std::cout << "kickChannel" << " "  << i << buffer << std::endl;
-}
-
-void	Server::inviteChannel(int i, std::string buffer)
-{
-	std::cout << "inviteChannel" << " "  << i << buffer << std::endl;
-}
-
-void	Server::topicChannel(int i, std::string buffer)
-{
-	std::cout << "topicChannel" << " "  << i << buffer << std::endl;
-}
-
-void	Server::modeChannel(int i, std::string buffer)
-{
-	std::cout << "modeChannel" << " " << i << buffer << std::endl;
-}
+// FRED PART --------------------------------------------------------
 
 void printvector (std::string str)
 {
@@ -79,13 +13,13 @@ void	Server::commandParsing(int i, std::string buffer)
 	std::string tmp;
 	std::vector<std::string> string_array;
 
-	std::cout << string_array.size() << std::endl;
+	// std::cout << string_array.size() << std::endl;
 	while (std::getline(ss, tmp, ' '))
 	{
 		string_array.push_back(tmp);
 	}
-	std::cout << string_array.size() << std::endl;
-	for_each (string_array.begin(), string_array.end(), printvector);
+	// std::cout << string_array.size() << std::endl;
+	// for_each (string_array.begin(), string_array.end(), printvector);
 	std::string cmd_array[] = {
 		"/NICK",
 		"/PASS",
@@ -101,6 +35,7 @@ void	Server::commandParsing(int i, std::string buffer)
 	};
 	int len = sizeof(cmd_array) / sizeof(cmd_array[0]);
 	int j = 0;
+	std::cout << string_array[0] << std::endl;
 	while (j < len)
 	{
 		if (cmd_array[j] == string_array[0])
@@ -109,17 +44,134 @@ void	Server::commandParsing(int i, std::string buffer)
 	}
 	switch(j)
 	{
-		case 0: this->setNickname(i, buffer); break;
-		case 1: this->setUsername(i, buffer); break;
-		case 2: this->checkPassword(i, buffer); break;
-		case 3: this->quitServer(i, buffer); break;
-		case 4: this->privateMessage(i, buffer); break;
-		case 5: this->joinChannel(i, buffer); break;
-		case 6: this->partChannel(i, buffer); break;
-		case 7: this->kickChannel(i, buffer); break;
-		case 8: this->inviteChannel(i, buffer); break;
-		case 9: this->topicChannel(i, buffer); break;
-		case 10: this->modeChannel(i, buffer); break;
+		case 0: this->cmdNick(i, string_array); break;
+		case 1: this->cmdPass(i, string_array); break;
+		case 2: this->cmdUser(i, string_array); break;
+		case 3: this->cmdQuit(i, string_array); break;
+		case 4: this->cmdPrivmsg(i, string_array); break;
+		case 5: this->cmdJoin(i, string_array); break;
+		case 6: this->cmdPart(i, string_array); break;
+		case 7: this->cmdKick(i, string_array); break;
+		case 8: this->cmdInvite(i, string_array); break;
+		case 9: this->cmdTopic(i, string_array); break;
+		case 10: this->cmdMode(i, string_array); break;
     default : break;
 	}
 }
+
+int		Server::isRegistered(int i)
+{
+	if (this->_clients[i - 1].getNickname().empty() || this->_clients[i - 1].getUsername().empty())
+	{
+		// std::cout << "reg"   << std::endl;
+		return (0);
+	}
+	else
+	{
+		// std::cout << "not reg"   << std::endl;
+		return (1);
+	}
+}
+
+void	Server::cmdNick(int i, std::vector<std::string> string_array)
+{
+	if (string_array.size() != 2)
+		throw ErrThrow("Argument error");
+	this->_clients[i - 1].setNickname(string_array[1]);
+	std::cout << this->_clients[i - 1].getNickname() << std::endl;
+	// std::cout << this->_clients[i - 1].getFd() << std::endl;
+}
+
+void	Server::cmdUser(int i, std::vector<std::string> string_array)
+{
+	if (string_array.size() != 2)
+		throw ErrThrow("Argument error");
+	this->_clients[i - 1].setUsername(string_array[1]);
+	std::cout << this->_clients[i - 1].getUsername() << std::endl;
+}
+
+void	Server::cmdPass(int i, std::vector<std::string> string_array)
+{
+	std::cout << "checkPassword" << " "  << i << string_array[0] << std::endl;
+}
+
+void	Server::cmdQuit(int i, std::vector<std::string> string_array)
+{
+	std::cout << "quitServer" << " "  << i << string_array[0] << std::endl;
+}
+
+void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array)
+{
+	if (this->isRegistered(i) == 0)
+	{
+		std::cout << "not registered"  << std::endl;
+		return ;
+	}
+	std::cout << "cmdPrivmsg" << " "  << i << string_array[0] << std::endl;
+}
+
+
+
+// YUMI PART --------------------------------------------------------
+
+void	Server::cmdJoin(int i, std::vector<std::string> string_array)
+{
+	if (this->isRegistered(i) == 0)
+	{
+		std::cout << "not registered"  << std::endl;
+		return ;
+	}
+	std::cout << "joinChannel" << " "  << i << string_array[0] << std::endl;
+}
+
+void	Server::cmdPart(int i, std::vector<std::string> string_array)
+{
+	if (this->isRegistered(i) == 0)
+	{
+		std::cout << "not registered"  << std::endl;
+		return ;
+	}
+	std::cout << "partChannel" << " "  << i << string_array[0] << std::endl;
+}
+
+void	Server::cmdKick(int i, std::vector<std::string> string_array)
+{
+	if (this->isRegistered(i) == 0)
+	{
+		std::cout << "not registered"  << std::endl;
+		return ;
+	}
+	std::cout << "kickChannel" << " "  << i << string_array[0] << std::endl;
+}
+
+void	Server::cmdInvite(int i, std::vector<std::string> string_array)
+{
+	if (this->isRegistered(i) == 0)
+	{
+		std::cout << "not registered"  << std::endl;
+		return ;
+	}
+	std::cout << "inviteChannel" << " "  << i << string_array[0] << std::endl;
+}
+
+void	Server::cmdTopic(int i, std::vector<std::string> string_array)
+{
+	if (this->isRegistered(i) == 0)
+	{
+		std::cout << "not registered"  << std::endl;
+		return ;
+	}
+	std::cout << "topicChannel" << " "  << i << string_array[0] << std::endl;
+}
+
+void	Server::cmdMode(int i, std::vector<std::string> string_array)
+{
+	if (this->isRegistered(i) == 0)
+	{
+		std::cout << "not registered"  << std::endl;
+		return ;
+	}
+	std::cout << "modeChannel" << " " << i << string_array[0] << std::endl;
+}
+
+

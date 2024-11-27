@@ -96,7 +96,7 @@ void Server::ReceiveData(int fd, int i){
     // maybe put close in closeClients?
   }
   else{
-    buf[recData - 1] = 0;
+    buf[recData] = 0;
     // parse?
     std::cout << PURPLE << "Client["<<fd<<"]: "<< RESET << buf; 
     std::string buffer(buf);

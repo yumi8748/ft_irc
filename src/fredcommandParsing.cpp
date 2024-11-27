@@ -7,8 +7,13 @@ void printvector (std::string str)
   std::cout << str << std::endl;
 }
 
-void	Server::commandParsing(int i, std::string buffer)
+void	Server::commandParsing(int i, std::string string)
 {
+	// std::cout << "[" << string << "]" << std::endl;
+	std::string buffer = string;
+	int length = string.size();
+	buffer[length - 1] = '\0';
+	// std::cout  << "["  << buffer << "]" << std::endl;
 	std::stringstream ss(buffer);
 	std::string tmp;
 	std::vector<std::string> string_array;
@@ -78,7 +83,7 @@ void	Server::cmdNick(int i, std::vector<std::string> string_array)
 	if (string_array.size() != 2)
 		throw ErrThrow("Argument error");
 	this->_clients[i - 1].setNickname(string_array[1]);
-	std::cout << this->_clients[i - 1].getNickname() << std::endl;
+	// std::cout << this->_clients[i - 1].getNickname() << std::endl;
 	// std::cout << this->_clients[i - 1].getFd() << std::endl;
 }
 

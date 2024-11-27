@@ -11,9 +11,13 @@ void	Server::commandParsing(int i, std::string string)
 {
 	// std::cout << "[" << string << "]" << std::endl;
 	std::string buffer = string;
-	int length = string.size();
-	buffer[length - 1] = '\0';
+	int length = buffer.size();
+	buffer.resize(length - 1);
+	// buffer[length - 1] = '\0';
 	// std::cout  << "["  << buffer << "]" << std::endl;
+	// std::cout << length << std::endl;
+	// std::cout << "[" << buffer.size() << "]" << std::endl;
+
 	std::stringstream ss(buffer);
 	std::string tmp;
 	std::vector<std::string> string_array;
@@ -38,15 +42,27 @@ void	Server::commandParsing(int i, std::string string)
 		"/TOPIC",
 		"/MODE"
 	};
+	// if (cmd_array[5] == string_array[0])
+	// {
+	// 	std::cout << "same" << std::endl;
+	// }
+	// else
+	// {
+	// 	std::cout << "[" << string_array[0].size() << "]" << std::endl;
+	// 	std::cout << "[" << cmd_array[5].size() << "]" << std::endl;
+	// 	std::cout << "different" << std::endl;
+	// }
+
 	int len = sizeof(cmd_array) / sizeof(cmd_array[0]);
 	int j = 0;
-	// std::cout << string_array[0] << std::endl;
+	// std::cout << "[" << string_array[0] << "]" << std::endl;
 	while (j < len)
 	{
 		if (cmd_array[j] == string_array[0])
 			break;
 		j++;
 	}
+	// std::cout << j << std::endl;
 	switch(j)
 	{
 		case 0: this->cmdNick(i, string_array); break;

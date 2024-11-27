@@ -100,7 +100,7 @@ void Server::ReceiveData(int fd, int i){
     // parse?
     std::cout << PURPLE << "Client["<<fd<<"]: "<< RESET << buf; 
     std::string buffer(buf);
-    commandParsing(i, buffer);
+    commandParsing(i, buf);
   }
 }
 

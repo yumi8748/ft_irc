@@ -35,7 +35,7 @@ void	Server::commandParsing(int i, std::string buffer)
 	};
 	int len = sizeof(cmd_array) / sizeof(cmd_array[0]);
 	int j = 0;
-	std::cout << string_array[0] << std::endl;
+	// std::cout << string_array[0] << std::endl;
 	while (j < len)
 	{
 		if (cmd_array[j] == string_array[0])

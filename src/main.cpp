@@ -45,7 +45,7 @@ int main(int ac, char **av){
 	try {
     signal(SIGINT, Server::SigHandler);
     signal(SIGQUIT, Server::SigHandler);
-		server.InitServer();
+		server.InitServer(std::atoi(av[1]), av[2]);
 	}
 	catch (ErrThrow &e){
 		server.CloseServer();

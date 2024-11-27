@@ -5,11 +5,11 @@
 
 class Server{
     public:
-        Server(){_fd = -1; _port = 6667;};
+        Server(){_fd = -1;};
         ~Server(){};
 
         // INITS:
-        void InitServer();
+        void InitServer(int, char*);
         void InitSockets();
 
         // FD:
@@ -44,6 +44,7 @@ class Server{
         // VARIABLES:
         int _port;
         int _fd;
+        std::string _pwd;
         static int _sig;
 
         // VECTORS:

@@ -11,7 +11,10 @@ void Server::SigHandler(int signum){
   _sig = 1;
 }
 
-void Server::InitServer(){
+void Server::InitServer(int port, char *pwd){
+  std::string password(pwd);
+  _pwd = pwd;
+  _port = port;
   InitSockets();
   if (_fd > 0)
     std::cout<<PURPLE<<"Server["<<_fd<<"]"<<GREEN<<" connected successfully"<<RESET<<std::endl;

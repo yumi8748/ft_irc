@@ -62,7 +62,9 @@ void	Server::commandParsing(int i, std::string string)
 
 int		Server::isRegistered(int i)
 {
-	if (this->_clients[i - 1].getNickname().empty() || this->_clients[i - 1].getUsername().empty())
+	if (this->_clients[i - 1].getNickname().empty()
+		|| this->_clients[i - 1].getUsername().empty()
+		|| this->_clients[i - 1].getPasswordIsCorrect() == 0)
 	{
 		return (0);
 	}
@@ -88,9 +90,28 @@ void	Server::cmdUser(int i, std::vector<std::string> string_array)
 	std::cout << "Username saved" << std::endl;
 }
 
+void	Client::setPasswordIsCorrect(void)
+{
+	this->_passwordIsCorrect = 1;
+}
+
+int	Client::getPasswordIsCorrect(void)
+{
+	return(this->_passwordIsCorrect);
+}
+
 void	Server::cmdPass(int i, std::vector<std::string> string_array)
 {
-	std::cout << "cmdPass" << " : "  << i << string_array[0] << std::endl;
+	if (string_array[1] == this->_pwd)
+	{
+		this->_clients[i - 1].setPasswordIsCorrect();
+		std::cout << "Password is correct" << std::endl;
+	}
+	else
+	{
+		std::cout << "Incorrect password" << std::endl;
+	}
+	// std::cout << "cmdPass" << " : "  << i << string_array[0] << std::endl;
 }
 
 void	Server::cmdQuit(int i, std::vector<std::string> string_array)

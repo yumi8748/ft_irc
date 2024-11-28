@@ -10,7 +10,7 @@ CMP		= 1
 CLEAR 	= @clear
 
 SRC_DIR := src
-SOURCES := main.cpp Channel.cpp Client.cpp Commands.cpp
+SOURCES := main.cpp Channel.cpp Client.cpp Commands.cpp Server.cpp fredcommandParsing.cpp
 SRC		:= $(addprefix $(SRC_DIR)/, $(SOURCES))
 
 OBJ_DIR := .objs

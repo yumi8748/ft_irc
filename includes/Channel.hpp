@@ -1,19 +1,17 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
-#include <string>
-#include <iostream>
-#include <vector>
-#include <sstream>
-#include <map>
 #include "Client.hpp"
-#include <algorithm>
 #include "Commands.hpp"
+#include "Macros.hpp"
+#include "Server.hpp"
 
 class Client;
+class Server;
 
 class Channel{
     private:
+        Server& server;
         std::string name;
         std::vector<Client*> clients;
         std::vector<Client*> invitedClients;
@@ -25,11 +23,11 @@ class Channel{
         std::string topic;
         std::map<std::string, std::string> modes;
     public:
-        // Channel();
-        // ~Channel();
+        // Channel(){};
+        ~Channel(){};
         // Channel(const Channel &src);
         // Channel &operator=(const Channel &src);
-        Channel(const std::string& n);
+        Channel(const std::string& n, Server& srv);
         const std::string& getName() const;
         void addClient(Client* client);
         void removeClient(Client* client);
@@ -42,7 +40,7 @@ class Channel{
         bool isOperator(Client* client) const;
         void addOperator(Client* client);
         void removeOperator(Client* client);
-        void kickClient(Client* client);
+        void kickClient(Client* client, std::string &reason);
         void inviteClient(Client* client);
         void addInvitedClient(Client* client);
         void removeInvitedClient(Client* client);

@@ -1,16 +1,15 @@
 #ifndef COMMANDS_HPP
 #define COMMANDS_HPP
 
-#include <string>
-#include <vector>
 #include "Client.hpp"
 #include "Channel.hpp"
+#include "Macros.hpp"
 
 class Channel;
 class Client;
 
-Channel* findChannelByName(const std::vector<Channel*>& channels, const std::string& channelName);
-Client* findClientByNickname(const std::vector<Client*>& clients, const std::string& nickname);
+// Channel* findChannelByName(const std::string& channelName);
+// Client* findClientByNickname(const std::vector<Client*>& clients, const std::string& nickname);
 
 void handleKickCmd(Client* operatorClient, const std::string& targetNickname, const std::string& channelName, const std::vector<Channel*>& channels, const std::vector<Client*>& clients);
 void handleInviteCmd(Client* operatorClient, const std::string& targetNickname, const std::string& channelName, const std::vector<Channel*>& channels, const std::vector<Client*>& clients);

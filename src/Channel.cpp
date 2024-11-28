@@ -1,6 +1,6 @@
 #include "../includes/Channel.hpp"
 
-Channel::Channel(const std::string& n): name(n), userLimits(100), topic("")  // limits set to?
+Channel::Channel(const std::string& n, Server& srv): server(srv), name(n), userLimits(100), topic("")  // Server& srv?
 {
 
 }
@@ -75,27 +75,33 @@ void Channel::removeOperator(Client* client)
     }
 }
 
-void Channel::kickClient(Client* client)
+void Channel::kickClient(Client* client, std::string &reason)
 {
     std::vector<Client *>::iterator it = std::find(clients.begin(), clients.end(), client);
-    if (it != clients.end())
-    {
+    if (it != clients.end()) {
+        std::string kickMessage = client->getNickname() + " has been kicked from the channel " + name;
+        
+        if (!reason.empty()) {
+            kickMessage += " (" + reason + ")";
+        }
+        broadcastMessage(kickMessage); // for other clients
         clients.erase(it);
         std::cout << "Client " << client->getNickname() << " has been kicked from channel " << name << "!" << std::endl;
-    }
-    else
+    } else {
         std::cerr << "Client not found in channel " << name << "!" << std::endl;
+    }
 }
 
 void Channel::inviteClient(Client* client)
 {
     if (std::find(clients.begin(), clients.end(), client) != clients.end())
     {
-        std::cerr << "Client " << client->getNickname() << " is already in the channel " << name << std::endl;
+        std::cerr << "Error: You are already in the channel " << name << std::endl;
         return ;
     }
     clients.push_back(client);
-    std::cout << "Client " << client->getNickname() << " has been invited to channel " << name << std::endl;
+    std::string inviteMessage = client->getNickname() + " has been invited to the channel.";
+    broadcastMessage(inviteMessage);
 }
 
 void Channel::addInvitedClient(Client* client) {
@@ -137,29 +143,39 @@ int stringToInt(const std::string& value) {
 
 void Channel::setMode(const std::string& mode, const std::string& value)
 {
-     if (mode == "i") {
+    //!
+    if (mode == "i")
+    {
         inviteOnly = (value == "1");
         std::cout << "Invite-only mode " << (inviteOnly ? "enabled" : "disabled") << " in channel " << name << std::endl;
-    } else if (mode == "t") {
+    }
+    else if (mode == "t")
+    {
         topicRestricted = (value == "1");
         std::cout << "Topic-restricted mode " << (topicRestricted ? "enabled" : "disabled") << " in channel " << name << std::endl;
-    } else if (mode == "k") {
+    }
+    else if (mode == "k")
+    {
         Ch_pwd = value;
         std::cout << "Channel password set to '" << value << "' in channel " << name << std::endl;
-    } else if (mode == "o") {
-        Client* targetClient = findClientByNickname(clients, value);
+    }
+    else if (mode == "o")
+    {
+        Client* targetClient = server.findClientByNickname(value);
         if (targetClient) {
             operators.push_back(targetClient);
             std::cout << "Client " << value << " granted operator privileges in channel " << name << std::endl;
         } else {
             std::cerr << "Error: Client " << value << " not found in channel " << name << std::endl;
         }
-    } else if (mode == "l") {
+    }
+    else if (mode == "l")
+    {
         userLimits = stringToInt(value);
         std::cout << "User limit set to " << userLimits << " in channel " << name << std::endl;
-    } else {
-        std::cerr << "Error: Unknown mode '" << mode << "' in channel " << name << std::endl;
     }
+    else
+        std::cerr << "Error: Unknown mode '" << mode << "' in channel " << name << std::endl;
 }
 
 std::string Channel::getMode(const std::string& mode) const

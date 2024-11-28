@@ -1,10 +1,12 @@
-#include "../includes/Client.hpp"
+#include "../includes/Irc.hpp"
 
 Client::Client(int fd): client_fd(fd)
 {
-    nick = "";
-    usr = "";
     recv_buf = "";
+}
+
+void Client::setFd(int fd){
+    client_fd = fd;
 }
 
 void Client::setNickname(const std::string& nickname)
@@ -22,6 +24,10 @@ const std::string& Client::getNickname() const
     return (nick);
 }
 
+const std::string& Client::getUsername() const
+{
+    return (usr);
+}
 void Client::sendMessage(const std::string &message)
 {
     if (send(client_fd, message.c_str(), message.length(), 0) == -1)
@@ -40,23 +46,23 @@ void Client::removeChannel(Channel* channel) {
     }
 }
 
-void Client::Recv()
-{
-    char buf[1024];
-    int bytes_received = recv(client_fd, buf, sizeof(buf) - 1, 0);
-    if (bytes_received > 0)
-    {
-        buf[bytes_received] = '\0';
-        recv_buf += buf;
-    }
-    else if (bytes_received == 0)
-    {
-        close(client_fd);
-        client_fd = -1;
-    }
-    else
-        perror("recv");
-}
+// void Client::Recv()
+// {
+//     char buf[1024];
+//     int bytes_received = recv(client_fd, buf, sizeof(buf) - 1, 0);
+//     if (bytes_received > 0)
+//     {
+//         buf[bytes_received] = '\0';
+//         recv_buf += buf;
+//     }
+//     else if (bytes_received == 0)
+//     {
+//         close(client_fd);
+//         client_fd = -1;
+//     }
+//     else
+//         perror("recv");
+// }
 
 void Client::Send()
 {

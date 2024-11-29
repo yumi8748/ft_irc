@@ -123,14 +123,26 @@ void	Server::cmdQuit(int i, std::vector<std::string> string_array)
 	std::cout<<PURPLE<<"Client["<< fd <<"]"<<RED<<" has disconnected"<<RESET<<std::endl;
 }
 
+std::vector<Client> _clients;
+
 void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array)
 {
-	if (this->isRegistered(i) == 0)
+	// if (this->isRegistered(i) == 0)
+	// {
+	// 	std::cout << "Client not registered"  << std::endl;
+	// 	return ;
+	// }
+
+	for (std::vector<Client>::iterator it = this->_clients.begin(); it != _clients.end(); it++)
 	{
-		std::cout << "Client not registered"  << std::endl;
-		return ;
+		if ((*it).getNickname() == string_array[1])
+		{
+			std::string msg = "[" + this->_clients[i - 1].getNickname() + "] :";
+			std::cout << msg << std::endl;
+			send((*it).getFd(), msg.c_str(), msg.length(), 0);
+			send((*it).getFd(), string_array[2].c_str(), string_array[2].length(), 0);
+		}
 	}
-	std::cout << "cmdPrivmsg" << " : " << string_array[0] << std::endl;
 }
 
 

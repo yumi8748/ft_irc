@@ -149,14 +149,79 @@ void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array)
 
 // YUMI PART --------------------------------------------------------
 
+std::vector<Client*> Channel::getClients(void)
+{
+	return this->clients;
+}
+
+std::string Client::getName(void)
+{
+	return this->nick;
+}
+
 void	Server::cmdJoin(int i, std::vector<std::string> string_array)
 {
-	if (this->isRegistered(i) == 0)
+	// if (this->isRegistered(i) == 0)
+	// {
+	// 	std::cout << "Client not registered"  << std::endl;
+	// 	return ;
+	// }
+	// Channel* channel = findChannelByName(channels, channelName);
+    // if (!channel) {
+    //     channel = new Channel(channelName);
+    //     channel->addOperator(client); //channel creator becomes operator automatically
+    //     channels.push_back(channel);
+    // }
+    // channel->joinChannel(client, password);
+
+	int done = 0;
+
+	std::cout << this->_channels.size() << std::endl;
+	if (this->_channels.size() == 0)
 	{
-		std::cout << "Client not registered"  << std::endl;
-		return ;
+		Channel newchannel(string_array[1].c_str());
+		newchannel.addClient(&this->_clients[i - 1]);
+		_channels.push_back(newchannel);
+		std::cout << "new channel" << std::endl;
+		done = 1;
 	}
-	std::cout << "cmdJoin" << " : " << string_array[0] << std::endl;
+
+	if (done == 0)
+	{
+		int exists = 0;
+		for (std::vector<Channel>::iterator it = this->_channels.begin(); it != _channels.end(); it++)
+		{
+			// std::cout << "enter" << std::endl;
+			if ((*it).getName() == string_array[1])
+			{
+				(*it).addClient(&this->_clients[i - 1]);
+				std::cout << "existing channel" << std::endl;
+				exists = 1;
+				break;
+			}
+		}
+		if (exists == 0)
+		{
+			Channel newchannel(string_array[1].c_str());
+			newchannel.addClient(&this->_clients[i - 1]);
+			_channels.push_back(newchannel);
+			std::cout << "new channel" << std::endl;
+		}
+	}
+	
+
+	std::cout << "\ncheck channel" << std::endl;
+	for (std::vector<Channel>::iterator it = this->_channels.begin(); it != _channels.end(); it++)
+	{
+		std::cout << (*it).getName() << std::endl;
+
+		std::cout << (*it).getClients().size() << std::endl;
+		// for (std::vector<Client *>::iterator ito = (*it)->getClients().begin(); ito != (*it)->getClients().end(); ito++)
+		// {
+			// std::cout << (*ito)->getName() << std::endl;
+		// }
+
+	}
 }
 
 void	Server::cmdPart(int i, std::vector<std::string> string_array)

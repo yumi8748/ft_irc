@@ -37,6 +37,8 @@ class Client{
 		void setPasswordIsCorrect(void);
 		int getPasswordIsCorrect(void);
         // void Recv();
+
+		std::string getName(void);
 };
 
 #endif

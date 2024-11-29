@@ -132,17 +132,48 @@ void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array)
 	// 	std::cout << "Client not registered"  << std::endl;
 	// 	return ;
 	// }
-
-	for (std::vector<Client>::iterator it = this->_clients.begin(); it != _clients.end(); it++)
+	std::vector<Channel>::iterator it;
+	if (string_array[1][0] == '#')
 	{
-		if ((*it).getNickname() == string_array[1])
+		for (it = this->_channels.begin(); it != _channels.end(); it++)
 		{
-			std::string msg = "[" + this->_clients[i - 1].getNickname() + "] :";
-			std::cout << msg << std::endl;
-			send((*it).getFd(), msg.c_str(), msg.length(), 0);
-			send((*it).getFd(), string_array[2].c_str(), string_array[2].length(), 0);
+			// std::cout << "enter" << std::endl;
+			// std::cout << (*it).getName() << std::endl;
+			if ((*it).getName() == string_array[1])
+			{
+				// (*it).addClient(&this->_clients[i - 1]);
+
+				std::cout << "found channel" << std::endl;
+				// exists = 1;
+				// for (ito = (*it).getClients().begin(); ito != (*it).getClients().end(); ito++)
+				// {
+				// 	std::cout << (*ito)->getUsername() << std::endl;
+				// }
+				int j = 0;
+				while (j < static_cast<int>((*it).getClients().size()))
+				{
+					std::string msg = "[" + this->_clients[i - 1].getNickname() + "] : " + string_array[2] + "\n";
+					send((*it).getClients()[j]->getFd(), msg.c_str(), msg.length(), 0);
+					j++;
+				}
+				break;
+			}
 		}
 	}
+	else
+	{
+		for (std::vector<Client>::iterator it = this->_clients.begin(); it != _clients.end(); it++)
+		{
+			if ((*it).getNickname() == string_array[1])
+			{
+				std::string msg = "[" + this->_clients[i - 1].getNickname() + "] :";
+				std::cout << msg << std::endl;
+				send((*it).getFd(), msg.c_str(), msg.length(), 0);
+				send((*it).getFd(), string_array[2].c_str(), string_array[2].length(), 0);
+			}
+		}
+	}
+	
 }
 
 
@@ -216,6 +247,13 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array)
 		std::cout << (*it).getName() << std::endl;
 
 		std::cout << (*it).getClients().size() << std::endl;
+		i = 0;
+		while (i < static_cast<int>((*it).getClients().size()))
+		{
+			// std::cout << (*it).getClients()[i].getFd()<<std::endl;
+			std::cout << (*it).getClients()[i]->getFd() << std::endl;
+			i++;
+		}
 		// for (std::vector<Client *>::iterator ito = (*it)->getClients().begin(); ito != (*it)->getClients().end(); ito++)
 		// {
 			// std::cout << (*ito)->getName() << std::endl;

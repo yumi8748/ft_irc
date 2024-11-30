@@ -102,16 +102,31 @@ int	Client::getPasswordIsCorrect(void)
 
 void	Server::cmdPass(int i, std::vector<std::string> string_array)
 {
-	if (string_array[1] == this->_pwd)
+	std::ostringstream str1;
+	str1 << this->_clients[i - 1].getFd();
+	std::string fd_string = str1.str();
+	std::string msg;
+	if (string_array.size() != 2)
 	{
-		this->_clients[i - 1].setPasswordIsCorrect();
-		std::cout << "Password is correct" << std::endl;
+		msg = "[Error 461] client " + fd_string + " cmd PASS : Wrong number of parameters\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+		return;
 	}
-	else
+	else if (this->_clients[i - 1].getNickname().empty() == 0 && this->_clients[i - 1].getUsername().empty() == 0)
 	{
-		std::cout << "Incorrect password" << std::endl;
+		msg = "[Error 462] client " + fd_string + " : You may not reregister\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+		return;
 	}
-	// std::cout << "cmdPass" << " : "  << i << string_array[0] << std::endl;
+	else if (string_array[1] != this->_pwd)
+	{
+		msg = "[Error 464] client " + fd_string + " : Password incorrect\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+		return;
+	}	
+	this->_clients[i - 1].setPasswordIsCorrect();
+	msg = "Success : Password is correct\n";
+	send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 }
 
 void	Server::cmdQuit(int i, std::vector<std::string> string_array)

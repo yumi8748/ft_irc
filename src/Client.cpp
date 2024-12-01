@@ -98,3 +98,8 @@ bool Client::isInvited(Client* client, Channel* channel)
 
     return false;
 }
+
+std::string Client::getName(void)
+{
+	return this->nick;
+}

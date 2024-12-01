@@ -229,4 +229,7 @@ void Channel::partChannel(Client* client, const std::string& message)
     std::cout << "Client " << client->getNickname() << " has left channel " << name << std::endl;
 }
 
-
+std::vector<Client*> Channel::getClients(void)
+{
+	return this->clients;
+}

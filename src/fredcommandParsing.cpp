@@ -49,7 +49,7 @@ void	Server::commandParsing(int i, std::string string)
 		case 1: this->cmdPass(i, string_array); break;
 		case 2: this->cmdUser(i, string_array); break;
 		case 3: this->cmdQuit(i, string_array); break;
-		case 4: this->cmdPrivmsg(i, string_array); break;
+		case 4: this->cmdPrivmsg(i, string_array, buffer); break;
 		case 5: this->cmdJoin(i, string_array); break;
 		case 6: this->cmdPart(i, string_array); break;
 		case 7: this->cmdKick(i, string_array); break;
@@ -195,15 +195,19 @@ void	Server::cmdQuit(int i, std::vector<std::string> string_array)
 
 std::vector<Client> _clients;
 
-void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array)
+void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array, std::string buffer)
 {
 	// if (this->isRegistered(i) == 0)
 	// {
 	// 	std::cout << "Client not registered"  << std::endl;
 	// 	return ;
 	// }
+	std::string message;
 	if (string_array[1][0] == '#')
 	{
+		int pos = buffer.find("#");
+		int pos2 = buffer.find(" ", pos) + 1;
+		message = buffer.substr(pos2);
 		for (std::vector<Channel>::iterator it = this->_channels.begin(); it != _channels.end(); it++)
 		{
 			if ((*it).getName() == string_array[1])
@@ -211,7 +215,7 @@ void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array)
 				int j = 0;
 				while (j < static_cast<int>((*it).getClients().size()))
 				{
-					std::string msg = "[" + this->_clients[i - 1].getNickname() + "] : " + string_array[2] + "\n";
+					std::string msg = "[" + this->_clients[i - 1].getNickname() + "] : " + message + "\n";
 					send((*it).getClients()[j]->getFd(), msg.c_str(), msg.length(), 0);
 					j++;
 				}
@@ -221,18 +225,20 @@ void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array)
 	}
 	else
 	{
+		int pos = buffer.find(string_array[1]);
+		int pos2 = buffer.find(" ", pos) + 1;
+		message = buffer.substr(pos2);
 		for (std::vector<Client>::iterator it = this->_clients.begin(); it != _clients.end(); it++)
 		{
 			if ((*it).getNickname() == string_array[1])
 			{
-				std::string msg = "[" + this->_clients[i - 1].getNickname() + "] :";
-				std::cout << msg << std::endl;
+				std::string msg = "[" + this->_clients[i - 1].getNickname() + "] : " + message + "\n";
+				// std::cout << msg << std::endl;
 				send((*it).getFd(), msg.c_str(), msg.length(), 0);
-				send((*it).getFd(), string_array[2].c_str(), string_array[2].length(), 0);
+				// send((*it).getFd(), string_array[2].c_str(), string_array[2].length(), 0);
 			}
 		}
 	}
-	
 }
 
 

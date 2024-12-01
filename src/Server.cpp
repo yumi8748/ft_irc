@@ -129,3 +129,13 @@ void Server::CloseMessage(std::string errMsg){
   std::cout << RED << "ERROR\n" << YELLOW << errMsg << RESET;
   return;
 }
+
+std::vector<Channel> Server::getChannels(void)
+{
+	return this->_channels;
+}
+
+std::vector<Client> Server::getClients(void)
+{
+	return this->_clients;
+}

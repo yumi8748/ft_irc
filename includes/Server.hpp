@@ -23,6 +23,8 @@ class Server{
 	    
         // GTRS/STRS
         std::vector<struct pollfd> getfds(void);
+		std::vector<Channel> getChannels(void);
+		std::vector<Client> getClients(void);
 
         // METHODS:
         void 	CloseMessage(std::string);

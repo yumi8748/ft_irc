@@ -3,6 +3,9 @@
 #include "Macros.hpp"
 #include "Client.hpp"
 
+class Channel;
+class Client;
+
 class Server{
     public:
         Server(){_fd = -1;};
@@ -23,8 +26,6 @@ class Server{
 	    
         // GTRS/STRS
         std::vector<struct pollfd> getfds(void);
-		std::vector<Channel> getChannels(void);
-		std::vector<Client> getClients(void);
 
         // METHODS:
         void 	CloseMessage(std::string);
@@ -33,7 +34,7 @@ class Server{
 	    void	cmdUser(int i, std::vector<std::string> string_array);
 	    void	cmdPass(int i, std::vector<std::string> string_array);
 	    void	cmdQuit(int i, std::vector<std::string> string_array);
-	    void	cmdPrivmsg(int i, std::vector<std::string> string_array, std::string string);
+	    void	cmdPrivmsg(int i, std::vector<std::string> string_array);
 	    void	cmdJoin(int i, std::vector<std::string> string_array);
 	    void	cmdPart(int i, std::vector<std::string> string_array);
 	    void	cmdKick(int i, std::vector<std::string> string_array);
@@ -41,6 +42,11 @@ class Server{
 	    void	cmdTopic(int i, std::vector<std::string> string_array);
 	    void	cmdMode(int i, std::vector<std::string> string_array);
 		int		isRegistered(int i);
+        //YUMI
+        bool isValidChannelName(const std::string& channelName);
+        Channel* findChannelByName(const std::string& channelName);
+        Client* findClientByNickname(const std::string& nickname);
+        void setMode(const std::string& mode, const std::string& value);
 
     private:
         // VARIABLES:
@@ -52,8 +58,7 @@ class Server{
         // VECTORS:
         std::vector<struct pollfd> _fds;
         std::vector<Client> _clients;
-
-		std::vector<Channel> _channels;
+        std::vector<Channel *> _channels;
 };
 
 #endif /*SERVER_HPP*/

@@ -29,7 +29,7 @@ void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array, std::strin
 		int k = 0;
 		while (k < static_cast<int>(getChannels().size()))
 		{
-			if (getChannels()[k].getName() == string_array[1])
+			if (getChannels()[k]->getName() == string_array[1])
 				break;
 			k++;
 		}
@@ -40,20 +40,20 @@ void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array, std::strin
 			return;
 		}
 
-		for (std::vector<Channel>::iterator it = this->_channels.begin(); it != _channels.end(); it++)
+		for (std::vector<Channel *>::iterator it = this->_channels.begin(); it != _channels.end(); it++)
 		{
-			if ((*it).getName() == string_array[1])
+			if ((*it)->getName() == string_array[1])
 			{
 				int k = 0;
 				// std::cout << "[" << this->_clients[i - 1].getNickname() << "]" << std::endl;
-				while (k < static_cast<int>((*it).getClients().size()))
+				while (k < static_cast<int>((*it)->getClients().size()))
 				{
-					if ((*it).getClients()[k]->getNickname() == this->_clients[i - 1].getNickname())
+					if ((*it)->getClients()[k]->getNickname() == this->_clients[i - 1].getNickname())
 						break;
 					k++;
 				}
 				// std::cout << k << " vs " << (*it).getClients().size() << std::endl;
-				if (k == static_cast<int>((*it).getClients().size()))
+				if (k == static_cast<int>((*it)->getClients().size()))
 				{
 					msg = "[Error 404] client " + fd_string + " " + string_array[1] + " : Cannot send to channel\n";
 					send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
@@ -64,10 +64,10 @@ void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array, std::strin
 				
 				
 				int j = 0;
-				while (j < static_cast<int>((*it).getClients().size()))
+				while (j < static_cast<int>((*it)->getClients().size()))
 				{
 					std::string msg = "[" + this->_clients[i - 1].getNickname() + "] : " + message + "\n";
-					send((*it).getClients()[j]->getFd(), msg.c_str(), msg.length(), 0);
+					send((*it)->getClients()[j]->getFd(), msg.c_str(), msg.length(), 0);
 					j++;
 				}
 				break;

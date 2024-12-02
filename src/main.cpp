@@ -39,8 +39,10 @@ int close_and_ret(std::string msg, int srv, int cli){
 
 
 int main(int ac, char **av){
-	if (ac != 3)
+	if (ac != 3){
+		std::cout << "Error: input format: ./ircserv <port> <password>" << std::endl;
 		return 1; // handle return msg
+	}
 	Server server;
 	try {
     signal(SIGINT, Server::SigHandler);

@@ -9,10 +9,10 @@ void printvector (std::string str)
 
 void	Server::commandParsing(int i, std::string string)
 {
-	std::string buffer = string;
-	int length = buffer.size();
-	buffer.resize(length - 1);
-	std::stringstream ss(buffer);
+	size_t pos = string.find("\\");
+	if (pos != std::string::npos)
+		string = string.substr(0, pos);
+	std::stringstream ss(string);
 	std::string tmp;
 	std::vector<std::string> string_array;
 
@@ -22,17 +22,17 @@ void	Server::commandParsing(int i, std::string string)
 	}
 
 	std::string cmd_array[] = {
-		"/NICK",
-		"/PASS",
-		"/USER",
-		"/QUIT",
-		"/PRIVMSG",
-		"/JOIN",
-		"/PART",
-		"/KICK",
-		"/INVITE",
-		"/TOPIC",
-		"/MODE"
+		"NICK",
+		"PASS",
+		"USER",
+		"QUIT",
+		"PRIVMSG",
+		"JOIN",
+		"PART",
+		"KICK",
+		"INVITE",
+		"TOPIC",
+		"MODE"
 	};
 
 	int len = sizeof(cmd_array) / sizeof(cmd_array[0]);
@@ -43,6 +43,7 @@ void	Server::commandParsing(int i, std::string string)
 			break;
 		j++;
 	}
+	std::cout << YELLOW << string_array[1] << RESET << std::endl;
 	switch(j)
 	{
 		case 0: this->cmdNick(i, string_array); break;
@@ -52,7 +53,7 @@ void	Server::commandParsing(int i, std::string string)
         Channel* findChannelByName(const std::string& channelName);
         Client* findClientByNickname(const std::string& nickname);
         void setMode(const std::string& mode, const std::string& value);
-		case 4: this->cmdPrivmsg(i, string_array); break;
+		case 4: this->cmdPrivmsg(i, string_array, string); break;
 		case 5: this->cmdJoin(i, string_array); break;
 		case 6: this->cmdPart(i, string_array); break;
 		case 7: this->cmdKick(i, string_array); break;
@@ -77,41 +78,6 @@ int		Server::isRegistered(int i)
 	}
 }
 
-void	Server::cmdNick(int i, std::vector<std::string> string_array)
-{
-	if (string_array.size() != 2)
-		throw ErrThrow("Argument error");
-	this->_clients[i - 1].setNickname(string_array[1]);
-	std::cout << "Nickname saved" << std::endl;
-}
-
-void	Server::cmdUser(int i, std::vector<std::string> string_array)
-{
-	if (string_array.size() != 2)
-		throw ErrThrow("Argument error");
-	this->_clients[i - 1].setUsername(string_array[1]);
-	std::cout << "Username saved" << std::endl;
-}
-
-void	Server::cmdPass(int i, std::vector<std::string> string_array)
-{
-	std::cout << "cmdPass" << " : "  << i << string_array[0] << std::endl;
-}
-
-void	Server::cmdQuit(int i, std::vector<std::string> string_array)
-{
-	std::cout << "cmdQuit" << " : "  << i << string_array[0] << std::endl;
-}
-
-void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array)
-{
-	if (this->isRegistered(i) == 0)
-	{
-		std::cout << "Client not registered"  << std::endl;
-		return ;
-	}
-	std::cout << "cmdPrivmsg" << " : " << string_array[0] << std::endl;
-}
 bool isValidChannelName(const std::string& channelName);
         Channel* findChannelByName(const std::string& channelName);
         Client* findClientByNickname(const std::string& nickname);

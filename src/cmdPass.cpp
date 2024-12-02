@@ -34,6 +34,7 @@ void	Server::cmdPass(int i, std::vector<std::string> string_array)
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		return;
 	}	
+	std::cout << string_array[1] << std::endl;
 	this->_clients[i - 1].setPasswordIsCorrect();
 	msg = "Success : Password is correct\n";
 	send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);

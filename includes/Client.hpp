@@ -12,6 +12,7 @@ class Client{
     private:
         std::string nick;
         std::string usr;
+        std::string buffer; // take the message until \r\n
         std::vector<Channel*> channels;
         std::vector<Channel*> joinedChannels; // 用戶加入的頻道
         int client_fd;

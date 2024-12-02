@@ -9,6 +9,7 @@ int Server::_sig = 0;
 void Server::SigHandler(int signum){
   (void)signum;
   _sig = 1;
+  std::cout << ": " RED "QUIT input received\n";
 }
 
 void Server::InitServer(int port, char *pwd){

@@ -33,3 +33,4 @@ void	Server::cmdUser(int i, std::vector<std::string> string_array)
 	msg = "Success : Username is saved\n";
 	send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 }
+

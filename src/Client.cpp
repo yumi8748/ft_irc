@@ -6,6 +6,15 @@ Client::Client(int fd): client_fd(fd), _passwordIsCorrect(0)
     recv_buf = "";
 }
 
+void Client::updateBuffer(std::string str){
+	std::cout << "STRING UPDATE: " RED << str << std::endl;
+	_buffer = str;	
+}
+
+std::string Client::getBuffer(){
+	return _buffer;
+}
+
 void Client::setFd(int fd){
     client_fd = fd;
 }

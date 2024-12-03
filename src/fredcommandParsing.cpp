@@ -7,20 +7,24 @@ void printvector (std::string str)
   std::cout << str << std::endl;
 }
 
-void	Server::commandParsing(int i, std::string string)
+void	Server::commandParsing(int i, std::string buf)
 {
-	size_t pos = string.find("\\");
-	if (pos != std::string::npos)
-		string = string.substr(0, pos);
-	std::stringstream ss(string);
-	std::string tmp;
+	Client current = getClient(_fds[i].fd);
 	std::vector<std::string> string_array;
-
-	while (std::getline(ss, tmp, ' '))
-	{
-		string_array.push_back(tmp);
+	std::string::size_type pos = 0;
+	std::string string = current.getBuffer();
+	std::cout << "Before append: " << string << std::endl;
+	string.append(buf);
+	std::cout << "After append: " << string << std::endl;
+	if ((pos = string.find("\r\n")) != std::string::npos){
+		std::string buf = string.substr(0, pos);
+		string_array.push_back(buf);
 	}
-
+	else{
+		current.updateBuffer(string);	
+		return;
+	}
+	std::cout<<GREEN "Full message received by " YELLOW "Client "<<current.getFd() <<GREEN ": " RESET << string << std::endl;
 	std::string cmd_array[] = {
 		"NICK",
 		"PASS",
@@ -39,11 +43,10 @@ void	Server::commandParsing(int i, std::string string)
 	int j = 0;
 	while (j < len)
 	{
-		if (cmd_array[j] == string_array[0])
+		if (cmd_array[j] == string_array.front())
 			break;
 		j++;
 	}
-	std::cout << YELLOW << string_array[1] << RESET << std::endl;
 	switch(j)
 	{
 		case 0: this->cmdNick(i, string_array); break;

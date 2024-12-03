@@ -27,6 +27,7 @@ class Server{
         // GTRS/STRS
         std::vector<Channel *> getChannels();
         std::vector<Client> getClients();
+		Client &getClient(int);
         std::vector<struct pollfd> getfds(void);
 
         // METHODS:

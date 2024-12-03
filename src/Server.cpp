@@ -98,8 +98,6 @@ void Server::ReceiveData(int fd, int i){
   }
   else{
     buf[recData] = 0;
-    // parse?
-    std::cout << PURPLE << "Client["<<fd<<"]: "<< RESET << buf; 
     std::string buffer(buf);
     commandParsing(i, buf);
   }
@@ -139,4 +137,14 @@ std::vector<Channel *> Server::getChannels(void)
 std::vector<Client> Server::getClients(void)
 {
 	return this->_clients;
+}
+
+Client &Server::getClient(int fd){
+	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		if (it->getFd() == fd) {
+			return *it;
+		}
+	}	
+	std::cout << "Client doesn't exist" << std::endl;
+	return _clients[0];
 }

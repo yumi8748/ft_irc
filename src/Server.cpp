@@ -9,6 +9,7 @@ int Server::_sig = 0;
 void Server::SigHandler(int signum){
   (void)signum;
   _sig = 1;
+  std::cout << ": " RED "QUIT input received\n";
 }
 
 void Server::InitServer(int port, char *pwd){
@@ -75,6 +76,7 @@ void Server::AcceptClient(){
   if (lisFd < 0)
     perror("listen");
   Client client(lisFd);
+  std::cout<<PURPLE<<user_id(client.getNickname(), client.getUsername())<<GREEN<<" connected successfully to "<<PURPLE<<"Server["<<_fd<<"]"<<RESET;  
 
   // ADDING TO THE POLL VECTOR
   pollNew.fd = lisFd;
@@ -84,7 +86,6 @@ void Server::AcceptClient(){
   // client.do_stuff?
   client.setFd(lisFd);
   _clients.push_back(client);
-  std::cout<<PURPLE<<user_id(client.getNickname(), client.getUsername())<<GREEN<<" connected successfully to "<<PURPLE<<"Server["<<_fd<<"]"<<RESET;  
 }
 
 void Server::ReceiveData(int fd, int i){
@@ -128,4 +129,14 @@ void Server::CloseMessage(std::string errMsg){
   _fd = -1;
   std::cout << RED << "ERROR\n" << YELLOW << errMsg << RESET;
   return;
+}
+
+std::vector<Channel *> Server::getChannels(void)
+{
+	return _channels;
+}
+
+std::vector<Client> Server::getClients(void)
+{
+	return this->_clients;
 }

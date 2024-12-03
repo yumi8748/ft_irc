@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <map>
 #include <algorithm>
+#include <string>
 
 #include <poll.h>
 #include <signal.h>

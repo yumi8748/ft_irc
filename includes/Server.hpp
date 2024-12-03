@@ -25,6 +25,8 @@ class Server{
         void ReceiveData(int, int);
 	    
         // GTRS/STRS
+        std::vector<Channel *> getChannels();
+        std::vector<Client> getClients();
         std::vector<struct pollfd> getfds(void);
 
         // METHODS:
@@ -34,7 +36,7 @@ class Server{
 	    void	cmdUser(int i, std::vector<std::string> string_array);
 	    void	cmdPass(int i, std::vector<std::string> string_array);
 	    void	cmdQuit(int i, std::vector<std::string> string_array);
-	    void	cmdPrivmsg(int i, std::vector<std::string> string_array);
+	    void	cmdPrivmsg(int, std::vector<std::string>, std::string);
 	    void	cmdJoin(int i, std::vector<std::string> string_array);
 	    void	cmdPart(int i, std::vector<std::string> string_array);
 	    void	cmdKick(int i, std::vector<std::string> string_array);

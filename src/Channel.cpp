@@ -35,7 +35,7 @@ void Channel::removeClient(Client* client)
     std::cerr << "Client not found in the channel!" << std::endl;;
 }
 
-void Channel::broadcastMessage(std::string msg)
+void Channel::broadcastMessage(std::string msg) //server msg
 {
     for (size_t i = 0; i < clients.size(); ++i)
     {
@@ -245,4 +245,7 @@ void Channel::partChannel(Client* client, const std::string& message)
     std::cout << "Client " << client->getNickname() << " has left channel " << name << std::endl;
 }
 
-
+std::vector<Client*> Channel::getClients(void)
+{
+	return this->clients;
+}

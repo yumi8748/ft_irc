@@ -51,6 +51,9 @@ class Channel{
         std::string getTopic() const;
         void setMode(const std::string& mode, const std::string& value);
         std::string getMode(const std::string& mode) const;
+
+
+		std::vector<Client*> getClients(void);
 };
 
 

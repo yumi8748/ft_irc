@@ -21,6 +21,12 @@ void	Server::commandParsing(int i, std::string string)
 		string_array.push_back(tmp);
 	}
 
+	if (string_array.empty()) // empty command
+	{
+		std::cerr << "Error: Empty command received" << std::endl;
+		return;
+	}
+
 	std::string cmd_array[] = {
 		"/NICK",
 		"/PASS",
@@ -43,13 +49,27 @@ void	Server::commandParsing(int i, std::string string)
 			break;
 		j++;
 	}
+
+	if (j >= len)
+    {
+        std::cerr << "Error: Unrecognized command [" << string_array[0] << "]." << std::endl;
+        return;
+    }
+	
+	if (string_array.size() > 1)
+    	std::cout << YELLOW << string_array[1] << RESET << std::endl;
+	else
+	{
+    	string_array.push_back("");
+	}
+
 	switch(j)
 	{
 		case 0: this->cmdNick(i, string_array); break;
 		case 1: this->cmdPass(i, string_array); break;
 		case 2: this->cmdUser(i, string_array); break;
 		case 3: this->cmdQuit(i, string_array); break;
-		case 4: this->cmdPrivmsg(i, string_array); break;
+		case 4: this->cmdPrivmsg(i, string_array, string); break;
 		case 5: this->cmdJoin(i, string_array); break;
 		case 6: this->cmdPart(i, string_array); break;
 		case 7: this->cmdKick(i, string_array); break;
@@ -62,7 +82,9 @@ void	Server::commandParsing(int i, std::string string)
 
 int		Server::isRegistered(int i)
 {
-	if (this->_clients[i - 1].getNickname().empty() || this->_clients[i - 1].getUsername().empty())
+	if (this->_clients[i - 1].getNickname().empty()
+		|| this->_clients[i - 1].getUsername().empty()
+		|| this->_clients[i - 1].getPasswordIsCorrect() == 0)
 	{
 		return (0);
 	}
@@ -71,44 +93,6 @@ int		Server::isRegistered(int i)
 		return (1);
 	}
 }
-
-void	Server::cmdNick(int i, std::vector<std::string> string_array)
-{
-	if (string_array.size() != 2)
-		throw ErrThrow("Argument error");
-	this->_clients[i - 1].setNickname(string_array[1]);
-	std::cout << "Nickname saved" << std::endl;
-}
-
-void	Server::cmdUser(int i, std::vector<std::string> string_array)
-{
-	if (string_array.size() != 2)
-		throw ErrThrow("Argument error");
-	this->_clients[i - 1].setUsername(string_array[1]);
-	std::cout << "Username saved" << std::endl;
-}
-
-void	Server::cmdPass(int i, std::vector<std::string> string_array)
-{
-	std::cout << "cmdPass" << " : "  << i << string_array[0] << std::endl;
-}
-
-void	Server::cmdQuit(int i, std::vector<std::string> string_array)
-{
-	std::cout << "cmdQuit" << " : "  << i << string_array[0] << std::endl;
-}
-
-void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array)
-{
-	if (this->isRegistered(i) == 0)
-	{
-		std::cout << "Client not registered"  << std::endl;
-		return ;
-	}
-	std::cout << "cmdPrivmsg" << " : " << string_array[0] << std::endl;
-}
-
-
 
 // YUMI PART --------------------------------------------------------
 
@@ -276,7 +260,7 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
 
     if (string_array.size() < 3)
     {
-        this->_clients[i].sendMessage("Error: INVITE command requires at least two arguments: <nickname> <channel>");
+        this->_clients[i - 1].sendMessage("Error: INVITE command requires at least two arguments: <nickname> <channel>");
         return;
     }
 
@@ -286,57 +270,84 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
     Channel* channel = findChannelByName(channelName);
     if (!channel)
     {
-        this->_clients[i].sendMessage("Error: Channel " + channelName + " not found.");
+        this->_clients[i - 1].sendMessage("Error: Channel " + channelName + " not found.");
         return;
     }
 
-    if (!channel->isOperator(&this->_clients[i]))
+    if (!channel->isOperator(&this->_clients[i - 1]))
     {
-        this->_clients[i].sendMessage("Error: You are not an operator in this channel.");
+        this->_clients[i - 1].sendMessage("Error: You are not an operator in this channel.");
         return;
     }
 
     Client* targetClient = findClientByNickname(targetNickname);
     if (!targetClient)
     {
-        this->_clients[i].sendMessage("Error: Target client " + targetNickname + " not found.");
+        this->_clients[i - 1].sendMessage("Error: Target client " + targetNickname + " not found.");
         return;
     }
     channel->inviteClient(targetClient);
 }
 
-void	Server::cmdTopic(int i, std::vector<std::string> string_array)
+void Server::cmdTopic(int i, std::vector<std::string> string_array)
 {
-	if (this->isRegistered(i) == 0)
-	{
-		std::cout << "Client not registered" << std::endl;
-		return ;
-	}
-	std::cout << "cmdTopic" << " : " << string_array[0] << std::endl;
-
-    if (string_array.size() < 2)
+    if (this->isRegistered(i) == 0)
     {
-        this->_clients[i].sendMessage("Error: TOPIC command requires a channel name.");
+        std::cout << "Client not registered" << std::endl;
         return;
     }
 
-	std::string channelName = string_array[1];
-    std::string newTopic = (string_array.size() > 2) ? string_array[2] : ""; // parameter with new_topic
+    if (string_array.size() < 2)
+    {
+        this->_clients[i - 1].sendMessage("Error: TOPIC command requires a channel name.");
+        return;
+    }
 
-	Channel* channel = findChannelByName(channelName);
-	if (!channel)
-	{
-		this->_clients[i].sendMessage("Error: Channel " + channelName + " not found.");
-		return ;
-	}
+    std::string channelName = string_array[1];
+    Channel* channel = findChannelByName(channelName);
+    if (!channel)
+    {
+        this->_clients[i - 1].sendMessage("Error: Channel " + channelName + " not found.");
+        return;
+    }
 
-	if (!channel->isOperator(&this->_clients[i]))
-	{
-		this->_clients[i].sendMessage("Error: You are not an operator in this channel.");
-		return ;
-	}
-    channel->setTopic(newTopic);
-	this->_clients[i].sendMessage("Topic updated successfully.");
+    if (!channel->isOperator(&this->_clients[i - 1]))
+    {
+        this->_clients[i - 1].sendMessage("Error: You are not an operator in this channel.");
+        return;
+    }
+
+    // check topic
+    if (string_array.size() == 2)
+    {
+        std::string currentTopic = channel->getTopic();
+        if (currentTopic.empty())
+        {
+            this->_clients[i - 1].sendMessage("Current topic is: No topic set.");
+        }
+        else
+        {
+            this->_clients[i - 1].sendMessage("Current topic: " + currentTopic);
+        }
+        return;
+    }
+
+	//join multiple parameters as new topic
+    if (string_array.size() > 2)
+    {
+        std::string newTopic;
+        for (size_t j = 2; j < string_array.size(); ++j)
+        {
+            newTopic += string_array[j] + " ";
+        }
+        newTopic = newTopic.substr(0, newTopic.size() - 1);
+        channel->setTopic(newTopic);
+        this->_clients[i - 1].sendMessage("Topic updated successfully.");
+    }
+    else
+    {
+        this->_clients[i - 1].sendMessage("Error: Incorrect number of parameters.");
+    }
 }
 
 void	Server::cmdMode(int i, std::vector<std::string> string_array)
@@ -349,7 +360,7 @@ void	Server::cmdMode(int i, std::vector<std::string> string_array)
     std::cout << "cmdMode" << " : " << string_array[0] << std::endl;
     if (string_array.size() < 3)
     {
-        this->_clients[i].sendMessage("Error: MODE command requires a channel name, mode, and value.");
+        this->_clients[i - 1].sendMessage("Error: MODE command requires a channel name, mode, and value.");
         return;
     }
     std::string channelName = string_array[1];
@@ -359,16 +370,16 @@ void	Server::cmdMode(int i, std::vector<std::string> string_array)
     Channel* channel = findChannelByName(channelName);
     if (!channel)
     {
-        this->_clients[i].sendMessage("Error: Channel " + channelName + " not found.");
+        this->_clients[i - 1].sendMessage("Error: Channel " + channelName + " not found.");
         return;
     }
-    if (!channel->isOperator(&this->_clients[i]))
+    if (!channel->isOperator(&this->_clients[i - 1]))
     {
-        this->_clients[i].sendMessage("Error: You are not an operator in this channel.");
+        this->_clients[i - 1].sendMessage("Error: You are not an operator in this channel.");
         return;
     }
     channel->setMode(mode, extra_cmd);
-    this->_clients[i].sendMessage("Mode updated successfully.");
+    this->_clients[i - 1].sendMessage("Mode updated successfully.");
 }
 
 

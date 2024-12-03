@@ -12,10 +12,13 @@ class Client{
     private:
         std::string nick;
         std::string usr;
+        std::string buffer; // take the message until \r\n
         std::vector<Channel*> channels;
         std::vector<Channel*> joinedChannels; // 用戶加入的頻道
         int client_fd;
         std::string recv_buf;
+
+		int _passwordIsCorrect;
     public:
         Client(){};
         ~Client(){};
@@ -32,7 +35,11 @@ class Client{
         int getFd() const;
         bool isInvited(Client* client, Channel* channel);
         
+		void setPasswordIsCorrect(void);
+		int getPasswordIsCorrect(void);
         // void Recv();
+
+		std::string getName(void);
 };
 
 #endif

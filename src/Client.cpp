@@ -1,6 +1,7 @@
 #include "../includes/Irc.hpp"
 
-Client::Client(int fd): client_fd(fd)
+Client::Client(int fd): client_fd(fd), _passwordIsCorrect(0)
+// Client::Client(int fd): client_fd(fd)
 {
     recv_buf = "";
 }
@@ -30,7 +31,14 @@ const std::string& Client::getUsername() const
 }
 void Client::sendMessage(const std::string &message)
 {
-    if (send(client_fd, message.c_str(), message.length(), 0) == -1)
+    if (client_fd <= 0)
+    {
+        std::cerr << "Error: Invalid client_fd for client." << std::endl;
+        return;
+    }
+    
+    std::string formattedMessage = message + "\r\n";
+    if (send(client_fd, formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
         perror("send");
 }
 
@@ -96,4 +104,9 @@ bool Client::isInvited(Client* client, Channel* channel)
     }
 
     return false;
+}
+
+std::string Client::getName(void)
+{
+	return this->nick;
 }

@@ -10,15 +10,15 @@ void Client::setFd(int fd){
     client_fd = fd;
 }
 
-void Client::setNickname(const std::string& nickname)
-{
-    nick = nickname;
-}
+// void Client::setNickname(const std::string& nickname)
+// {
+//     nick = nickname;
+// }
 
-void Client::setUsername(const std::string& username)
-{
-    usr = username;
-}
+// void Client::setUsername(const std::string& username)
+// {
+//     usr = username;
+// }
 
 const std::string& Client::getNickname() const
 {
@@ -29,23 +29,23 @@ const std::string& Client::getUsername() const
 {
     return (usr);
 }
-void Client::sendMessage(const std::string &message)
-{
-    if (send(client_fd, message.c_str(), message.length(), 0) == -1)
-        perror("send");
-}
+// void Client::sendMessage(const std::string &message)
+// {
+//     if (send(client_fd, message.c_str(), message.length(), 0) == -1)
+//         perror("send");
+// }
 
-void Client::addChannel(Channel* ch)
-{
-    channels.push_back(ch);
-}
+// void Client::addChannel(Channel* ch)
+// {
+//     channels.push_back(ch);
+// }
 
-void Client::removeChannel(Channel* channel) {
-    std::vector<Channel*>::iterator it = std::find(channels.begin(), channels.end(), channel);
-    if (it != channels.end()) {
-        channels.erase(it);
-    }
-}
+// void Client::removeChannel(Channel* channel) {
+//     std::vector<Channel*>::iterator it = std::find(channels.begin(), channels.end(), channel);
+//     if (it != channels.end()) {
+//         channels.erase(it);
+//     }
+// }
 
 // void Client::Recv()
 // {
@@ -65,41 +65,41 @@ void Client::removeChannel(Channel* channel) {
 //         perror("recv");
 // }
 
-void Client::Send()
-{
-    if (!recv_buf.empty())
-    {
-        int bytes_sent = send(client_fd, recv_buf.c_str(), recv_buf.length(), 0);
-        if (bytes_sent > 0)
-            recv_buf.erase(bytes_sent); //Erases part of the string
-        else
-            perror("send");
-    }
-}
+// void Client::Send()
+// {
+//     if (!recv_buf.empty())
+//     {
+//         int bytes_sent = send(client_fd, recv_buf.c_str(), recv_buf.length(), 0);
+//         if (bytes_sent > 0)
+//             recv_buf.erase(bytes_sent); //Erases part of the string
+//         else
+//             perror("send");
+//     }
+// }
 
 int Client::getFd() const
 {
     return client_fd;
 }
 
-bool Client::isInvited(Client* client, Channel* channel)
-{
-    if (!client || !channel) {
-        return false;
-    }
+// bool Client::isInvited(Client* client, Channel* channel)
+// {
+//     if (!client || !channel) {
+//         return false;
+//     }
 
-    const std::vector<Client*>& invitedClients = channel->getInvitedClients();
+//     const std::vector<Client*>& invitedClients = channel->getInvitedClients();
 
-    for (std::vector<Client*>::const_iterator it = invitedClients.begin(); it != invitedClients.end(); ++it) {
-        if (*it == client) {
-            return true;
-        }
-    }
+//     for (std::vector<Client*>::const_iterator it = invitedClients.begin(); it != invitedClients.end(); ++it) {
+//         if (*it == client) {
+//             return true;
+//         }
+//     }
 
-    return false;
-}
+//     return false;
+// }
 
-std::string Client::getName(void)
-{
-	return this->nick;
-}
+// std::string Client::getName(void)
+// {
+// 	return this->nick;
+// }

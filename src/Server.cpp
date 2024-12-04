@@ -76,7 +76,7 @@ void Server::AcceptClient(){
   if (lisFd < 0)
     perror("listen");
   Client client(lisFd);
-  std::cout<<PURPLE<<user_id(client.getNickname(), client.getUsername())<<GREEN<<" connected successfully to "<<PURPLE<<"Server["<<_fd<<"]"<<RESET;  
+  std::cout<<PURPLE<<user_id(client.getNickname(), client.getUsername())<<GREEN<<" connected successfully to "<<PURPLE<<"Server["<<_fd<<"]\n"<<RESET;  
 
   // ADDING TO THE POLL VECTOR
   pollNew.fd = lisFd;
@@ -97,11 +97,12 @@ void Server::ReceiveData(int fd, int i){
     // maybe put close in closeClients?
   }
   else{
-    buf[recData] = 0;
+    // buf[recData] = 0;
     // parse?
     std::cout << PURPLE << "Client["<<fd<<"]: "<< RESET << buf; 
-    std::string buffer(buf);
+    // std::string buffer(buf);
     commandParsing(i, buf);
+	// (void)i;
   }
 }
 

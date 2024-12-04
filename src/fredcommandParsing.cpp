@@ -2,7 +2,12 @@
 
 void	Server::commandParsing(int i, std::string string)
 {
-	std::cout << "[" << string << " " << i << "]" << std::endl;
+	// std::cout << "[" << string << " " << i << "]" << std::endl;
+	this->_clients[i - 1].setBuffer(string);
+	std::cout << "[" << this->_clients[i - 1].getBuffer() << "]" << std::endl;
+	if (this->_clients[i - 1].getBuffer().find_first_not_of("\r\n") == std::string::npos)
+		return;
+	
 }
 
 // // FRED PART --------------------------------------------------------

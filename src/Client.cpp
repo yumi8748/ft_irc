@@ -103,3 +103,13 @@ int Client::getFd() const
 // {
 // 	return this->nick;
 // }
+
+void	Client::setBuffer(std::string str)
+{
+	this->buffer = str;
+}
+
+std::string	Client::getBuffer(void)
+{
+	return(this->buffer);
+}

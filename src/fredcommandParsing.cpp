@@ -13,9 +13,10 @@ void	Server::commandParsing(int i, std::string buf)
 	std::vector<std::string> string_array;
 	std::string::size_type pos = 0;
 	std::string string = current.getBuffer();
-	std::cout << "Before append: " << string << std::endl;
+	std::cout << "Before append: " << string << " | Client " << current.getFd() << std::endl;
 	string.append(buf);
 	std::cout << "After append: " << string << std::endl;
+	// handle empty buffers? large messages? multiple \r\n??
 	if ((pos = string.find("\r\n")) != std::string::npos){
 		std::string buf = string.substr(0, pos);
 		string_array.push_back(buf);

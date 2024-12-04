@@ -27,9 +27,10 @@ class Client{
         void setNickname(const std::string& nickname);
         void setUsername(const std::string& username);
 		void updateBuffer(const std::string);
+		std::string getBuffer();
+		void clearBuffer();
         const std::string& getNickname() const;
         const std::string& getUsername() const;
-		std::string getBuffer();
         void sendMessage(const std::string &message);
         void addChannel(Channel* ch);
         void removeChannel(Channel* channel);

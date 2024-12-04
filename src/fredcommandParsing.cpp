@@ -151,7 +151,6 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array) // parameter:
 		this->_channels.push_back(channel);
 	}
 	channel->joinChannel(&this->_clients[i - 1], pwd); //handle in channel
-
 }
 
 void	Server::cmdPart(int i, std::vector<std::string> string_array) //parameter: 1channel, reason
@@ -170,16 +169,16 @@ void	Server::cmdPart(int i, std::vector<std::string> string_array) //parameter: 
 	std::string reason = string_array.size() > 2 ? string_array[2] : "";
 	if (!isValidChannelName(channelName))
 	{
-		this->_clients[i].sendMessage("Error: Invalid channel name. Channel names must start with '#' and no space allowed.");
+		this->_clients[i - 1].sendMessage("Error: Invalid channel name. Channel names must start with '#' and no space allowed.");
 		return ;
 	}
 	Channel *channel = findChannelByName(channelName);
 	if (!channel)
 	{
-		this->_clients[i].sendMessage("Error: Channel " + channelName + " does not exist.");
+		this->_clients[i - 1].sendMessage("Error: Channel " + channelName + " does not exist.");
 		return ;
 	}
-	if (!channel->isClientInChannel(&_clients[i]))
+	if (!channel->isClientInChannel(&_clients[i - 1]))
 	{
 		this->_clients[i].sendMessage("Error: You are not in the channel " + channelName);
 		return ;
@@ -199,7 +198,7 @@ void	Server::cmdPart(int i, std::vector<std::string> string_array) //parameter: 
 		}
 		delete channel;
 	}
-	std::cout << "Client[" << i << "] parted from channel " << channelName << std::endl;
+	std::cout << "Client[" << i - 1 << "] parted from channel " << channelName << std::endl;
 }
 
 //
@@ -378,7 +377,7 @@ void	Server::cmdMode(int i, std::vector<std::string> string_array)
         this->_clients[i - 1].sendMessage("Error: You are not an operator in this channel.");
         return;
     }
-    channel->setMode(mode, extra_cmd);
+    channel->setMode(mode, extra_cmd, &_clients[i - 1]);
     this->_clients[i - 1].sendMessage("Mode updated successfully.");
 }
 

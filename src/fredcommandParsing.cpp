@@ -38,8 +38,8 @@ void	Server::cmdNick(int i, std::vector<std::string> string_array)
 	else if (this->_clients[i - 1].getIsLogged())
 	{
 		this->_clients[i - 1].setOldNick(this->_clients[i - 1].getNickname());
-		std::string msg = ":"  + this->_clients[i - 1].getOldNick() +  " NICK " + string_array[1] + "\r\n";
-		// std::string msg = ":"  + this->_clients[i - 1].getOldNick() + "!" + this->_clients[i - 1].getUsername() +  "@localhost NICK " + string_array[1] + "\r\n";
+		// std::string msg = ":"  + this->_clients[i - 1].getOldNick() +  " NICK " + string_array[1] + "\r\n";
+		std::string msg = ":"  + this->_clients[i - 1].getOldNick() + "!" + this->_clients[i - 1].getUsername() +  "@localhost NICK " + string_array[1] + "\r\n";
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		this->_clients[i - 1].setNickname(string_array[1]);
 	}
@@ -47,8 +47,8 @@ void	Server::cmdNick(int i, std::vector<std::string> string_array)
 	{
 		this->_clients[i - 1].setNickname(string_array[1]);
 		this->_clients[i - 1].setOldNick(string_array[1]);
-		std::string msg = ":"  + this->_clients[i - 1].getOldNick() +  " NICK " + string_array[1] + "\r\n";
-		// std::string msg = ":"  + this->_clients[i - 1].getOldNick() + "!" + this->_clients[i - 1].getUsername() +  "@localhost NICK " + string_array[1] + "\r\n";
+		// std::string msg = ":"  + this->_clients[i - 1].getOldNick() +  " NICK " + string_array[1] + "\r\n";
+		std::string msg = ":"  + this->_clients[i - 1].getOldNick() + "!" + this->_clients[i - 1].getUsername() +  "@localhost NICK " + string_array[1] + "\r\n";
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		checkRegistration(i);
 	}

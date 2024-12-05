@@ -6,6 +6,12 @@ void	Server::cmdNick(int i, std::vector<std::string> string_array)
 	str1 << this->_clients[i - 1].getFd();
 	std::string fd_string = str1.str();
 	std::string msg;
+	if (string_array[1].empty())
+	{
+		msg = "client " + fd_string + " : No nick name provided\n";
+        send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+        return;
+	}
 	if (string_array.size() != 2)
 	{
 		msg = "[Error 431] client " + fd_string + " : Wrong number of parameters\n";

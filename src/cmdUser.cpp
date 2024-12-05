@@ -29,6 +29,12 @@ void	Server::cmdUser(int i, std::vector<std::string> string_array)
 		}
 		j++;
 	}
+	if (string_array[1].empty())
+	{
+		msg = " client " + fd_string + " : No user name provided\n";
+        send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+        return;
+	}
 	this->_clients[i - 1].setUsername(string_array[1]);
 	// std::cout << "client user:" << _clients[i - 1].getUsername() << std::endl;
 	msg = "Success : Username is saved\n";

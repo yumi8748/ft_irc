@@ -1,6 +1,6 @@
 #include "../includes/Irc.hpp"
 
-Client::Client(int fd): client_fd(fd), _passwordIsCorrect(0)
+Client::Client(int fd): client_fd(fd), _passwordIsCorrect(0), _isLogged(0)
 // Client::Client(int fd): client_fd(fd)
 {
     recv_buf = "";
@@ -10,15 +10,15 @@ void Client::setFd(int fd){
     client_fd = fd;
 }
 
-// void Client::setNickname(const std::string& nickname)
-// {
-//     nick = nickname;
-// }
+void Client::setNickname(const std::string& nickname)
+{
+    nick = nickname;
+}
 
-// void Client::setUsername(const std::string& username)
-// {
-//     usr = username;
-// }
+void Client::setUsername(const std::string& username)
+{
+    usr = username;
+}
 
 const std::string& Client::getNickname() const
 {
@@ -106,10 +106,30 @@ int Client::getFd() const
 
 void	Client::setBuffer(std::string str)
 {
-	this->buffer = str;
+	this->buffer = this->buffer + str;
 }
 
-std::string	Client::getBuffer(void)
+std::string &	Client::getBuffer(void)
 {
 	return(this->buffer);
 }
+
+void	Client::setPasswordIsCorrect(void)
+{
+	this->_passwordIsCorrect = 1;
+}
+
+int	Client::getPasswordIsCorrect(void)
+{
+	return(this->_passwordIsCorrect);
+}
+
+ void Client::setIsLogged(void)
+ {
+    _isLogged = 1;
+ }
+
+ int Client::getIsLogged(void)
+ {
+    return _isLogged;
+ }

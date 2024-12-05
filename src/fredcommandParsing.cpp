@@ -1,14 +1,136 @@
 #include "../includes/Irc.hpp"
 
+void	Server::cmdPass(int i, std::vector<std::string> string_array)
+{
+	if (string_array[1] == _pwd)
+	{
+		this->_clients[i - 1].setPasswordIsCorrect();
+		std::string msg = "Success : Password is correct\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+
+		if (!this->_clients[i - 1].getNickname().empty()
+		&& !this->_clients[i - 1].getUsername().empty()
+		&& this->_clients[i - 1].getPasswordIsCorrect()
+		&& !this->_clients[i - 1].getIsLogged())
+		{
+			this->_clients[i - 1].setIsLogged();
+			std::string messfinal = ":localhost 001 " + this->_clients[i - 1].getNickname() + " :Welcome to the Internet Relay Network :" + this->_clients[i - 1].getNickname() + "!ftanon@localhost\r\n";
+			send(this->_fds[i].fd, messfinal.c_str(), messfinal.size(), 0);	
+		}
+	}	
+}
+
+
+void	Server::cmdNick(int i, std::vector<std::string> string_array)
+{
+	this->_clients[i - 1].setNickname(string_array[1]);
+	std::string msg = "Success : Nickname is saved\n";
+	send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+
+	if (!this->_clients[i - 1].getNickname().empty()
+	&& !this->_clients[i - 1].getUsername().empty()
+	&& this->_clients[i - 1].getPasswordIsCorrect()
+	&& !this->_clients[i - 1].getIsLogged())
+	{
+		this->_clients[i - 1].setIsLogged();
+		std::string messfinal = ":localhost 001 " + this->_clients[i - 1].getNickname() + " :Welcome to the Internet Relay Network :" + this->_clients[i - 1].getNickname() + "!ftanon@localhost\r\n";
+		send(this->_fds[i].fd, messfinal.c_str(), messfinal.size(), 0);	
+	}
+}
+
+void	Server::cmdUser(int i, std::vector<std::string> string_array)
+{
+	this->_clients[i - 1].setUsername(string_array[1]);
+	std::string msg = "Success : Username is saved\n";
+	send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+
+	if (!this->_clients[i - 1].getNickname().empty()
+	&& !this->_clients[i - 1].getUsername().empty()
+	&& this->_clients[i - 1].getPasswordIsCorrect()
+	&& !this->_clients[i - 1].getIsLogged())
+	{
+		this->_clients[i - 1].setIsLogged();
+		std::string messfinal = ":localhost 001 " + this->_clients[i - 1].getNickname() + " :Welcome to the Internet Relay Network :" + this->_clients[i - 1].getNickname() + "!ftanon@localhost\r\n";
+		send(this->_fds[i].fd, messfinal.c_str(), messfinal.size(), 0);	
+	}
+}
+
+void	Server::parseLine(std::string line, int i)
+{
+	std::vector<std::string> line_splitted;
+
+	std::stringstream ss(line);
+	std::string tmp;
+	char del = ' ';
+
+ 	while(std::getline(ss, tmp, del))
+	{
+		line_splitted.push_back(tmp);
+	}
+	std::cout << line_splitted.size() << std::endl;
+	if (line_splitted[1] == "LS")
+	{
+		std::string msg = "CAP * LS\r\n";
+		send(this->_fds[i].fd, msg.c_str(), msg.length(), 0);
+	}
+	else if (line_splitted[0] == "NICK")
+		cmdNick(i, line_splitted);
+	else if (line_splitted[0] == "PASS")
+		cmdPass(i, line_splitted);
+	else if (line_splitted[0] == "USER")
+		cmdUser(i, line_splitted);
+}
+
 void	Server::commandParsing(int i, std::string string)
 {
 	// std::cout << "[" << string << " " << i << "]" << std::endl;
 	this->_clients[i - 1].setBuffer(string);
 	std::cout << "[" << this->_clients[i - 1].getBuffer() << "]" << std::endl;
-	if (this->_clients[i - 1].getBuffer().find_first_not_of("\r\n") == std::string::npos)
+	if (this->_clients[i - 1].getBuffer().find("\r\n") == std::string::npos)
+	{
+		// test when ctrl+D (eof), it should accumulate buffer
+		std::cout << "/r/n not present"<< std::endl;
 		return;
+	}
+	else
+		std::cout << "/r/n present"<< std::endl;
 	
+	std::vector<std::string> string_array;
+	std::stringstream ss(this->_clients[i - 1].getBuffer());
+	std::string line;
+	std::string tmp;
+
+ 	while(std::getline(ss, line))
+	{
+		size_t pos = line.find_first_of("\r\n");
+		string_array.push_back(line.substr(0,pos));
+	}
+
+	// std::vector<std::string>::iterator it;
+	// for (it = string_array.begin(); it != string_array.end(); it++)
+	// {
+	// 	std::cout << *it  << std::endl;
+	// }
+
+	for (size_t j =0; j < string_array.size(); j++)
+	{
+		parseLine(string_array[j], i);
+	}
+	this->_clients[i - 1].getBuffer().clear();
+	std::cout << "clear" <<  this->_clients[i - 1].getBuffer() <<std::endl;
+	// std::vector<std::string> string_array;
+	// std::string str;
+	// size_t pos = str.find_first_of("\r\n");
+	
+	// while (pos != std::string::npos)
+	// {
+	// 	string_array.push_back(str.substr(0,pos));
+	// 	str.erase(0, pos + )
+	// }
 }
+
+
+
 
 // // FRED PART --------------------------------------------------------
 

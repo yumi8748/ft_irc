@@ -44,6 +44,7 @@ class Server{
 	    void	cmdTopic(int i, std::vector<std::string> string_array);
 	    void	cmdMode(int i, std::vector<std::string> string_array);
 		int		isRegistered(int i);
+        void	parseLine(std::string line, int i);
         //YUMI
         bool isValidChannelName(const std::string& channelName);
         Channel* findChannelByName(const std::string& channelName);

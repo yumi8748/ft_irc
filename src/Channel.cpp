@@ -2,6 +2,11 @@
 
 // Channel::Channel(const std::string& n, Server& srv): server(srv), name(n), userLimits(100), topic("")  // Server& srv?
 // {
+Channel::Channel(const std::string& n, Server& srv)
+:server(srv), name(n), clients(), invitedClients()
+, operators(), Ch_pwd(""), inviteOnly(false), topicRestricted(false)
+, userLimits(100), topic(""), modes()
+{
 
 // }
 
@@ -35,6 +40,7 @@
 //     std::cerr << "Client not found in the channel!" << std::endl;;
 // }
 
+<<<<<<< HEAD
 // void Channel::broadcastMessage(std::string msg)
 // {
 //     for (size_t i = 0; i < clients.size(); ++i)
@@ -42,6 +48,15 @@
 //         clients[i]->sendMessage(msg);
 //     }
 // }
+=======
+void Channel::broadcastMessage(std::string msg) //server msg
+{
+    for (size_t i = 0; i < clients.size(); ++i)
+    {
+        clients[i]->sendMessage(msg);
+    }
+}
+>>>>>>> origin/yu-chen
 
 // void Channel::changeCh_pwd(std::string newCh_pwd)
 // {
@@ -74,6 +89,32 @@
 //         }
 //     }
 // }
+void Channel::addOperator(Client* client)
+{
+    if (client == NULL)
+    {
+        std::cerr << "Error: Cannot add a null client as operator." << std::endl;
+        return;
+    }
+    if (!isOperator(client))
+    {
+        operators.push_back(client);
+        std::cout << "Added operator: " << client->getName() << std::endl;
+    }
+    else
+    {
+        std::cout << "Client is already an operator: " << client->getName() << std::endl;
+    }
+}
+void Channel::removeOperator(Client* client)
+{
+    for (std::vector<Client*>::iterator it = operators.begin(); it != operators.end(); ++it) {
+        if (*it == client) {
+            operators.erase(it);
+            break;
+        }
+    }
+}
 
 // void Channel::kickClient(Client* client, std::string &reason)
 // {
@@ -177,6 +218,127 @@
 //     else
 //         std::cerr << "Error: Unknown mode '" << mode << "' in channel " << name << std::endl;
 // }
+std::string intToString(int num)
+{
+    if (num == 0) return "0";
+    std::string result;
+    bool isNegative = (num < 0);
+    if (isNegative) num = -num;
+
+    while (num > 0)
+    {
+        result.insert(result.begin(), '0' + (num % 10));
+        num /= 10;
+    }
+
+    if (isNegative) result.insert(result.begin(), '-');
+    return result;
+}
+
+void Channel::setMode(const std::string& modeStr, const std::string& value, Client* client)
+{
+    if (modeStr.empty())
+    {
+        client->sendMessage("Error: No mode specified for channel " + name);
+        return;
+    }
+
+    char operation = modeStr[0]; // '+' or '-'
+    if (operation != '+' && operation != '-')
+    {
+        client->sendMessage("Error: Mode must start with '+' or '-' in channel " + name);
+        return;
+    }
+
+    // Apply modes one by one
+    for (size_t i = 1; i < modeStr.size(); ++i)
+    {
+        char mode = modeStr[i];
+        switch (mode)
+        {
+            case 'i': // Invite-only
+                inviteOnly = (operation == '+');
+                client->sendMessage("Invite-only mode " + std::string(inviteOnly ? "enabled" : "disabled") + " in channel " + name);
+                break;
+
+            case 't': // Topic restrictions
+                topicRestricted = (operation == '+');
+                client->sendMessage("Topic-restricted mode " + std::string(topicRestricted ? "enabled" : "disabled") + " in channel " + name);
+                break;
+
+            case 'k': // Channel password
+                if (operation == '+')
+                {
+                    Ch_pwd = value;
+                    client->sendMessage("Channel password set to '" + value + "' in channel " + name);
+                }
+                else
+                {
+                    Ch_pwd.clear();
+                    client->sendMessage("Channel password removed in channel " + name);
+                }
+                break;
+
+            case 'o': // Operator privileges
+            {
+                Client* targetClient = server.findClientByNickname(value);
+                if (!targetClient)
+                {
+                    client->sendMessage("Error: Client " + value + " not found for mode 'o' in channel " + name);
+                    break;
+                }
+
+                if (operation == '+')
+                {
+                    if (!isOperator(client))
+                    {
+                        client->sendMessage("Error: You are not an operator in this channel.");
+                        break;
+                    }
+
+                    if (!isOperator(targetClient))
+                    {
+                        addOperator(targetClient);
+                        client->sendMessage("Client " + value + " granted operator privileges in channel " + name);
+                    }
+                    else
+                    {
+                        client->sendMessage("Client " + value + " is already an operator in channel " + name);
+                    }
+                }
+                else
+                {
+                    if (!isOperator(client))
+                    {
+                        client->sendMessage("Error: You are not an operator in this channel.");
+                        break;
+                    }
+
+                    removeOperator(targetClient);
+                    client->sendMessage("Client " + value + " operator privileges removed in channel " + name);
+                }
+                break;
+            }
+
+            case 'l': // User limit
+                if (operation == '+')
+                {
+                    userLimits = stringToInt(value);
+                    client->sendMessage("User limit set to " + intToString(userLimits) + " in channel " + name);
+                }
+                else
+                {
+                    userLimits = -1; // Remove limit
+                    client->sendMessage("User limit removed in channel " + name);
+                }
+                break;
+
+            default:
+                client->sendMessage("Error: Unknown mode '" + std::string(1, mode) + "' in channel " + name);
+                break;
+        }
+    }
+}
 
 // std::string Channel::getMode(const std::string& mode) const
 // {
@@ -225,6 +387,40 @@
 //     broadcastMessage(client->getNickname() + " has joined the channel " + name);
 //     std::cout << "Client " << client->getNickname() << " successfully joined channel " << name << std::endl;
 // }
+void Channel::joinChannel(Client* client, const std::string& password)
+{
+    if (std::find(clients.begin(), clients.end(), client) != clients.end()) {
+        client->sendMessage("Error: You are already in the channel " + name);
+        return;
+    }
+    // check invite
+    if (inviteOnly) {
+        if (!client->isInvited(client, this))
+        {
+            client->sendMessage("Error: You need an invitation to join " + name);
+            return;
+        }
+    }
+    // check password
+    if (!Ch_pwd.empty() && Ch_pwd != password) {
+        client->sendMessage("Error: Incorrect password for channel " + name);
+        return;
+    }
+    // check amount of clients
+    if (clients.size() >= static_cast<std::size_t>(userLimits)) {
+        client->sendMessage("Error: Channel is full!");
+        return;
+    }
+    //first one in channel
+    if (operators.empty()) {
+        operators.push_back(client);
+        client->sendMessage("You are now an operator in channel " + name);
+    }
+    clients.push_back(client);
+    client->addChannel(this);
+    broadcastMessage(client->getNickname() + " has joined the channel " + name);
+    std::cout << "Client " << client->getNickname() << " successfully joined channel " << name << std::endl;
+}
 
 
 // void Channel::partChannel(Client* client, const std::string& message)
@@ -249,3 +445,7 @@
 // {
 // 	return this->clients;
 // }
+std::vector<Client*> Channel::getClients(void)
+{
+	return this->clients;
+}

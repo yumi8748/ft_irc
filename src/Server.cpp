@@ -77,6 +77,7 @@ void Server::AcceptClient(){
     perror("listen");
   Client client(lisFd);
   std::cout<<PURPLE<<user_id(client.getNickname(), client.getUsername())<<GREEN<<" connected successfully to "<<PURPLE<<"Server["<<_fd<<"]\n"<<RESET;  
+  std::cout<<PURPLE<<user_id(client.getNickname(), client.getUsername())<<GREEN<<" connected successfully to "<<PURPLE<<"Server["<<_fd<<"]"<<RESET;  
 
   // ADDING TO THE POLL VECTOR
   pollNew.fd = lisFd;
@@ -97,15 +98,12 @@ void Server::ReceiveData(int fd, int i){
     // maybe put close in closeClients?
   }
   else{
-<<<<<<< HEAD
     // buf[recData] = 0;
     // parse?
     std::cout << PURPLE << "Client["<<fd<<"]: "<< RESET << buf; 
     // std::string buffer(buf);
-=======
     buf[recData] = 0;
     std::string buffer(buf);
->>>>>>> origin/lmoran
     commandParsing(i, buf);
 	// (void)i;
   }

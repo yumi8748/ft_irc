@@ -49,7 +49,7 @@ class Channel{
         const std::vector<Client*>& getInvitedClients() const;
         void setTopic(const std::string& newTopic);
         std::string getTopic() const;
-        void setMode(const std::string& mode, const std::string& value);
+        void setMode(const std::string& modeStr, const std::string& value, Client* client);
         std::string getMode(const std::string& mode) const;
 
 

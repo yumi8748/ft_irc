@@ -97,10 +97,15 @@ void Server::ReceiveData(int fd, int i){
     // maybe put close in closeClients?
   }
   else{
+<<<<<<< HEAD
     // buf[recData] = 0;
     // parse?
     std::cout << PURPLE << "Client["<<fd<<"]: "<< RESET << buf; 
     // std::string buffer(buf);
+=======
+    buf[recData] = 0;
+    std::string buffer(buf);
+>>>>>>> origin/lmoran
     commandParsing(i, buf);
 	// (void)i;
   }
@@ -140,4 +145,14 @@ std::vector<Channel *> Server::getChannels(void)
 std::vector<Client> Server::getClients(void)
 {
 	return this->_clients;
+}
+
+Client &Server::getClient(int fd){
+	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		if (it->getFd() == fd) {
+			return *it;
+		}
+	}	
+	std::cout << "Client doesn't exist" << std::endl;
+	return _clients[0];
 }

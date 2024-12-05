@@ -6,6 +6,23 @@ Client::Client(int fd): client_fd(fd), _passwordIsCorrect(0), _isLogged(0)
     recv_buf = "";
 }
 
+void Client::updateBuffer(std::string str){
+	std::cout << "STRING UPDATE: " RED << str << RESET << std::endl;
+	_buffer = str;	
+	std::cout << "UPDATEBUF: " << _buffer << std::endl;
+}
+
+std::string Client::getBuffer(){
+	std::cout << "GETBUF: " << _buffer << std::endl;
+	return _buffer;
+}
+
+void Client::clearBuffer(){
+	std::cout << "CLEARBUF: " << _buffer << std::endl;
+	_buffer.empty();
+	std::cout << "AFTER: " << _buffer << std::endl;
+}
+
 void Client::setFd(int fd){
     client_fd = fd;
 }

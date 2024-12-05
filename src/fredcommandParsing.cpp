@@ -89,7 +89,7 @@ void	Server::parseLine(std::string line, int i)
 		cmdUser(i, line_splitted);
 }
 
-void	Server::commandParsing(int i, std::string string)
+void	Server::commandParsing(int i, std::string buf)
 {
 	// std::cout << "[" << string << " " << i << "]" << std::endl;
 	this->_clients[i - 1].setBuffer(string);
@@ -99,6 +99,72 @@ void	Server::commandParsing(int i, std::string string)
 		// test when ctrl+D (eof), it should accumulate buffer
 		std::cout << "/r/n not present"<< std::endl;
 		return;
+	Client current = getClient(_fds[i].fd);
+	std::vector<std::string> string_array;
+	std::string::size_type pos = 0;
+	std::string string = current.getBuffer();
+	std::cout << "Before append: " << string << " | Client " << current.getFd() << std::endl;
+	string.append(buf);
+	std::cout << "After append: " << string << std::endl;
+	// handle empty buffers? large messages? multiple \r\n??
+	if ((pos = string.find("\r\n")) != std::string::npos){
+		std::string buf = string.substr(0, pos);
+		string_array.push_back(buf);
+	}
+	else{
+		current.updateBuffer(string);	
+		return;
+	}
+	std::cout<<GREEN "Full message received by " YELLOW "Client "<<current.getFd() <<GREEN ": " RESET << string << std::endl;
+	std::string cmd_array[] = {
+		"NICK",
+		"PASS",
+		"USER",
+		"QUIT",
+		"PRIVMSG",
+		"JOIN",
+		"PART",
+		"KICK",
+		"INVITE",
+		"TOPIC",
+		"MODE"
+	};
+
+	int len = sizeof(cmd_array) / sizeof(cmd_array[0]);
+	int j = 0;
+	while (j < len)
+	{
+		if (cmd_array[j] == string_array.front())
+			break;
+		j++;
+	}
+	switch(j)
+	{
+		case 0: this->cmdNick(i, string_array); break;
+		case 1: this->cmdPass(i, string_array); break;
+		case 2: this->cmdUser(i, string_array); break;
+		case 3: this->cmdQuit(i, string_array); break;bool isValidChannelName(const std::string& channelName);
+        Channel* findChannelByName(const std::string& channelName);
+        Client* findClientByNickname(const std::string& nickname);
+        void setMode(const std::string& mode, const std::string& value);
+		case 4: this->cmdPrivmsg(i, string_array, string); break;
+		case 5: this->cmdJoin(i, string_array); break;
+		case 6: this->cmdPart(i, string_array); break;
+		case 7: this->cmdKick(i, string_array); break;
+		case 8: this->cmdInvite(i, string_array); break;
+		case 9: this->cmdTopic(i, string_array); break;
+		case 10: this->cmdMode(i, string_array); break;
+    default : break;
+	}
+}
+
+int		Server::isRegistered(int i)
+{
+	if (this->_clients[i - 1].getNickname().empty()
+		|| this->_clients[i - 1].getUsername().empty()
+		|| this->_clients[i - 1].getPasswordIsCorrect() == 0)
+	{
+		return (0);
 	}
 	else
 		std::cout << "/r/n present"<< std::endl;

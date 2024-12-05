@@ -11,6 +11,7 @@ class Channel;
 class Client{
     private:
         std::string nick;
+		std::string oldnick;
         std::string usr;
         std::string buffer; // take the message until \r\n
         std::vector<Channel*> channels;
@@ -27,10 +28,12 @@ class Client{
         void setFd(int fd);
         void setNickname(const std::string& nickname);
         void setUsername(const std::string& username);
+		void setOldNick(const std::string& username);
         void setIsLogged(void);
         int getIsLogged(void);
         const std::string& getNickname() const;
         const std::string& getUsername() const;
+		const std::string& getOldNick() const;
         void sendMessage(const std::string &message);
         void addChannel(Channel* ch);
         void removeChannel(Channel* channel);

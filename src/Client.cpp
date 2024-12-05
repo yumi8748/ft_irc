@@ -20,6 +20,13 @@ void Client::setUsername(const std::string& username)
     usr = username;
 }
 
+void Client::setOldNick(const std::string& oldnickname)
+{
+    oldnick = oldnickname;
+}
+
+
+
 const std::string& Client::getNickname() const
 {
     return (nick);
@@ -29,6 +36,12 @@ const std::string& Client::getUsername() const
 {
     return (usr);
 }
+
+const std::string& Client::getOldNick() const
+{
+    return (oldnick);
+}
+
 // void Client::sendMessage(const std::string &message)
 // {
 //     if (send(client_fd, message.c_str(), message.length(), 0) == -1)

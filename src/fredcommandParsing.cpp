@@ -37,7 +37,6 @@ void	Server::cmdNick(int i, std::vector<std::string> string_array)
 	}
 	else if (this->_clients[i - 1].getIsLogged())
 	{
-		std::cout << "HERE" << std::endl;
 		this->_clients[i - 1].setOldNick(this->_clients[i - 1].getNickname());
 		std::string msg = ":"  + this->_clients[i - 1].getOldNick() +  " NICK " + string_array[1] + "\r\n";
 		// std::string msg = ":"  + this->_clients[i - 1].getOldNick() + "!" + this->_clients[i - 1].getUsername() +  "@localhost NICK " + string_array[1] + "\r\n";

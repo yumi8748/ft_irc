@@ -31,9 +31,7 @@ void	Server::checkRegistration(int i)
 void	Server::cmdNick(int i, std::vector<std::string> string_array)
 {
 	if (nicknameUsed(string_array[1])){
-		// std::cout << "SAME" << string_array[1] << string_array[1].size()  << std::endl;
 		std::string messfinal = ":localhost 433 " + string_array[1] + " " + string_array[1] + " :Nickname is already in use.\r\n";
-		// std::cout << "MESSFINAL: " << messfinal  << std::endl;
 		send(this->_fds[i].fd, messfinal.c_str(), messfinal.size(), 0);	
 		return;
 	}
@@ -41,8 +39,8 @@ void	Server::cmdNick(int i, std::vector<std::string> string_array)
 	{
 		std::cout << "HERE" << std::endl;
 		this->_clients[i - 1].setOldNick(this->_clients[i - 1].getNickname());
-		// std::string msg = ":"  + this->_clients[i - 1].getOldNick() +  " NICK " + string_array[1] + "\r\n";
-		std::string msg = ":"  + this->_clients[i - 1].getOldNick() + "!" + this->_clients[i - 1].getUsername() +  "@localhost NICK " + string_array[1] + "\r\n";
+		std::string msg = ":"  + this->_clients[i - 1].getOldNick() +  " NICK " + string_array[1] + "\r\n";
+		// std::string msg = ":"  + this->_clients[i - 1].getOldNick() + "!" + this->_clients[i - 1].getUsername() +  "@localhost NICK " + string_array[1] + "\r\n";
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		this->_clients[i - 1].setNickname(string_array[1]);
 	}
@@ -51,7 +49,6 @@ void	Server::cmdNick(int i, std::vector<std::string> string_array)
 		this->_clients[i - 1].setNickname(string_array[1]);
 		this->_clients[i - 1].setOldNick(string_array[1]);
 		std::string msg = ":"  + this->_clients[i - 1].getOldNick() +  " NICK " + string_array[1] + "\r\n";
-		// std::string msg = "Success : "  + this->_clients[i - 1].getNickname() +  " Nickname is saved\r\n";
 		// std::string msg = ":"  + this->_clients[i - 1].getOldNick() + "!" + this->_clients[i - 1].getUsername() +  "@localhost NICK " + string_array[1] + "\r\n";
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		checkRegistration(i);

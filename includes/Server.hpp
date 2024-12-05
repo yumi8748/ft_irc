@@ -46,6 +46,7 @@ class Server{
 		int		isRegistered(int i);
         void	parseLine(std::string line, int i);
 		void	checkRegistration(int i);
+		int		nicknameUsed(std::string nickname);
         //YUMI
         bool isValidChannelName(const std::string& channelName);
         Channel* findChannelByName(const std::string& channelName);

@@ -1,5 +1,20 @@
 #include "../includes/Irc.hpp"
 
+int Server::nicknameUsed(std::string nickname)
+{
+	for (size_t j = 0; j < this->_clients.size(); j++)
+	{
+		// std::cout << "ICI" << nickname << this->_clients[j].getNickname() << std::endl;
+		if (this->_clients[j].getNickname() == nickname)
+		{
+			// std::cout << "SAME" << nickname << this->_clients[j].getNickname() << std::endl;
+			return 1;
+		}
+	}
+	return 0;
+}
+
+
 void	Server::checkRegistration(int i)
 {
 	if (!this->_clients[i - 1].getNickname().empty()
@@ -13,6 +28,22 @@ void	Server::checkRegistration(int i)
 	}
 }
 
+void	Server::cmdNick(int i, std::vector<std::string> string_array)
+{
+	if (nicknameUsed(string_array[1])){
+		std::cout << "SAME" << string_array[1] << string_array[1].size()  << std::endl;
+		std::string messfinal = ":localhost 433 " + string_array[1] + " " + string_array[1] + " :Nickname is already in use.\r\n";
+		std::cout << "MESSFINAL: " << messfinal  << std::endl;
+		
+		send(this->_fds[i].fd, messfinal.c_str(), messfinal.size(), 0);	
+		return;
+	}
+	this->_clients[i - 1].setNickname(string_array[1]);
+	std::string msg = "Success : Nickname is saved\n";
+	send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+	checkRegistration(i);
+}
+
 void	Server::cmdPass(int i, std::vector<std::string> string_array)
 {
 	if (string_array[1] == _pwd)
@@ -22,15 +53,6 @@ void	Server::cmdPass(int i, std::vector<std::string> string_array)
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		checkRegistration(i);
 	}	
-}
-
-
-void	Server::cmdNick(int i, std::vector<std::string> string_array)
-{
-	this->_clients[i - 1].setNickname(string_array[1]);
-	std::string msg = "Success : Nickname is saved\n";
-	send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
-	checkRegistration(i);
 }
 
 void	Server::cmdUser(int i, std::vector<std::string> string_array)

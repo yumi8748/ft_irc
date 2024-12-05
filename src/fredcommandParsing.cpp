@@ -1,5 +1,18 @@
 #include "../includes/Irc.hpp"
 
+void	Server::checkRegistration(int i)
+{
+	if (!this->_clients[i - 1].getNickname().empty()
+	&& !this->_clients[i - 1].getUsername().empty()
+	&& this->_clients[i - 1].getPasswordIsCorrect()
+	&& !this->_clients[i - 1].getIsLogged())
+	{
+		this->_clients[i - 1].setIsLogged();
+		std::string messfinal = ":localhost 001 " + this->_clients[i - 1].getNickname() + " :Welcome to the Internet Relay Network :" + this->_clients[i - 1].getNickname() + "!ftanon@localhost\r\n";
+		send(this->_fds[i].fd, messfinal.c_str(), messfinal.size(), 0);	
+	}
+}
+
 void	Server::cmdPass(int i, std::vector<std::string> string_array)
 {
 	if (string_array[1] == _pwd)
@@ -7,16 +20,7 @@ void	Server::cmdPass(int i, std::vector<std::string> string_array)
 		this->_clients[i - 1].setPasswordIsCorrect();
 		std::string msg = "Success : Password is correct\n";
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
-
-		if (!this->_clients[i - 1].getNickname().empty()
-		&& !this->_clients[i - 1].getUsername().empty()
-		&& this->_clients[i - 1].getPasswordIsCorrect()
-		&& !this->_clients[i - 1].getIsLogged())
-		{
-			this->_clients[i - 1].setIsLogged();
-			std::string messfinal = ":localhost 001 " + this->_clients[i - 1].getNickname() + " :Welcome to the Internet Relay Network :" + this->_clients[i - 1].getNickname() + "!ftanon@localhost\r\n";
-			send(this->_fds[i].fd, messfinal.c_str(), messfinal.size(), 0);	
-		}
+		checkRegistration(i);
 	}	
 }
 
@@ -26,16 +30,7 @@ void	Server::cmdNick(int i, std::vector<std::string> string_array)
 	this->_clients[i - 1].setNickname(string_array[1]);
 	std::string msg = "Success : Nickname is saved\n";
 	send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
-
-	if (!this->_clients[i - 1].getNickname().empty()
-	&& !this->_clients[i - 1].getUsername().empty()
-	&& this->_clients[i - 1].getPasswordIsCorrect()
-	&& !this->_clients[i - 1].getIsLogged())
-	{
-		this->_clients[i - 1].setIsLogged();
-		std::string messfinal = ":localhost 001 " + this->_clients[i - 1].getNickname() + " :Welcome to the Internet Relay Network :" + this->_clients[i - 1].getNickname() + "!ftanon@localhost\r\n";
-		send(this->_fds[i].fd, messfinal.c_str(), messfinal.size(), 0);	
-	}
+	checkRegistration(i);
 }
 
 void	Server::cmdUser(int i, std::vector<std::string> string_array)
@@ -43,16 +38,7 @@ void	Server::cmdUser(int i, std::vector<std::string> string_array)
 	this->_clients[i - 1].setUsername(string_array[1]);
 	std::string msg = "Success : Username is saved\n";
 	send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
-
-	if (!this->_clients[i - 1].getNickname().empty()
-	&& !this->_clients[i - 1].getUsername().empty()
-	&& this->_clients[i - 1].getPasswordIsCorrect()
-	&& !this->_clients[i - 1].getIsLogged())
-	{
-		this->_clients[i - 1].setIsLogged();
-		std::string messfinal = ":localhost 001 " + this->_clients[i - 1].getNickname() + " :Welcome to the Internet Relay Network :" + this->_clients[i - 1].getNickname() + "!ftanon@localhost\r\n";
-		send(this->_fds[i].fd, messfinal.c_str(), messfinal.size(), 0);	
-	}
+	checkRegistration(i);
 }
 
 void	Server::parseLine(std::string line, int i)

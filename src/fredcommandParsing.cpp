@@ -39,7 +39,7 @@ void	Server::cmdNick(int i, std::vector<std::string> string_array)
 		return;
 	}
 	this->_clients[i - 1].setNickname(string_array[1]);
-	std::string msg = "Success : Nickname is saved\n";
+	std::string msg = "Success : "  + this->_clients[i - 1].getNickname() +  " Nickname is saved\n";
 	send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 	checkRegistration(i);
 }
@@ -58,7 +58,7 @@ void	Server::cmdPass(int i, std::vector<std::string> string_array)
 void	Server::cmdUser(int i, std::vector<std::string> string_array)
 {
 	this->_clients[i - 1].setUsername(string_array[1]);
-	std::string msg = "Success : Username is saved\n";
+	std::string msg = "Success : "  + this->_clients[i - 1].getUsername() +  " Username is saved\n";
 	send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 	checkRegistration(i);
 }

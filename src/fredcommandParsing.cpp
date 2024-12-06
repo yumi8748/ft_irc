@@ -91,31 +91,40 @@ void	Server::parseLine(std::string line, int i)
 
 void	Server::commandParsing(int i, std::string buf)
 {
-	// std::cout << "[" << string << " " << i << "]" << std::endl;
-	this->_clients[i - 1].setBuffer(string);
-	std::cout << "[" << this->_clients[i - 1].getBuffer() << "]" << std::endl;
-	if (this->_clients[i - 1].getBuffer().find("\r\n") == std::string::npos)
-	{
-		// test when ctrl+D (eof), it should accumulate buffer
-		std::cout << "/r/n not present"<< std::endl;
-		return;
-	Client current = getClient(_fds[i].fd);
+	Client *current = getClient(_fds[i].fd);
 	std::vector<std::string> string_array;
 	std::string::size_type pos = 0;
-	std::string string = current.getBuffer();
-	std::cout << "Before append: " << string << " | Client " << current.getFd() << std::endl;
+	std::string string = current->getBuffer();
+	std::cout << "Before append: " << string << " | Client " << current->getFd() << std::endl;
 	string.append(buf);
 	std::cout << "After append: " << string << std::endl;
-	// handle empty buffers? large messages? multiple \r\n??
-	if ((pos = string.find("\r\n")) != std::string::npos){
-		std::string buf = string.substr(0, pos);
-		string_array.push_back(buf);
-	}
-	else{
-		current.updateBuffer(string);	
+	pos = string.rfind("\r\n");
+    if (last_pos != std::string::npos && last_pos + 2 == string.length()) {
+        std::string::iterator start = string.begin();
+        std::string::iterator end = string.begin() + last_pos;
+        std::string word;
+        for (std::string::iterator it = start; it != end; ++it) {
+            if (*it == ' ') {
+                if (!word.empty()) {
+                    string_array.push_back(word);
+                    word.clear();
+                }
+            }
+			else
+                word += *it;
+        }
+        if (!word.empty()) {
+            string_array.push_back(word);
+        }
+        string.clear();
+    } 
+	else {
+        current.updateBuffer(string);
+        string.clear();
 		return;
-	}
-	std::cout<<GREEN "Full message received by " YELLOW "Client "<<current.getFd() <<GREEN ": " RESET << string << std::endl;
+    }
+}
+	std::cout<<GREEN "Full message received by " YELLOW "Client "<<current->getFd() <<GREEN ": " RESET << string << std::endl;
 	if (string_array.empty()) // empty command
 	{
 		std::cerr << "Error: Empty command received" << std::endl;

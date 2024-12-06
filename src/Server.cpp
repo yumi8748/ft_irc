@@ -145,12 +145,12 @@ std::vector<Client> Server::getClients(void)
 	return this->_clients;
 }
 
-Client &Server::getClient(int fd){
+Client *Server::getClient(int fd){
 	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		if (it->getFd() == fd) {
-			return *it;
+			return &(*it);
 		}
 	}	
 	std::cout << "Client doesn't exist" << std::endl;
-	return _clients[0];
+	return &_clients[0];
 }

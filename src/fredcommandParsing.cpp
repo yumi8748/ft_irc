@@ -94,8 +94,8 @@ void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array, std::strin
 
 
 	std::string message;
-	// if (string_array[1][0] == '#')
-	// {
+	if (string_array[1][0] == '#')
+	{
 		int pos = buffer.find("#");
 		int pos2 = buffer.find(" ", pos) + 1;
 		message = buffer.substr(pos2);
@@ -138,8 +138,8 @@ void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array, std::strin
 				// 	return;
 				// }
 
-				std::cout << "CHANNEL FOUND" << std::endl;
-				std::cout << (*it).getClients().size() << std::endl;
+				// std::cout << "CHANNEL FOUND" << std::endl;
+				// std::cout << (*it).getClients().size() << std::endl;
 				
 				int j = 0;
 				while (j < static_cast<int>((*it).getClients().size()))
@@ -148,12 +148,12 @@ void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array, std::strin
 					std::cout << this->_clients[i - 1].getNickname() + " VS " +  (*it).getClients()[j]->getNickname() << std::endl;
 					if (this->_clients[i - 1].getNickname() == (*it).getClients()[j]->getNickname())
 					{
-						std::cout << "SKIP" << std::endl;
+						// std::cout << "SKIP" << std::endl;
 						j++;
 					}
 					else{
-					std::cout << "NOT SKIP" << std::endl;
-					std::string msg = ":" + this->_clients[i - 1].getNickname() + "!" + this->_clients[i - 1].getUsername() + "@localhost PRIVMSG " + string_array[1] + " " + message + "\r\n";
+					// std::cout << "NOT SKIP" << std::endl;
+					msg = ":" + this->_clients[i - 1].getNickname() + "!" + this->_clients[i - 1].getUsername() + "@localhost PRIVMSG " + string_array[1] + " " + message + "\r\n";
 					std::cout << msg << std::endl;
 					send((*it).getClients()[j]->getFd(), msg.c_str(), msg.length(), 0);
 					j++;
@@ -163,12 +163,12 @@ void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array, std::strin
 				break;
 			}
 		}
-	// }
-	// else
-	// {
-		// int pos = buffer.find(string_array[1]);
-		// int pos2 = buffer.find(" ", pos) + 1;
-		// message = buffer.substr(pos2);
+	}
+	else
+	{
+		int pos = buffer.find(string_array[1]);
+		int pos2 = buffer.find(" ", pos) + 1;
+		message = buffer.substr(pos2);
 
 		// // -------------------
 		// // int k = 0;
@@ -186,20 +186,20 @@ void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array, std::strin
 		// // }
 		// // -------------------
 
-		// for (std::vector<Client>::iterator it = this->_clients.begin(); it != _clients.end(); it++)
-		// {
-		// 	if ((*it).getNickname() == string_array[1])
-		// 	{
-		// 		std::string msg = "" + this->_clients[i - 1].getNickname() + " " + message + "\r\n";
+		for (std::vector<Client>::iterator it = this->_clients.begin(); it != _clients.end(); it++)
+		{
+			if ((*it).getNickname() == string_array[1])
+			{
+				std::string msg = "" + this->_clients[i - 1].getNickname() + " " + message + "\r\n";
 				
-		// 		// std::string msg = ":"  + this->_clients[i - 1].getNickname() + "!" + this->_clients[i - 1].getUsername() +  "@localhost PRIVMSG " + string_array[1] + " " + message + "\r\n";
-		// 		// std::string msg = ":" + this->_clients[i - 1].getNickname() + " PRIVMSG " + string_array[1] + " " + message + "\r\n";
-		// 		// std::cout << msg << std::endl;
-		// 		send((*it).getFd(), msg.c_str(), msg.length(), 0);
-		// 		// send((*it).getFd(), string_array[2].c_str(), string_array[2].length(), 0);
-		// 	}
-		// }
-	// }
+				// std::string msg = ":"  + this->_clients[i - 1].getNickname() + "!" + this->_clients[i - 1].getUsername() +  "@localhost PRIVMSG " + string_array[1] + " " + message + "\r\n";
+				// std::string msg = ":" + this->_clients[i - 1].getNickname() + " PRIVMSG " + string_array[1] + " " + message + "\r\n";
+				// std::cout << msg << std::endl;
+				send((*it).getFd(), msg.c_str(), msg.length(), 0);
+				// send((*it).getFd(), string_array[2].c_str(), string_array[2].length(), 0);
+			}
+		}
+	}
 }
 
 void	Server::cmdJoin(int i, std::vector<std::string> string_array)

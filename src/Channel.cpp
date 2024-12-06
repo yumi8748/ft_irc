@@ -5,21 +5,26 @@
 
 // }
 
-// const std::string& Channel::getName() const
-// {
-//     return (name);
-// }
+Channel::Channel(const std::string& n): name(n), userLimits(100), topic("")  // limits set to?
+{
 
-// void Channel::addClient(Client* client)
-// {
-//     if (clients.size() >= static_cast<std::size_t>(userLimits))
-//     {
-//         std::cerr << "Channel is full! Cannot add client." << std::endl;
-//         return ;
-//     }
-//     clients.push_back(client);
-//     std::cerr << "Client" << client->getNickname() << " joined channel: " << name << std::endl;
-// }
+}
+
+const std::string& Channel::getName() const
+{
+    return (name);
+}
+
+void Channel::addClient(Client* client)
+{
+    if (clients.size() >= static_cast<std::size_t>(userLimits))
+    {
+        std::cerr << "Channel is full! Cannot add client." << std::endl;
+        return ;
+    }
+    clients.push_back(client);
+    std::cerr << "Client" << client->getNickname() << " joined channel: " << name << std::endl;
+}
 
 // void Channel::removeClient(Client* client)
 // {
@@ -245,7 +250,7 @@
 //     std::cout << "Client " << client->getNickname() << " has left channel " << name << std::endl;
 // }
 
-// std::vector<Client*> Channel::getClients(void)
-// {
-// 	return this->clients;
-// }
+std::vector<Client*> Channel::getClients(void)
+{
+	return this->clients;
+}

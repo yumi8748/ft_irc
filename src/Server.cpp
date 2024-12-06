@@ -132,7 +132,7 @@ void Server::CloseMessage(std::string errMsg){
   return;
 }
 
-std::vector<Channel *> Server::getChannels(void)
+std::vector<Channel > Server::getChannels(void)
 {
 	return _channels;
 }

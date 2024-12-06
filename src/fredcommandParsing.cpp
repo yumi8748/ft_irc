@@ -81,9 +81,9 @@ void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array, std::strin
 	// 	std::cout << "Client not registered"  << std::endl;
 	// 	return ;
 	// }
-	std::ostringstream str1;
-	str1 << this->_clients[i - 1].getFd();
-	std::string fd_string = str1.str();
+	// std::ostringstream str1;
+	// str1 << this->_clients[i - 1].getFd();
+	// std::string fd_string = str1.str();
 	std::string msg;
 	// if (string_array.size() < 3)
 	// {

@@ -1,4 +1,39 @@
-// #include "../includes/Irc.hpp"
+#include "../includes/Irc.hpp"
+
+int Server::nicknameUsed(std::string nickname)
+{
+	for (size_t j = 0; j < this->_clients.size(); j++)
+	{
+		if (this->_clients[j].getNickname() == nickname)
+			return 1;
+	}
+	return 0;
+}
+
+void	Server::cmdNick(int i, std::vector<std::string> string_array)
+{
+	if (nicknameUsed(string_array[1])){
+		std::string messfinal = ":localhost 433 " + string_array[1] + " " + string_array[1] + " :Nickname is already in use.\r\n";
+		send(this->_fds[i].fd, messfinal.c_str(), messfinal.size(), 0);	
+		return;
+	}
+	else if (this->_clients[i - 1].getIsLogged())
+	{
+		this->_clients[i - 1].setOldNick(this->_clients[i - 1].getNickname());
+		std::string msg = ":"  + this->_clients[i - 1].getOldNick() + "!" + this->_clients[i - 1].getUsername() +  "@localhost NICK " + string_array[1] + "\r\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+		this->_clients[i - 1].setNickname(string_array[1]);
+	}
+	else
+	{
+		this->_clients[i - 1].setNickname(string_array[1]);
+		this->_clients[i - 1].setOldNick(string_array[1]);
+		std::string msg = ":"  + this->_clients[i - 1].getOldNick() + "!" + this->_clients[i - 1].getUsername() +  "@localhost NICK " + string_array[1] + "\r\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+		checkRegistration(i);
+	}
+	
+}
 
 // void	Server::cmdNick(int i, std::vector<std::string> string_array)
 // {

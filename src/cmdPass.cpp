@@ -1,4 +1,15 @@
-// #include "../includes/Irc.hpp"
+#include "../includes/Irc.hpp"
+
+void	Server::cmdPass(int i, std::vector<std::string> string_array)
+{
+	if (string_array[1] == _pwd)
+	{
+		this->_clients[i - 1].setPasswordIsCorrect();
+		std::string msg = "Success : Password is correct\r\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+		checkRegistration(i);
+	}	
+}
 
 // void	Client::setPasswordIsCorrect(void)
 // {

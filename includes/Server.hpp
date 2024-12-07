@@ -34,7 +34,8 @@ class Server{
 
         // METHODS:
         void 	CloseMessage(std::string);
-        void	commandParsing(int i, std::string buffer);
+        void	bufferParsing(int i, std::string buffer);
+		void	cmdCap(int i);
 	    void	cmdNick(int i, std::vector<std::string> string_array);
 	    void	cmdUser(int i, std::vector<std::string> string_array);
 	    void	cmdPass(int i, std::vector<std::string> string_array);
@@ -47,7 +48,7 @@ class Server{
 	    void	cmdTopic(int i, std::vector<std::string> string_array);
 	    void	cmdMode(int i, std::vector<std::string> string_array);
 		int		isRegistered(int i);
-        void	parseLine(std::string line, int i);
+        void	lineParsing(std::string line, int i);
 		void	checkRegistration(int i);
 		int		nicknameUsed(std::string nickname);
         //YUMI

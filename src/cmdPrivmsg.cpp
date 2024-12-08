@@ -97,7 +97,7 @@ void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array, std::strin
 	}
 	else if (string_array.size() < 3)
 	{
-		msg = ":localhost 461 " + this->_clients[i - 1].getNickname() + " PRIVMSG :Not enough parameters\r\n";
+		msg = ":localhost 411 " + this->_clients[i - 1].getNickname() + " :No recipient given (PRIVMSG)\r\n";
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		return;
 	}

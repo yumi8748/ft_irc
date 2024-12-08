@@ -8,105 +8,80 @@ void Server::channelMsg(int i, std::vector<std::string> string_array, std::strin
 	int pos2 = buffer.find(" ", pos) + 1;
 	message = buffer.substr(pos2);
 
-	// 	int k = 0;
-	// 	while (k < static_cast<int>(getChannels().size()))
-	// 	{
-	// 		if (getChannels()[k]->getName() == string_array[1])
-	// 			break;
-	// 		k++;
-	// 	}
-	// 	if (k == static_cast<int>(getChannels().size()))
-	// 	{
-	// 		msg = "[Error 401] client " + fd_string + " " + string_array[1] + " : No such channel\n";
-	// 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
-	// 		return;
-	// 	}
+	int k = 0;
+	while (k < static_cast<int>(getChannels().size()))
+	{
+		if (getChannels()[k].getName() == string_array[1])
+			break;
+		k++;
+	}
+	if (k == static_cast<int>(getChannels().size()))
+	{
+		msg = ":localhost 401 " + this->_clients[i - 1].getNickname() + " " + string_array[1] + " :No such channel\r\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+		return;
+	}
 
 	for (std::vector<Channel >::iterator it = this->_channels.begin(); it != _channels.end(); it++)
 	{
 		if ((*it).getName() == string_array[1])
 		{
-			// int k = 0;
-			// -------------------
-			// std::cout << "[" << this->_clients[i - 1].getNickname() << "]" << std::endl;
-			// -------------------
-			// while (k < static_cast<int>((*it).getClients().size()))
-			// {
-			// 	if ((*it).getClients()[k]->getNickname() == this->_clients[i - 1].getNickname())
-			// 		break;
-			// 	k++;
-			// }
-			// -------------------
-			// std::cout << k << " vs " << (*it).getClients().size() << std::endl;
-			// -------------------
-			// if (k == static_cast<int>((*it).getClients().size()))
-			// {
-			// 	msg = "[Error 404] client " + fd_string + " " + string_array[1] + " : Cannot send to channel\n";
-			// 	send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
-			// 	return;
-			// }
-
-			// std::cout << "CHANNEL FOUND" << std::endl;
-			// std::cout << (*it).getClients().size() << std::endl;
-			
+			int k = 0;
+			while (k < static_cast<int>((*it).getClients().size()))
+			{
+				if ((*it).getClients()[k]->getNickname() == this->_clients[i - 1].getNickname())
+					break;
+				k++;
+			}
+			if (k == static_cast<int>((*it).getClients().size()))
+			{
+				msg = ":localhost 404 " + this->_clients[i - 1].getNickname() + " " + string_array[1] + " :Cannot send to channel\r\n";
+				send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+				return;
+			}
 			int j = 0;
 			while (j < static_cast<int>((*it).getClients().size()))
 			{
-				// std::string msg = "[" + this->_clients[i - 1].getNickname() + "] : " + message + "\n";
-				std::cout << this->_clients[i - 1].getNickname() + " VS " +  (*it).getClients()[j]->getNickname() << std::endl;
-				if (this->_clients[i - 1].getNickname() == (*it).getClients()[j]->getNickname())
+				if (this->_clients[i - 1].getNickname() != (*it).getClients()[j]->getNickname())
 				{
-					// std::cout << "SKIP" << std::endl;
-					j++;
+					msg = ":" + this->_clients[i - 1].getNickname() + "!" + this->_clients[i - 1].getUsername() + "@localhost PRIVMSG " + string_array[1] + " " + message + "\r\n";
+					send((*it).getClients()[j]->getFd(), msg.c_str(), msg.length(), 0);
 				}
-				else{
-				// std::cout << "NOT SKIP" << std::endl;
-				msg = ":" + this->_clients[i - 1].getNickname() + "!" + this->_clients[i - 1].getUsername() + "@localhost PRIVMSG " + string_array[1] + " " + message + "\r\n";
-				std::cout << msg << std::endl;
-				send((*it).getClients()[j]->getFd(), msg.c_str(), msg.length(), 0);
 				j++;
-				}
-				
 			}
-			break;
 		}
 	}
 }
 
 void Server::userMsg(int i, std::vector<std::string> string_array, std::string buffer)
 {
+	std::string msg;
 	std::string message;
 	int pos = buffer.find(string_array[1]);
 	int pos2 = buffer.find(" ", pos) + 1;
 	message = buffer.substr(pos2);
 
-	// // -------------------
-	// // int k = 0;
-	// // while (k < static_cast<int>(getClients().size()))
-	// // {
-	// // 	if (getClients()[k].getNickname() == string_array[1])
-	// // 		break;
-	// // 	k++;
-	// // }
-	// // if (k == static_cast<int>(getClients().size()))
-	// // {
-	// // 	msg = "[Error 401] client " + fd_string + " " + string_array[1] + " : No such nickname\n";
-	// // 	send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
-	// // 	return;
-	// // }
-	// // -------------------
-
+	int k = 0;
+	while (k < static_cast<int>(getClients().size()))
+	{
+		if (getClients()[k].getNickname() == string_array[1])
+			break;
+		k++;
+	}
+	if (k == static_cast<int>(getClients().size()))
+	{
+		msg = ":localhost 401 " + this->_clients[i - 1].getNickname() + " " + string_array[1] + " :No such nickname\r\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+		return;
+	}
 	for (std::vector<Client>::iterator it = this->_clients.begin(); it != _clients.end(); it++)
 	{
 		if ((*it).getNickname() == string_array[1])
 		{
-			std::string msg = this->_clients[i - 1].getNickname() + " " + message + "\r\n";
-			
 			// std::string msg = ":"  + this->_clients[i - 1].getNickname() + "!" + this->_clients[i - 1].getUsername() +  "@localhost PRIVMSG " + string_array[1] + " " + message + "\r\n";
 			// std::string msg = ":" + this->_clients[i - 1].getNickname() + " PRIVMSG " + string_array[1] + " " + message + "\r\n";
-			// std::cout << msg << std::endl;
+			std::string msg = this->_clients[i - 1].getNickname() + " " + message + "\r\n";
 			send((*it).getFd(), msg.c_str(), msg.length(), 0);
-			// send((*it).getFd(), string_array[2].c_str(), string_array[2].length(), 0);
 		}
 	}
 }
@@ -152,59 +127,59 @@ void	Server::cmdPrivmsg(int i, std::vector<std::string> string_array, std::strin
 
 
 // 	std::string message;
-// 	if (string_array[1][0] == '#')
-// 	{
-// 		int pos = buffer.find("#");
-// 		int pos2 = buffer.find(" ", pos) + 1;
-// 		message = buffer.substr(pos2);
+	// if (string_array[1][0] == '#')
+	// {
+	// 	int pos = buffer.find("#");
+	// 	int pos2 = buffer.find(" ", pos) + 1;
+	// 	message = buffer.substr(pos2);
 
-// 		int k = 0;
-// 		while (k < static_cast<int>(getChannels().size()))
-// 		{
-// 			if (getChannels()[k]->getName() == string_array[1])
-// 				break;
-// 			k++;
-// 		}
-// 		if (k == static_cast<int>(getChannels().size()))
-// 		{
-// 			msg = "[Error 401] client " + fd_string + " " + string_array[1] + " : No such channel\n";
-// 			send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
-// 			return;
-// 		}
+	// 	int k = 0;
+	// 	while (k < static_cast<int>(getChannels().size()))
+	// 	{
+	// 		if (getChannels()[k]->getName() == string_array[1])
+	// 			break;
+	// 		k++;
+	// 	}
+	// 	if (k == static_cast<int>(getChannels().size()))
+	// 	{
+	// 		msg = "[Error 401] client " + fd_string + " " + string_array[1] + " : No such channel\n";
+	// 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+	// 		return;
+	// 	}
 
-// 		for (std::vector<Channel *>::iterator it = this->_channels.begin(); it != _channels.end(); it++)
-// 		{
-// 			if ((*it)->getName() == string_array[1])
-// 			{
-// 				int k = 0;
-// 				// std::cout << "[" << this->_clients[i - 1].getNickname() << "]" << std::endl;
-// 				while (k < static_cast<int>((*it)->getClients().size()))
-// 				{
-// 					if ((*it)->getClients()[k]->getNickname() == this->_clients[i - 1].getNickname())
-// 						break;
-// 					k++;
-// 				}
-// 				// std::cout << k << " vs " << (*it).getClients().size() << std::endl;
-// 				if (k == static_cast<int>((*it)->getClients().size()))
-// 				{
-// 					msg = "[Error 404] client " + fd_string + " " + string_array[1] + " : Cannot send to channel\n";
-// 					send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
-// 					return;
-// 				}
+	// 	for (std::vector<Channel *>::iterator it = this->_channels.begin(); it != _channels.end(); it++)
+	// 	{
+	// 		if ((*it)->getName() == string_array[1])
+	// 		{
+	// 			int k = 0;
+	// 			// std::cout << "[" << this->_clients[i - 1].getNickname() << "]" << std::endl;
+	// 			while (k < static_cast<int>((*it)->getClients().size()))
+	// 			{
+	// 				if ((*it)->getClients()[k]->getNickname() == this->_clients[i - 1].getNickname())
+	// 					break;
+	// 				k++;
+	// 			}
+	// 			// std::cout << k << " vs " << (*it).getClients().size() << std::endl;
+	// 			if (k == static_cast<int>((*it)->getClients().size()))
+	// 			{
+	// 				msg = "[Error 404] client " + fd_string + " " + string_array[1] + " : Cannot send to channel\n";
+	// 				send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+	// 				return;
+	// 			}
 
 
 				
 				
-// 				int j = 0;
-// 				while (j < static_cast<int>((*it)->getClients().size()))
-// 				{
-// 					std::string msg = "[" + this->_clients[i - 1].getNickname() + "] : " + message + "\n";
-// 					send((*it)->getClients()[j]->getFd(), msg.c_str(), msg.length(), 0);
-// 					j++;
-// 				}
-// 				break;
-// 			}
-// 		}
+	// 			int j = 0;
+	// 			while (j < static_cast<int>((*it)->getClients().size()))
+	// 			{
+	// 				std::string msg = "[" + this->_clients[i - 1].getNickname() + "] : " + message + "\n";
+	// 				send((*it)->getClients()[j]->getFd(), msg.c_str(), msg.length(), 0);
+	// 				j++;
+	// 			}
+	// 			break;
+	// 		}
+	// 	}
 // 	}
 // 	else
 // 	{

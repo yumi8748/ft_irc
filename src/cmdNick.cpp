@@ -27,7 +27,7 @@ void	Server::cmdNick(int i, std::vector<std::string> string_array)
 	}
 	else if (nicknameUsed(string_array[1])){
 		msg = ":localhost 433 " + string_array[1] + " " + string_array[1] + " :Nickname is already in use\r\n";
-		send(this->_fds[i].fd, msg.c_str(), msg.size(), 0);	
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		return;
 	}
 	

@@ -12,3 +12,15 @@ void	Server::checkRegistration(int i)
 		send(this->_fds[i].fd, messfinal.c_str(), messfinal.size(), 0);	
 	}
 }
+
+int	Server::checkStringFormat(std::string str)
+{
+	int j = 0;
+	while (str[j])
+	{
+		if (isalnum(str[j]) == 0 && str[j] != '_')
+			return 1;
+		j++;
+	}
+	return 0;
+}

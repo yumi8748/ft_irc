@@ -22,17 +22,14 @@ void	Server::cmdUser(int i, std::vector<std::string> string_array)
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		return;
 	}
-	int j = 0;
-	while (string_array[1][j])
+
+	if (checkStringFormat(string_array[1]))
 	{
-		if (isalnum(string_array[1][j]) == 0)
-		{
-			msg = "Error : Wrong username format\r\n";
-			send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
-			return;
-		}
-		j++;
+		msg = "Error : Wrong username format\r\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+		return;
 	}
+
 	this->_clients[i - 1].setUsername(string_array[1]);
 	msg = "Success : "  + this->_clients[i - 1].getUsername() +  " username is saved\r\n";
 	send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);

@@ -31,16 +31,11 @@ void	Server::cmdNick(int i, std::vector<std::string> string_array)
 		return;
 	}
 	
-	int j = 0;
-	while (string_array[1][j])
+	if (checkStringFormat(string_array[1]))
 	{
-		if (isalnum(string_array[1][j]) == 0)
-		{
-			msg = ":localhost 432 " + string_array[1] + " " + string_array[1] + " :Erroneus nickname\r\n";
-			send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
-			return;
-		}
-		j++;
+		msg = ":localhost 432 " + string_array[1] + " " + string_array[1] + " :Erroneus nickname\r\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+		return;
 	}
 
 	if (this->_clients[i - 1].getIsLogged())

@@ -2,7 +2,7 @@
 
 void	Server::checkRegistration(int i)
 {
-	if (!this->_clients[i - 1].getNickname().empty()
+	if (this->_clients[i - 1].getNickname() != "*"
 	&& !this->_clients[i - 1].getUsername().empty()
 	&& this->_clients[i - 1].getPasswordIsCorrect()
 	&& !this->_clients[i - 1].getIsLogged())

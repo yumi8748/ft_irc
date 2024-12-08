@@ -16,7 +16,7 @@ void	Server::cmdUser(int i, std::vector<std::string> string_array)
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		return;
 	}
-	else if (this->_clients[i - 1].getIsLogged())
+	else if (this->_clients[i - 1].getIsRegistered())
 	{
 		msg = ":localhost 462 " + this->_clients[i - 1].getNickname() + " :You may not reregister\r\n";
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);

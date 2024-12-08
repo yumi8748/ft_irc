@@ -1,6 +1,6 @@
 #include "../includes/Irc.hpp"
 
-Client::Client(int fd): nick("*"),client_fd(fd), _passwordIsCorrect(0), _isLogged(0)
+Client::Client(int fd): nick("*"),client_fd(fd), _passwordIsCorrect(0), _isRegistered(0)
 // Client::Client(int fd): client_fd(fd)
 {
     recv_buf = "";
@@ -137,12 +137,12 @@ int	Client::getPasswordIsCorrect(void)
 	return(this->_passwordIsCorrect);
 }
 
- void Client::setIsLogged(void)
+ void Client::setIsRegistered(void)
  {
-    _isLogged = 1;
+    _isRegistered = 1;
  }
 
- int Client::getIsLogged(void)
+ int Client::getIsRegistered(void)
  {
-    return _isLogged;
+    return _isRegistered;
  }

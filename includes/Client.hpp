@@ -20,7 +20,7 @@ class Client{
         std::string recv_buf;
 
 		int _passwordIsCorrect;
-        int _isLogged;
+        int _isRegistered;
     public:
         Client(){};
         ~Client(){};
@@ -29,8 +29,8 @@ class Client{
         void setNickname(const std::string& nickname);
         void setUsername(const std::string& username);
 		void setOldNick(const std::string& username);
-        void setIsLogged(void);
-        int getIsLogged(void);
+        void setIsRegistered(void);
+        int getIsRegistered(void);
         const std::string& getNickname() const;
         const std::string& getUsername() const;
 		const std::string& getOldNick() const;

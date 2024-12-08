@@ -38,7 +38,7 @@ void	Server::cmdNick(int i, std::vector<std::string> string_array)
 		return;
 	}
 
-	if (this->_clients[i - 1].getIsLogged())
+	if (this->_clients[i - 1].getIsRegistered())
 	{
 		this->_clients[i - 1].setOldNick(this->_clients[i - 1].getNickname());
 		this->_clients[i - 1].setNickname(string_array[1]);

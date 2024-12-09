@@ -11,9 +11,6 @@ class Server{
         Server(){_fd = -1;};
         ~Server(){};
 
-
-        // std::vector<Channel > _channels;
-
         // INITS:
         void InitServer(int, char*);
         void InitSockets();
@@ -71,7 +68,8 @@ class Server{
         // VECTORS:
         std::vector<struct pollfd> _fds;
         std::vector<Client> _clients;
-		std::vector<Channel *> _channels;
+        std::vector<Channel> _channels;
+		// std::vector<Channel *> _channels;
 };
 
 #endif /*SERVER_HPP*/

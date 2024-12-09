@@ -230,19 +230,19 @@ void	Server::bufferParsing(int i, std::string string)
 // 	}
 // }
 
-// int		Server::isRegistered(int i)
-// {
-// 	if (this->_clients[i - 1].getNickname().empty()
-// 		|| this->_clients[i - 1].getUsername().empty()
-// 		|| this->_clients[i - 1].getPasswordIsCorrect() == 0)
-// 	{
-// 		return (0);
-// 	}
-// 	else
-// 	{
-// 		return (1);
-// 	}
-// }
+int		Server::isRegistered(int i)
+{
+	if (this->_clients[i - 1].getNickname().empty()
+		|| this->_clients[i - 1].getUsername().empty()
+		|| this->_clients[i - 1].getPasswordIsCorrect() == 0)
+	{
+		return (0);
+	}
+	else
+	{
+		return (1);
+	}
+}
 
 // bool isValidChannelName(const std::string& channelName);
 //         Channel* findChannelByName(const std::string& channelName);
@@ -251,6 +251,26 @@ void	Server::bufferParsing(int i, std::string string)
 
 
 // // YUMI PART --------------------------------------------------------
+
+
+Channel* Server::findChannelByName(const std::string& channelName)
+{
+    for (size_t j = 0; j < this->_channels.size(); j++)
+    {
+        if (this->_channels[j].getName() == channelName)
+            return (&this->_channels[j]);
+    }
+    return (NULL);
+}
+Client* Server::findClientByNickname(const std::string& nickname)
+{
+    for (size_t j = 0; j < this->_clients.size(); j++)
+	{
+        if (this->_clients[j].getNickname() == nickname)
+            return (&this->_clients[j]);
+    }
+    return NULL;
+}
 
 bool Server::isValidChannelName(const std::string& channelName)
 {
@@ -286,9 +306,9 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array) // parameter:
     Channel *channel = findChannelByName(channelName);
     if (!channel)
     {
-        channel = new Channel(channelName, *this);
+        channel = new Channel(channelName);
         channel->addOperator(&this->_clients[i - 1]);
-        this->_channels.push_back(channel);
+        _channels.push_back(*channel); //
     }
     channel->joinChannel(&this->_clients[i - 1], pwd);
 }
@@ -325,11 +345,11 @@ void	Server::cmdPart(int i, std::vector<std::string> string_array) //parameter: 
 	channel->partChannel(&_clients[i], reason); //handle in channel
 	if (channel->isEmpty())
 	{
-		for (std::vector<Channel*>::iterator it = this->_channels.begin(); it != this->_channels.end(); ) 
+		for (std::vector<Channel>::iterator it = this->_channels.begin(); it != this->_channels.end(); ) 
 		{
-    		if (*it == channel)
+    		if (&(*it) == channel)
 			{
-        		this->_channels.erase(it);
+        		it = this->_channels.erase(it);
         		break;
     		}
 			else

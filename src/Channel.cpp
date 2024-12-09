@@ -14,13 +14,13 @@ Channel::Channel(const std::string& n): name(n), userLimits(100), topic("")  // 
 {
 }
 
-Channel::Channel(const std::string& n, Server& srv)
-:server(srv), name(n), clients(), invitedClients()
-, operators(), Ch_pwd(""), inviteOnly(false), topicRestricted(false)
-, userLimits(100), topic(""), modes()
-{
+// Channel::Channel(const std::string& n, Server& srv)
+// :server(srv), name(n), clients(), invitedClients()
+// , operators(), Ch_pwd(""), inviteOnly(false), topicRestricted(false)
+// , userLimits(100), topic(""), modes()
+// {
 
-}
+// }
 
 const std::string& Channel::getName() const
 {
@@ -89,15 +89,15 @@ void Channel::changeCh_pwd(std::string newCh_pwd)
     std::cout << "Channel password updated.\n";
 }
 
-// bool Channel::isOperator(Client* client) const
-// {
-//     for (std::vector<Client*>::const_iterator it = operators.begin(); it != operators.end(); ++it)
-//     {
-//         if (*it == client)
-//             return true;
-//     }
-//     return false;
-// }
+bool Channel::isOperator(Client* client) const
+{
+    for (std::vector<Client*>::const_iterator it = operators.begin(); it != operators.end(); ++it)
+    {
+        if (*it == client)
+            return true;
+    }
+    return false;
+}
 
 // void Channel::addOperator(Client* client)
 // {
@@ -114,23 +114,25 @@ void Channel::changeCh_pwd(std::string newCh_pwd)
 //         }
 //     }
 // }
-// void Channel::addOperator(Client* client)
-// {
-//     if (client == NULL)
-//     {
-//         std::cerr << "Error: Cannot add a null client as operator." << std::endl;
-//         return;
-//     }
-//     if (!isOperator(client))
-//     {
-//         operators.push_back(client);
-//         std::cout << "Added operator: " << client->getName() << std::endl;
-//     }
-//     else
-//     {
-//         std::cout << "Client is already an operator: " << client->getName() << std::endl;
-//     }
-// }
+
+void Channel::addOperator(Client* client)
+{
+    if (client == NULL)
+    {
+        std::cerr << "Error: Cannot add a null client as operator." << std::endl;
+        return;
+    }
+    if (!isOperator(client))
+    {
+        operators.push_back(client);
+        std::cout << "Added operator: " << client->getName() << std::endl;
+    }
+    else
+    {
+        std::cout << "Client is already an operator: " << client->getName() << std::endl;
+    }
+}
+
 void Channel::removeOperator(Client* client)
 {
     for (std::vector<Client*>::iterator it = operators.begin(); it != operators.end(); ++it) {
@@ -208,20 +210,20 @@ void Channel::inviteClient(Client* client)
 //     }
 // }
 
-// const std::vector<Client*>& Channel::getInvitedClients() const {
-//     return invitedClients;
-// }
+const std::vector<Client*>& Channel::getInvitedClients() const {
+    return invitedClients;
+}
 
-// void Channel::setTopic(const std::string& newTopic)
-// {
-//     topic = newTopic;
-//     std::cout << "Channel topic updated to: " << topic << std::endl;
-// }
+void Channel::setTopic(const std::string& newTopic)
+{
+    topic = newTopic;
+    std::cout << "Channel topic updated to: " << topic << std::endl;
+}
 
-// std::string Channel::getTopic() const
-// {
-//     return (topic);
-// }
+std::string Channel::getTopic() const
+{
+    return (topic);
+}
 
 // int stringToInt(const std::string& value) {
 //     std::istringstream iss(value);
@@ -443,7 +445,8 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, Clie
 
             case 'o': // Operator privileges
             {
-                Client* targetClient = server.findClientByNickname(value);
+                Server serv;
+                Client* targetClient = serv.findClientByNickname(value);
                 if (!targetClient)
                 {
                     client->sendMessage(":Server 401 " + value + " :No such nick/channel");
@@ -500,15 +503,15 @@ std::string Channel::getMode(const std::string& mode) const
     return ("");
 }
 
-// bool Channel::isEmpty() const
-// {
-//     return clients.empty();
-// }
+bool Channel::isEmpty() const
+{
+    return clients.empty();
+}
 
-// bool Channel::isClientInChannel(Client* client) const
-// {
-//     return std::find(clients.begin(), clients.end(), client) != clients.end();
-// }
+bool Channel::isClientInChannel(Client* client) const
+{
+    return std::find(clients.begin(), clients.end(), client) != clients.end();
+}
 
 void Channel::joinChannel(Client* client, const std::string& password)
 {

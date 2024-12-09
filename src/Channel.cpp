@@ -1,7 +1,7 @@
 #include "../includes/Channel.hpp"
 
 
-Channel::Channel(const std::string& n): name(n), userLimits(100), topic("")  // limits set to?
+Channel::Channel(const std::string& n): name(n), inviteOnly(false), topicRestricted(false), userLimits(100), topic("")  // limits set to?
 {
 }
 
@@ -291,33 +291,61 @@ void Channel::joinChannel(Client* client, const std::string& password)
         client->sendMessage(":localhost 443 " + client->getNickname() + " " + name + " : You are already in the channel\n");
         return;
     }
-    // check invite
-    if (inviteOnly) {
-        if (!client->isInvited(client, this))
-        {
-            client->sendMessage(":localhost 473 " + name + " : You need an invitation to join\n");
-            return;
-        }
+
+    if (inviteOnly && !client->isInvited(client, this))
+    {
+        client->sendMessage(":localhost 473 " + name + " : You need an invitation to join\n");
+        return;
     }
-    // check password
-    if (!Ch_pwd.empty() && Ch_pwd != password) {
+
+    if (!Ch_pwd.empty() && Ch_pwd != password)
+    {
         client->sendMessage(":localhost 475 " + name + " : Incorrect channel password\n");
         return;
     }
-    // check amount of clients
-    if (clients.size() >= static_cast<std::size_t>(userLimits)) {
-        client->sendMessage(":localhost 471 " + name + " : Channel is full\n");;
+
+    if (userLimits > 0 && clients.size() >= static_cast<std::size_t>(userLimits))
+    {
+        client->sendMessage(":localhost 471 " + name + " : Channel is full\n");
         return;
     }
-    //first one in channel
-    if (operators.empty()) {
+
+    // Assign operator privileges if this is the first client
+    if (operators.empty())
+    {
         operators.push_back(client);
         client->sendMessage("You are now an operator in channel " + name);
     }
+
+    // Add client to the channel
     clients.push_back(client);
     client->addChannel(this);
 
-    broadcastMessage(":" + client->getNickname() + " JOIN " + name + "\n");
+    // Notify all clients in the channel about the join event
+    for (std::size_t k = 0; k < clients.size(); ++k)
+    {
+        std::string joinMsg = ":" + client->getNickname() + " JOIN " + name + "\r\n";
+        std::cout << joinMsg << std::endl;
+        send(clients[k]->getFd(), joinMsg.c_str(), joinMsg.length(), 0);
+    }
+
+    // Send NAMES list to the joining client
+    std::string namesList = ":localhost 353 " + client->getNickname() + " = " + name + " :@";
+    for (std::size_t j = 0; j < clients.size(); ++j)
+    {
+        if (j > 0)
+            namesList += " ";
+        namesList += clients[j]->getNickname();
+    }
+    namesList += "\r\n";
+    std::cout << namesList << std::endl;
+    send(client->getFd(), namesList.c_str(), namesList.length(), 0);
+
+    // Send end of NAMES list
+    std::string endNamesMsg = ":localhost 366 " + client->getNickname() + " " + name + " :End of /NAMES list.\r\n";
+    std::cout << endNamesMsg << std::endl;
+    send(client->getFd(), endNamesMsg.c_str(), endNamesMsg.length(), 0);
+
     std::cout << "Client " << client->getNickname() << " successfully joined channel " << name << std::endl;
 }
 

@@ -32,7 +32,7 @@ class Client{
         void setIsLogged(void);
         int getIsLogged(void);
 		void updateBuffer(const std::string);
-		std::string getBuffer();
+		// std::string getBuffer();
 		void clearBuffer();
 		void setOldNick(const std::string& username);
         void setIsRegistered(void);

@@ -14,10 +14,10 @@ void Client::updateBuffer(std::string str){
 	std::cout << "UPDATEBUF: " << _buffer << std::endl;
 }
 
-std::string Client::getBuffer(){
-	std::cout << "GETBUF: " << _buffer << std::endl;
-	return _buffer;
-}
+// std::string Client::getBuffer(){
+// 	std::cout << "GETBUF: " << _buffer << std::endl;
+// 	return _buffer;
+// }
 
 void Client::clearBuffer(){
 	std::cout << "CLEARBUF: " << _buffer << std::endl;

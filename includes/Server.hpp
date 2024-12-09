@@ -11,6 +11,9 @@ class Server{
         Server(){_fd = -1;};
         ~Server(){};
 
+
+        std::vector<Channel > _channels;
+
         // INITS:
         void InitServer(int, char*);
         void InitSockets();
@@ -25,14 +28,15 @@ class Server{
         void ReceiveData(int, int);
 	    
         // GTRS/STRS
-        std::vector<Channel *> getChannels();
+        std::vector<Channel > getChannels();
         std::vector<Client> getClients();
 		Client *getClient(int);
         std::vector<struct pollfd> getfds(void);
 
         // METHODS:
         void 	CloseMessage(std::string);
-        void	commandParsing(int i, std::string buffer);
+        void	bufferParsing(int i, std::string buffer);
+		void	cmdCap(int i);
 	    void	cmdNick(int i, std::vector<std::string> string_array);
 	    void	cmdUser(int i, std::vector<std::string> string_array);
 	    void	cmdPass(int i, std::vector<std::string> string_array);
@@ -45,9 +49,12 @@ class Server{
 	    void	cmdTopic(int i, std::vector<std::string> string_array);
 	    void	cmdMode(int i, std::vector<std::string> string_array);
 		int		isRegistered(int i);
-        void	parseLine(std::string line, int i);
+        void	lineParsing(std::string line, int i);
 		void	checkRegistration(int i);
 		int		nicknameUsed(std::string nickname);
+		int		checkStringFormat(std::string str);
+		void 	channelMsg(int i, std::vector<std::string> string_array, std::string buffer);
+		void 	userMsg(int i, std::vector<std::string> string_array, std::string buffer);
         //YUMI
         bool isValidChannelName(const std::string& channelName);
         Channel* findChannelByName(const std::string& channelName);
@@ -64,7 +71,6 @@ class Server{
         // VECTORS:
         std::vector<struct pollfd> _fds;
         std::vector<Client> _clients;
-        std::vector<Channel *> _channels;
 };
 
 #endif /*SERVER_HPP*/

@@ -102,9 +102,10 @@ void Server::ReceiveData(int fd, int i){
     // parse?
     std::cout << PURPLE << "Client["<<fd<<"]: "<< RESET << buf; 
     // std::string buffer(buf);
-    buf[recData] = 0;
-    std::string buffer(buf);
-    commandParsing(i, buf);
+    // buf[recData] = 0;
+    // std::string buffer(buf);
+    // commandParsing(i, buf);
+    bufferParsing(i, buf);
 	// (void)i;
   }
 }
@@ -135,7 +136,7 @@ void Server::CloseMessage(std::string errMsg){
   return;
 }
 
-std::vector<Channel *> Server::getChannels(void)
+std::vector<Channel > Server::getChannels(void)
 {
 	return _channels;
 }

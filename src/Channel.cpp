@@ -10,21 +10,26 @@ Channel::Channel(const std::string& n, Server& srv)
 
 // }
 
-// const std::string& Channel::getName() const
-// {
-//     return (name);
-// }
+Channel::Channel(const std::string& n): name(n), userLimits(100), topic("")  // limits set to?
+{
 
-// void Channel::addClient(Client* client)
-// {
-//     if (clients.size() >= static_cast<std::size_t>(userLimits))
-//     {
-//         std::cerr << "Channel is full! Cannot add client." << std::endl;
-//         return ;
-//     }
-//     clients.push_back(client);
-//     std::cerr << "Client" << client->getNickname() << " joined channel: " << name << std::endl;
-// }
+}
+
+const std::string& Channel::getName() const
+{
+    return (name);
+}
+
+void Channel::addClient(Client* client)
+{
+    if (clients.size() >= static_cast<std::size_t>(userLimits))
+    {
+        std::cerr << "Channel is full! Cannot add client." << std::endl;
+        return ;
+    }
+    clients.push_back(client);
+    std::cerr << "Client" << client->getNickname() << " joined channel: " << name << std::endl;
+}
 
 // void Channel::removeClient(Client* client)
 // {
@@ -40,7 +45,6 @@ Channel::Channel(const std::string& n, Server& srv)
 //     std::cerr << "Client not found in the channel!" << std::endl;;
 // }
 
-<<<<<<< HEAD
 // void Channel::broadcastMessage(std::string msg)
 // {
 //     for (size_t i = 0; i < clients.size(); ++i)
@@ -48,7 +52,6 @@ Channel::Channel(const std::string& n, Server& srv)
 //         clients[i]->sendMessage(msg);
 //     }
 // }
-=======
 void Channel::broadcastMessage(std::string msg) //server msg
 {
     for (size_t i = 0; i < clients.size(); ++i)
@@ -56,7 +59,6 @@ void Channel::broadcastMessage(std::string msg) //server msg
         clients[i]->sendMessage(msg);
     }
 }
->>>>>>> origin/yu-chen
 
 // void Channel::changeCh_pwd(std::string newCh_pwd)
 // {

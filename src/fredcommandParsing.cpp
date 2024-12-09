@@ -1,69 +1,6 @@
 #include "../includes/Irc.hpp"
 
-int Server::nicknameUsed(std::string nickname)
-{
-	for (size_t j = 0; j < this->_clients.size(); j++)
-	{
-		// std::cout << "ICI" << nickname << this->_clients[j].getNickname() << std::endl;
-		if (this->_clients[j].getNickname() == nickname)
-		{
-			// std::cout << "SAME" << nickname << this->_clients[j].getNickname() << std::endl;
-			return 1;
-		}
-	}
-	return 0;
-}
-
-
-void	Server::checkRegistration(int i)
-{
-	if (!this->_clients[i - 1].getNickname().empty()
-	&& !this->_clients[i - 1].getUsername().empty()
-	&& this->_clients[i - 1].getPasswordIsCorrect()
-	&& !this->_clients[i - 1].getIsLogged())
-	{
-		this->_clients[i - 1].setIsLogged();
-		std::string messfinal = ":localhost 001 " + this->_clients[i - 1].getNickname() + " :Welcome to the Internet Relay Network :" + this->_clients[i - 1].getNickname() + "!ftanon@localhost\r\n";
-		send(this->_fds[i].fd, messfinal.c_str(), messfinal.size(), 0);	
-	}
-}
-
-void	Server::cmdNick(int i, std::vector<std::string> string_array)
-{
-	if (nicknameUsed(string_array[1])){
-		std::cout << "SAME" << string_array[1] << string_array[1].size()  << std::endl;
-		std::string messfinal = ":localhost 433 " + string_array[1] + " " + string_array[1] + " :Nickname is already in use.\r\n";
-		std::cout << "MESSFINAL: " << messfinal  << std::endl;
-		
-		send(this->_fds[i].fd, messfinal.c_str(), messfinal.size(), 0);	
-		return;
-	}
-	this->_clients[i - 1].setNickname(string_array[1]);
-	std::string msg = "Success : "  + this->_clients[i - 1].getNickname() +  " Nickname is saved\n";
-	send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
-	checkRegistration(i);
-}
-
-void	Server::cmdPass(int i, std::vector<std::string> string_array)
-{
-	if (string_array[1] == _pwd)
-	{
-		this->_clients[i - 1].setPasswordIsCorrect();
-		std::string msg = "Success : Password is correct\n";
-		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
-		checkRegistration(i);
-	}	
-}
-
-void	Server::cmdUser(int i, std::vector<std::string> string_array)
-{
-	this->_clients[i - 1].setUsername(string_array[1]);
-	std::string msg = "Success : "  + this->_clients[i - 1].getUsername() +  " Username is saved\n";
-	send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
-	checkRegistration(i);
-}
-
-void	Server::parseLine(std::string line, int i)
+void	Server::lineParsing(std::string line, int i)
 {
 	std::vector<std::string> line_splitted;
 
@@ -76,161 +13,153 @@ void	Server::parseLine(std::string line, int i)
 		line_splitted.push_back(tmp);
 	}
 	std::cout << line_splitted.size() << std::endl;
-	if (line_splitted[1] == "LS")
-	{
-		std::string msg = "CAP * LS\r\n";
-		send(this->_fds[i].fd, msg.c_str(), msg.length(), 0);
-	}
-	else if (line_splitted[0] == "NICK")
-		cmdNick(i, line_splitted);
+	if (line == "CAP LS")
+		cmdCap(i);
 	else if (line_splitted[0] == "PASS")
 		cmdPass(i, line_splitted);
 	else if (line_splitted[0] == "USER")
 		cmdUser(i, line_splitted);
+	else if (line_splitted[0] == "NICK")
+		cmdNick(i, line_splitted);
+	else if (line_splitted[0] == "QUIT")
+		cmdQuit(i, line_splitted);
+	else if (line_splitted[0] == "PRIVMSG")
+		cmdPrivmsg(i, line_splitted, line);
+	else if (line_splitted[0] == "JOIN")
+		cmdJoin(i, line_splitted);
 }
 
-void	Server::commandParsing(int i, std::string buf)
-{
-	Client *current = getClient(_fds[i].fd);
-	std::vector<std::string> string_array;
-	std::string::size_type pos = 0;
-	std::string string = current->getBuffer();
-	std::cout << "Before append: " << string << " | Client " << current->getFd() << std::endl;
-	string.append(buf);
-	std::cout << "After append: " << string << std::endl;
-	pos = string.rfind("\r\n");
-    if (last_pos != std::string::npos && last_pos + 2 == string.length()) {
-        std::string::iterator start = string.begin();
-        std::string::iterator end = string.begin() + last_pos;
-        std::string word;
-        for (std::string::iterator it = start; it != end; ++it) {
-            if (*it == ' ') {
-                if (!word.empty()) {
-                    string_array.push_back(word);
-                    word.clear();
-                }
-            }
-			else
-                word += *it;
-        }
-        if (!word.empty()) {
-            string_array.push_back(word);
-        }
-        string.clear();
-    } 
-	else {
-        current.updateBuffer(string);
-        string.clear();
-		return;
-    }
-}
-	std::cout<<GREEN "Full message received by " YELLOW "Client "<<current->getFd() <<GREEN ": " RESET << string << std::endl;
-	if (string_array.empty()) // empty command
-	{
-		std::cerr << "Error: Empty command received" << std::endl;
-		return;
-	}
+// void	Server::commandParsing(int i, std::string buf)
+// {
+// 	Client *current = getClient(_fds[i].fd);
+// 	std::vector<std::string> string_array;
+// 	std::string::size_type pos = 0;
+// 	std::string string = current->getBuffer();
+// 	std::cout << "Before append: " << string << " | Client " << current->getFd() << std::endl;
+// 	string.append(buf);
+// 	std::cout << "After append: " << string << std::endl;
+// 	pos = string.rfind("\r\n");
+//     if (last_pos != std::string::npos && last_pos + 2 == string.length()) {
+//         std::string::iterator start = string.begin();
+//         std::string::iterator end = string.begin() + last_pos;
+//         std::string word;
+//         for (std::string::iterator it = start; it != end; ++it) {
+//             if (*it == ' ') {
+//                 if (!word.empty()) {
+//                     string_array.push_back(word);
+//                     word.clear();
+//                 }
+//             }
+// 			else
+//                 word += *it;
+//         }
+//         if (!word.empty()) {
+//             string_array.push_back(word);
+//         }
+//         string.clear();
+//     } 
+// 	else {
+//         current.updateBuffer(string);
+//         string.clear();
+// 		return;
+//     }
+// }
+// 	std::cout<<GREEN "Full message received by " YELLOW "Client "<<current->getFd() <<GREEN ": " RESET << string << std::endl;
+// 	if (string_array.empty()) // empty command
+// 	{
+// 		std::cerr << "Error: Empty command received" << std::endl;
+// 		return;
+// 	}
 
-	std::string cmd_array[] = {
-		"NICK",
-		"PASS",
-		"USER",
-		"QUIT",
-		"PRIVMSG",
-		"JOIN",
-		"PART",
-		"KICK",
-		"INVITE",
-		"TOPIC",
-		"MODE"
-	};
+// 	std::string cmd_array[] = {
+// 		"NICK",
+// 		"PASS",
+// 		"USER",
+// 		"QUIT",
+// 		"PRIVMSG",
+// 		"JOIN",
+// 		"PART",
+// 		"KICK",
+// 		"INVITE",
+// 		"TOPIC",
+// 		"MODE"
+// 	};
 
-	int len = sizeof(cmd_array) / sizeof(cmd_array[0]);
-	int j = 0;
-	while (j < len)
-	{
-		if (cmd_array[j] == string_array.front())
-			break;
-		j++;
-	}
+// 	int len = sizeof(cmd_array) / sizeof(cmd_array[0]);
+// 	int j = 0;
+// 	while (j < len)
+// 	{
+// 		if (cmd_array[j] == string_array.front())
+// 			break;
+// 		j++;
+// 	}
 
-	if (j >= len)
-    {
-        std::cerr << "Error: Unrecognized command [" << string_array[0] << "]." << std::endl;
-        return;
-    }
+// 	if (j >= len)
+//     {
+//         std::cerr << "Error: Unrecognized command [" << string_array[0] << "]." << std::endl;
+//         return;
+//     }
 	
-	if (string_array.size() > 1)
-    	std::cout << YELLOW << string_array[1] << RESET << std::endl;
-	else
-	{
-    	string_array.push_back("");
-	}
+// 	if (string_array.size() > 1)
+//     	std::cout << YELLOW << string_array[1] << RESET << std::endl;
+// 	else
+// 	{
+//     	string_array.push_back("");
+// 	}
 
-	switch(j)
-	{
-		case 0: this->cmdNick(i, string_array); break;
-		case 1: this->cmdPass(i, string_array); break;
-		case 2: this->cmdUser(i, string_array); break;
-		case 3: this->cmdQuit(i, string_array); break;bool isValidChannelName(const std::string& channelName);
-        Channel* findChannelByName(const std::string& channelName);
-        Client* findClientByNickname(const std::string& nickname);
-        void setMode(const std::string& mode, const std::string& value);
-		case 3: this->cmdQuit(i, string_array); break;
-		case 4: this->cmdPrivmsg(i, string_array, string); break;
-		case 5: this->cmdJoin(i, string_array); break;
-		case 6: this->cmdPart(i, string_array); break;
-		case 7: this->cmdKick(i, string_array); break;
-		case 8: this->cmdInvite(i, string_array); break;
-		case 9: this->cmdTopic(i, string_array); break;
-		case 10: this->cmdMode(i, string_array); break;
-    default : break;
-	}
-}
+// 	switch(j)
+// 	{
+// 		case 0: this->cmdNick(i, string_array); break;
+// 		case 1: this->cmdPass(i, string_array); break;
+// 		case 2: this->cmdUser(i, string_array); break;
+// 		case 3: this->cmdQuit(i, string_array); break;bool isValidChannelName(const std::string& channelName);
+//         Channel* findChannelByName(const std::string& channelName);
+//         Client* findClientByNickname(const std::string& nickname);
+//         void setMode(const std::string& mode, const std::string& value);
+// 		case 3: this->cmdQuit(i, string_array); break;
+// 		case 4: this->cmdPrivmsg(i, string_array, string); break;
+// 		case 5: this->cmdJoin(i, string_array); break;
+// 		case 6: this->cmdPart(i, string_array); break;
+// 		case 7: this->cmdKick(i, string_array); break;
+// 		case 8: this->cmdInvite(i, string_array); break;
+// 		case 9: this->cmdTopic(i, string_array); break;
+// 		case 10: this->cmdMode(i, string_array); break;
+//     default : break;
+// 	}
+// }
 
-int		Server::isRegistered(int i)
+// int		Server::isRegistered(int i)
+// {
+// 	if (this->_clients[i - 1].getNickname().empty()
+// 		|| this->_clients[i - 1].getUsername().empty()
+// 		|| this->_clients[i - 1].getPasswordIsCorrect() == 0)
+// 	{
+// 		return (0);
+// 	}
+// 	else
+// 		std::cout << "/r/n present"<< std::endl;
+// Test when ctrl+D (eof), it should accumulate buffer
+void	Server::bufferParsing(int i, std::string string)
 {
-	if (this->_clients[i - 1].getNickname().empty()
-		|| this->_clients[i - 1].getUsername().empty()
-		|| this->_clients[i - 1].getPasswordIsCorrect() == 0)
-	{
-		return (0);
-	}
-	else
-		std::cout << "/r/n present"<< std::endl;
+	this->_clients[i - 1].setBuffer(string);
+	if (this->_clients[i - 1].getBuffer().find("\r\n") == std::string::npos)
+		return;
 	
 	std::vector<std::string> string_array;
 	std::stringstream ss(this->_clients[i - 1].getBuffer());
 	std::string line;
 	std::string tmp;
-
  	while(std::getline(ss, line))
 	{
 		size_t pos = line.find_first_of("\r\n");
 		string_array.push_back(line.substr(0,pos));
 	}
 
-	// std::vector<std::string>::iterator it;
-	// for (it = string_array.begin(); it != string_array.end(); it++)
-	// {
-	// 	std::cout << *it  << std::endl;
-	// }
-
 	for (size_t j =0; j < string_array.size(); j++)
 	{
-		parseLine(string_array[j], i);
+		lineParsing(string_array[j], i);
 	}
 	this->_clients[i - 1].getBuffer().clear();
-	std::cout << "clear" <<  this->_clients[i - 1].getBuffer() <<std::endl;
-	// std::vector<std::string> string_array;
-	// std::string str;
-	// size_t pos = str.find_first_of("\r\n");
-	
-	// while (pos != std::string::npos)
-	// {
-	// 	string_array.push_back(str.substr(0,pos));
-	// 	str.erase(0, pos + )
-	// }
 }
 
 

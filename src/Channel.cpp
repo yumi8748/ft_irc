@@ -403,14 +403,14 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, Clie
 {
     if (modeStr.empty())
     {
-        client->sendMessage(":Server 461 MODE :Not enough parameters");
+        client->sendMessage(":localhost 461 MODE :Not enough parameters");
         return;
     }
 
     char operation = modeStr[0]; // '+' or '-'
     if (operation != '+' && operation != '-')
     {
-        client->sendMessage(":Server 501 :Unknown MODE flag");
+        client->sendMessage(":localhost 501 :Unknown MODE flag");
         return;
     }
 
@@ -449,7 +449,7 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, Clie
                 Client* targetClient = serv.findClientByNickname(value);
                 if (!targetClient)
                 {
-                    client->sendMessage(":Server 401 " + value + " :No such nick/channel");
+                    client->sendMessage(":localhost 401 " + value + " :No such nick/channel");
                     break;
                 }
 
@@ -462,7 +462,7 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, Clie
                     }
                     else
                     {
-                        client->sendMessage(":Server 443 " + value + " " + name + " :is already an operator");
+                        client->sendMessage(":localhost 443 " + value + " " + name + " :is already an operator");
                     }
                 }
                 else
@@ -488,7 +488,7 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, Clie
                 break;
 
             default:
-                client->sendMessage(":Server 472 " + std::string(1, mode) + " :is unknown mode char to me");
+                client->sendMessage(":localhost 472 " + std::string(1, mode) + " :is unknown mode char to me");
                 break;
         }
     }
@@ -517,25 +517,25 @@ void Channel::joinChannel(Client* client, const std::string& password)
 {
     if (std::find(clients.begin(), clients.end(), client) != clients.end())
     {
-        client->sendMessage("[Error 443] " + client->getNickname() + " " + name + " : You are already in the channel\n");
+        client->sendMessage(":localhost 443 " + client->getNickname() + " " + name + " : You are already in the channel\n");
         return;
     }
     // check invite
     if (inviteOnly) {
         if (!client->isInvited(client, this))
         {
-            client->sendMessage("[Error 473] " + name + " : You need an invitation to join\n");
+            client->sendMessage(":localhost 473 " + name + " : You need an invitation to join\n");
             return;
         }
     }
     // check password
     if (!Ch_pwd.empty() && Ch_pwd != password) {
-        client->sendMessage("[Error 475] " + name + " : Incorrect channel password\n");
+        client->sendMessage(":localhost 475 " + name + " : Incorrect channel password\n");
         return;
     }
     // check amount of clients
     if (clients.size() >= static_cast<std::size_t>(userLimits)) {
-        client->sendMessage("[Error 471] " + name + " : Channel is full\n");;
+        client->sendMessage(":localhost 471 " + name + " : Channel is full\n");;
         return;
     }
     //first one in channel
@@ -555,7 +555,7 @@ void Channel::partChannel(Client* client, const std::string& message)
 {
     std::vector<Client*>::iterator it = std::find(clients.begin(), clients.end(), client);
     if (it == clients.end()) {
-        client->sendMessage(":server 441 " + client->getNickname() + " " + name + " :They aren't on that channel\n");
+        client->sendMessage(":localhost 441 " + client->getNickname() + " " + name + " :They aren't on that channel\n");
         return;
     }
     std::string partMessage = client->getNickname() + " has left the channel " + name;

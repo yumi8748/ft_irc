@@ -27,6 +27,16 @@ void	Server::lineParsing(std::string line, int i)
 		cmdPrivmsg(i, line_splitted, line);
 	else if (line_splitted[0] == "JOIN")
 		cmdJoin(i, line_splitted);
+	else if (line_splitted[0] == "INVITE")
+		cmdInvite(i, line_splitted);
+	else if (line_splitted[0] == "PART")
+		cmdPart(i, line_splitted);
+	else if (line_splitted[0] == "TOPIC")
+		cmdTopic(i, line_splitted);
+	else if (line_splitted[0] == "MODE")
+		cmdMode(i, line_splitted);
+	else if (line_splitted[0] == "KICK")
+		cmdKick(i, line_splitted);
 }
 
 // void	Server::commandParsing(int i, std::string buf)
@@ -278,40 +288,40 @@ bool Server::isValidChannelName(const std::string& channelName)
     return !channelName.empty() && channelName[0] == '#' && channelName.find(' ') == std::string::npos;
 }
 
-void	Server::cmdJoin(int i, std::vector<std::string> string_array) // parameter: 1channel, pwd
-{
-    if (this->isRegistered(i) == 0)
-    {
-        std::cout << "Client not registered" << std::endl;
-        return;
-    }
+// void	Server::cmdJoin(int i, std::vector<std::string> string_array) // parameter: 1channel, pwd
+// {
+//     if (this->isRegistered(i) == 0)
+//     {
+//         std::cout << "Client not registered" << std::endl;
+//         return;
+//     }
 
-    std::cout << "cmdJoin: " << string_array[0] << std::endl;
+//     std::cout << "cmdJoin: " << string_array[0] << std::endl;
 
-    if (string_array.size() < 2)
-    {
-        this->_clients[i - 1].sendMessage("[Error 461] JOIN : Not enough parameters\n");
-        return;
-    }
+//     if (string_array.size() < 2)
+//     {
+//         this->_clients[i - 1].sendMessage("[Error 461] JOIN : Not enough parameters\n");
+//         return;
+//     }
 
-    std::string channelName = string_array[1];
-    std::string pwd = (string_array.size() > 2) ? string_array[2] : ""; // 預設密碼為空
+//     std::string channelName = string_array[1];
+//     std::string pwd = (string_array.size() > 2) ? string_array[2] : ""; // 預設密碼為空
 
-    if (!isValidChannelName(channelName))
-    {
-        this->_clients[i - 1].sendMessage("[Error 403] " + channelName + " : Invalid channel name\n");
-        return;
-    }
+//     if (!isValidChannelName(channelName))
+//     {
+//         this->_clients[i - 1].sendMessage("[Error 403] " + channelName + " : Invalid channel name\n");
+//         return;
+//     }
 
-    Channel *channel = findChannelByName(channelName);
-    if (!channel)
-    {
-        channel = new Channel(channelName);
-        channel->addOperator(&this->_clients[i - 1]);
-        _channels.push_back(*channel); //
-    }
-    channel->joinChannel(&this->_clients[i - 1], pwd);
-}
+//     Channel *channel = findChannelByName(channelName);
+//     if (!channel)
+//     {
+//         channel = new Channel(channelName);
+//         channel->addOperator(&this->_clients[i - 1]);
+//         _channels.push_back(*channel); //
+//     }
+//     channel->joinChannel(&this->_clients[i - 1], pwd);
+// }
 
 void	Server::cmdPart(int i, std::vector<std::string> string_array) //parameter: 1channel, reason
 {
@@ -321,25 +331,25 @@ void	Server::cmdPart(int i, std::vector<std::string> string_array) //parameter: 
 		return ;
 	}
 	if (string_array.size() < 2) {
-        this->_clients[i - 1].sendMessage(":server 461 PART :Not enough parameters\n");
+        this->_clients[i - 1].sendMessage(":localhost 461 PART :Not enough parameters\n");
         return;
     }
 	std::string &channelName = string_array[1]; //for now only 1 channel as parameter allowed
 	std::string reason = string_array.size() > 2 ? string_array[2] : "";
 	if (!isValidChannelName(channelName))
 	{
-		this->_clients[i - 1].sendMessage(":server 403 " + channelName + " :No such channel\n");
+		this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel\n");
 		return ;
 	}
 	Channel *channel = findChannelByName(channelName);
 	if (!channel)
 	{
-		this->_clients[i - 1].sendMessage(":server 403 " + channelName + " :No such channel\n");
+		this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel\n");
 		return ;
 	}
 	if (!channel->isClientInChannel(&_clients[i - 1]))
 	{
-		this->_clients[i - 1].sendMessage(":server 442 " + channelName + " :You are not on that channel\n");
+		this->_clients[i - 1].sendMessage(":localhost 442 " + channelName + " :You are not on that channel\n");
 		return ;
 	}
 	channel->partChannel(&_clients[i], reason); //handle in channel
@@ -366,13 +376,13 @@ void	Server::cmdKick(int i, std::vector<std::string> string_array)
 {
 	if (this->isRegistered(i) == 0)
 	{
-		this->_clients[i - 1].sendMessage(":Server 451 * :You have not registered");
+		this->_clients[i - 1].sendMessage(":localhost 451 * :You have not registered");
 		return ;
 	}
 	std::cout << "cmdKick" << " : " << string_array[0] << std::endl;
 	if (string_array.size() < 3)
 	{
-		this->_clients[i - 1].sendMessage(":Server 461 KICK :Not enough parameters");
+		this->_clients[i - 1].sendMessage(":localhost 461 KICK :Not enough parameters");
 		return ;
 	}
 	std::string channelName = string_array[1];
@@ -381,24 +391,24 @@ void	Server::cmdKick(int i, std::vector<std::string> string_array)
 	Channel *channel = findChannelByName(channelName);
 	if (!channel)
 	{
-		this->_clients[i - 1].sendMessage(":Server 403 " + channelName + " :No such channel");
+		this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel");
 		return ;
 	}
 	Client *operatorClient = &_clients[i - 1];
 	if (!channel->isOperator(operatorClient))
 	{
-		operatorClient->sendMessage(":Server 482 " + channelName + " :You're not a channel operator");
+		operatorClient->sendMessage(":localhost 482 " + channelName + " :You're not a channel operator");
         return ;
 	}
 	Client *targetClient = findClientByNickname(targetNickname);
 	if (!targetClient)
 	{
-		operatorClient->sendMessage(":Server 401 " + targetNickname + " :No such nick/channel");
+		operatorClient->sendMessage(":localhost 401 " + targetNickname + " :No such nick/channel");
         return ;
 	}
 	if (!channel->isClientInChannel(targetClient))
 	{
-		operatorClient->sendMessage(":Server 441 " + targetNickname + " " + channelName + " :They aren't on that channel");
+		operatorClient->sendMessage(":localhost 441 " + targetNickname + " " + channelName + " :They aren't on that channel");
         return ;
 	}//for irssi
 	std::string kickMessage = ":" + operatorClient->getNickname() + "!" + operatorClient->getUsername() + "@" + operatorClient->getHostname() +
@@ -421,13 +431,13 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
 {
 	if (this->isRegistered(i) == 0)
 	{
-		this->_clients[i - 1].sendMessage(":Server 451 * :You have not registered");
+		this->_clients[i - 1].sendMessage(":localhost 451 * :You have not registered");
 		return ;
 	}
 
     if (string_array.size() < 3)
     {
-        this->_clients[i - 1].sendMessage(":Server 461 INVITE :Not enough parameters");
+        this->_clients[i - 1].sendMessage(":localhost 461 INVITE :Not enough parameters");
         return;
     }
 
@@ -437,38 +447,38 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
     Channel* channel = findChannelByName(channelName);
     if (!channel)
     {
-        this->_clients[i - 1].sendMessage(":Server 403 " + channelName + " :No such channel");
+        this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel");
         return;
     }
 
     if (!channel->isOperator(&this->_clients[i - 1]))
     {
-        this->_clients[i - 1].sendMessage(":Server 482 " + channelName + " :You're not a channel operator");
+        this->_clients[i - 1].sendMessage(":localhost 482 " + channelName + " :You're not a channel operator");
         return;
     }
 
     Client* targetClient = findClientByNickname(targetNickname);
     if (!targetClient)
     {
-        this->_clients[i - 1].sendMessage(":Server 401 " + targetNickname + " :No such nick/channel");
+        this->_clients[i - 1].sendMessage(":localhost 401 " + targetNickname + " :No such nick/channel");
         return;
     }
     channel->inviteClient(targetClient);
-    this->_clients[i - 1].sendMessage(":Server 341 " + this->_clients[i - 1].getNickname() + " " + targetNickname + " " + channelName);
-    targetClient->sendMessage(":Server :You have been invited to join " + channelName + " by " + this->_clients[i - 1].getNickname());
+    this->_clients[i - 1].sendMessage(":localhost 341 " + this->_clients[i - 1].getNickname() + " " + targetNickname + " " + channelName);
+    targetClient->sendMessage(":localhost :You have been invited to join " + channelName + " by " + this->_clients[i - 1].getNickname());
 }
 
 void Server::cmdTopic(int i, std::vector<std::string> string_array)
 {
     if (this->isRegistered(i) == 0)
     {
-        this->_clients[i - 1].sendMessage(":Server 451 * :You have not registered");
+        this->_clients[i - 1].sendMessage(":localhost 451 * :You have not registered");
         return;
     }
 
     if (string_array.size() < 2)
     {
-        this->_clients[i - 1].sendMessage(":Server 461 TOPIC :Not enough parameters");
+        this->_clients[i - 1].sendMessage(":localhost 461 TOPIC :Not enough parameters");
         return;
     }
 
@@ -476,7 +486,7 @@ void Server::cmdTopic(int i, std::vector<std::string> string_array)
     Channel* channel = findChannelByName(channelName);
     if (!channel)
     {
-        this->_clients[i - 1].sendMessage(":Server 403 " + channelName + " :No such channel");
+        this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel");
         return;
     }
 
@@ -485,18 +495,18 @@ void Server::cmdTopic(int i, std::vector<std::string> string_array)
         std::string currentTopic = channel->getTopic();
         if (currentTopic.empty())
         {
-            this->_clients[i - 1].sendMessage(":Server 331 " + channelName + " :No topic is set");
+            this->_clients[i - 1].sendMessage(":localhost 331 " + channelName + " :No topic is set");
         }
         else
         {
-            this->_clients[i - 1].sendMessage(":Server 332 " + channelName + " :" + currentTopic);
+            this->_clients[i - 1].sendMessage(":localhost 332 " + channelName + " :" + currentTopic);
         }
         return;
     }
 
     if (!channel->isOperator(&this->_clients[i - 1]))
     {
-        this->_clients[i - 1].sendMessage(":Server 482 " + channelName + " :You're not a channel operator");
+        this->_clients[i - 1].sendMessage(":localhost 482 " + channelName + " :You're not a channel operator");
         return;
     }
 
@@ -521,13 +531,13 @@ void Server::cmdMode(int i, std::vector<std::string> string_array)
 {
     if (this->isRegistered(i) == 0)
     {
-        this->_clients[i - 1].sendMessage(":Server 451 * :You have not registered");
+        this->_clients[i - 1].sendMessage(":localhost 451 * :You have not registered");
         return;
     }
 
     if (string_array.size() < 2)
     {
-        this->_clients[i - 1].sendMessage(":Server 461 MODE :Not enough parameters");
+        this->_clients[i - 1].sendMessage(":localhost 461 MODE :Not enough parameters");
         return;
     }
 
@@ -538,21 +548,21 @@ void Server::cmdMode(int i, std::vector<std::string> string_array)
     Channel* channel = findChannelByName(channelName);
     if (!channel)
     {
-        this->_clients[i - 1].sendMessage(":Server 403 " + channelName + " :No such channel");
+        this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel");
         return;
     }
 
     if (mode.empty())
     {
         // Return current channel modes
-        this->_clients[i - 1].sendMessage(":Server 324 " + this->_clients[i - 1].getNickname() +
+        this->_clients[i - 1].sendMessage(":localhost 324 " + this->_clients[i - 1].getNickname() +
                                           " " + channelName + " " + channel->getMode("")); //! check needed
         return;
     }
 
     if (!channel->isOperator(&this->_clients[i - 1]))
     {
-        this->_clients[i - 1].sendMessage(":Server 482 " + channelName + " :You're not a channel operator");
+        this->_clients[i - 1].sendMessage(":localhost 482 " + channelName + " :You're not a channel operator");
         return;
     }
 

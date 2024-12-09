@@ -252,526 +252,294 @@ void	Server::bufferParsing(int i, std::string string)
 
 // // YUMI PART --------------------------------------------------------
 
-// Channel* Server::findChannelByName(const std::string& channelName)
-// {
-//     for (size_t j = 0; j < this->_channels.size(); j++)
-//     {
-//         if (this->_channels[j]->getName() == channelName)
-//             return (this->_channels[j]);
-//     }
-//     return (NULL);
-// }
+bool Server::isValidChannelName(const std::string& channelName)
+{
+    // start with # and no space
+    return !channelName.empty() && channelName[0] == '#' && channelName.find(' ') == std::string::npos;
+}
+
+void	Server::cmdJoin(int i, std::vector<std::string> string_array) // parameter: 1channel, pwd
+{
+    if (this->isRegistered(i) == 0)
+    {
+        std::cout << "Client not registered" << std::endl;
+        return;
+    }
+
+    std::cout << "cmdJoin: " << string_array[0] << std::endl;
+
+    if (string_array.size() < 2)
+    {
+        this->_clients[i - 1].sendMessage("[Error 461] JOIN : Not enough parameters\n");
+        return;
+    }
+
+    std::string channelName = string_array[1];
+    std::string pwd = (string_array.size() > 2) ? string_array[2] : ""; // 預設密碼為空
+
+    if (!isValidChannelName(channelName))
+    {
+        this->_clients[i - 1].sendMessage("[Error 403] " + channelName + " : Invalid channel name\n");
+        return;
+    }
+
+    Channel *channel = findChannelByName(channelName);
+    if (!channel)
+    {
+        channel = new Channel(channelName, *this);
+        channel->addOperator(&this->_clients[i - 1]);
+        this->_channels.push_back(channel);
+    }
+    channel->joinChannel(&this->_clients[i - 1], pwd);
+}
+
+void	Server::cmdPart(int i, std::vector<std::string> string_array) //parameter: 1channel, reason
+{
+	if (this->isRegistered(i) == 0)
+	{
+		std::cout << "Client not registered"  << std::endl;
+		return ;
+	}
+	if (string_array.size() < 2) {
+        this->_clients[i - 1].sendMessage(":server 461 PART :Not enough parameters\n");
+        return;
+    }
+	std::string &channelName = string_array[1]; //for now only 1 channel as parameter allowed
+	std::string reason = string_array.size() > 2 ? string_array[2] : "";
+	if (!isValidChannelName(channelName))
+	{
+		this->_clients[i - 1].sendMessage(":server 403 " + channelName + " :No such channel\n");
+		return ;
+	}
+	Channel *channel = findChannelByName(channelName);
+	if (!channel)
+	{
+		this->_clients[i - 1].sendMessage(":server 403 " + channelName + " :No such channel\n");
+		return ;
+	}
+	if (!channel->isClientInChannel(&_clients[i - 1]))
+	{
+		this->_clients[i - 1].sendMessage(":server 442 " + channelName + " :You are not on that channel\n");
+		return ;
+	}
+	channel->partChannel(&_clients[i], reason); //handle in channel
+	if (channel->isEmpty())
+	{
+		for (std::vector<Channel*>::iterator it = this->_channels.begin(); it != this->_channels.end(); ) 
+		{
+    		if (*it == channel)
+			{
+        		this->_channels.erase(it);
+        		break;
+    		}
+			else
+				++it;
+		}
+		delete channel;
+	}
+	std::cout << "Client[" << i - 1 << "] parted from channel " << channelName << std::endl;
+}
+
+//
+
+void	Server::cmdKick(int i, std::vector<std::string> string_array)
+{
+	if (this->isRegistered(i) == 0)
+	{
+		this->_clients[i - 1].sendMessage(":Server 451 * :You have not registered");
+		return ;
+	}
+	std::cout << "cmdKick" << " : " << string_array[0] << std::endl;
+	if (string_array.size() < 3)
+	{
+		this->_clients[i - 1].sendMessage(":Server 461 KICK :Not enough parameters");
+		return ;
+	}
+	std::string channelName = string_array[1];
+    std::string targetNickname = string_array[2];
+	std::string reason = string_array.size() > 3 ? string_array[3] : "No reason provided.";
+	Channel *channel = findChannelByName(channelName);
+	if (!channel)
+	{
+		this->_clients[i - 1].sendMessage(":Server 403 " + channelName + " :No such channel");
+		return ;
+	}
+	Client *operatorClient = &_clients[i - 1];
+	if (!channel->isOperator(operatorClient))
+	{
+		operatorClient->sendMessage(":Server 482 " + channelName + " :You're not a channel operator");
+        return ;
+	}
+	Client *targetClient = findClientByNickname(targetNickname);
+	if (!targetClient)
+	{
+		operatorClient->sendMessage(":Server 401 " + targetNickname + " :No such nick/channel");
+        return ;
+	}
+	if (!channel->isClientInChannel(targetClient))
+	{
+		operatorClient->sendMessage(":Server 441 " + targetNickname + " " + channelName + " :They aren't on that channel");
+        return ;
+	}//for irssi
+	std::string kickMessage = ":" + operatorClient->getNickname() + "!" + operatorClient->getUsername() + "@" + operatorClient->getHostname() +
+							  " KICK " + channelName + " " + targetNickname + " :" + (reason.empty() ? "No reason" : reason);
+	targetClient->sendMessage(kickMessage);
+
+	channel->broadcastMessage(kickMessage, targetClient);
+
+	channel->kickClient(targetClient);
+
+	std::cout << "Client " << targetNickname << " has been kicked from channel " << channelName
+			  << " by operator " << operatorClient->getNickname() << ". Reason: " << (reason.empty() ? "No reason" : reason) << std::endl;
+	// channel->kickClient(targetClient, reason);
+    // channel->broadcastMessage(targetNickname + " has been kicked from the channel " + channelName + " for: " + reason);
+    // std::cout << "Client " << targetNickname << " has been kicked from channel " << channelName << " by operator " 
+    //           << operatorClient->getNickname() << ". Reason: " << reason << std::endl;
+}
+
+void	Server::cmdInvite(int i, std::vector<std::string> string_array)
+{
+	if (this->isRegistered(i) == 0)
+	{
+		this->_clients[i - 1].sendMessage(":Server 451 * :You have not registered");
+		return ;
+	}
+
+    if (string_array.size() < 3)
+    {
+        this->_clients[i - 1].sendMessage(":Server 461 INVITE :Not enough parameters");
+        return;
+    }
+
+    std::string targetNickname = string_array[1];
+    std::string channelName = string_array[2];
+
+    Channel* channel = findChannelByName(channelName);
+    if (!channel)
+    {
+        this->_clients[i - 1].sendMessage(":Server 403 " + channelName + " :No such channel");
+        return;
+    }
+
+    if (!channel->isOperator(&this->_clients[i - 1]))
+    {
+        this->_clients[i - 1].sendMessage(":Server 482 " + channelName + " :You're not a channel operator");
+        return;
+    }
+
+    Client* targetClient = findClientByNickname(targetNickname);
+    if (!targetClient)
+    {
+        this->_clients[i - 1].sendMessage(":Server 401 " + targetNickname + " :No such nick/channel");
+        return;
+    }
+    channel->inviteClient(targetClient);
+    this->_clients[i - 1].sendMessage(":Server 341 " + this->_clients[i - 1].getNickname() + " " + targetNickname + " " + channelName);
+    targetClient->sendMessage(":Server :You have been invited to join " + channelName + " by " + this->_clients[i - 1].getNickname());
+}
+
+void Server::cmdTopic(int i, std::vector<std::string> string_array)
+{
+    if (this->isRegistered(i) == 0)
+    {
+        this->_clients[i - 1].sendMessage(":Server 451 * :You have not registered");
+        return;
+    }
+
+    if (string_array.size() < 2)
+    {
+        this->_clients[i - 1].sendMessage(":Server 461 TOPIC :Not enough parameters");
+        return;
+    }
+
+    std::string channelName = string_array[1];
+    Channel* channel = findChannelByName(channelName);
+    if (!channel)
+    {
+        this->_clients[i - 1].sendMessage(":Server 403 " + channelName + " :No such channel");
+        return;
+    }
+
+    if (string_array.size() == 2)
+    {
+        std::string currentTopic = channel->getTopic();
+        if (currentTopic.empty())
+        {
+            this->_clients[i - 1].sendMessage(":Server 331 " + channelName + " :No topic is set");
+        }
+        else
+        {
+            this->_clients[i - 1].sendMessage(":Server 332 " + channelName + " :" + currentTopic);
+        }
+        return;
+    }
+
+    if (!channel->isOperator(&this->_clients[i - 1]))
+    {
+        this->_clients[i - 1].sendMessage(":Server 482 " + channelName + " :You're not a channel operator");
+        return;
+    }
+
+    std::string newTopic;
+    for (size_t j = 2; j < string_array.size(); ++j)
+    {
+        newTopic += string_array[j] + " ";
+    }
+    newTopic = newTopic.substr(0, newTopic.size() - 1);
+
+    channel->setTopic(newTopic);
+    std::string topicMessage = ":" + this->_clients[i - 1].getNickname() + "!" +
+                               this->_clients[i - 1].getUsername() + "@" +
+                               this->_clients[i - 1].getHostname() + " TOPIC " + channelName + " :" + newTopic;
+    channel->broadcastMessage(topicMessage);
+
+    std::cout << "Topic for channel " << channelName << " updated to: " << newTopic << std::endl;
+}
 
 
-// Client* Server::findClientByNickname(const std::string& nickname)
-// {
-//     for (size_t j = 0; j < this->_clients.size(); j++)
-// 	{
-//         if (this->_clients[j].getNickname() == nickname)
-//             return (&this->_clients[j]);
-//     }
-//     return NULL;
-// }
+void Server::cmdMode(int i, std::vector<std::string> string_array)
+{
+    if (this->isRegistered(i) == 0)
+    {
+        this->_clients[i - 1].sendMessage(":Server 451 * :You have not registered");
+        return;
+    }
 
-// bool Server::isValidChannelName(const std::string& channelName)
-// {
-//     // start with # and no space
-//     return !channelName.empty() && channelName[0] == '#' && channelName.find(' ') == std::string::npos;
-// }
+    if (string_array.size() < 2)
+    {
+        this->_clients[i - 1].sendMessage(":Server 461 MODE :Not enough parameters");
+        return;
+    }
 
-// void	Server::cmdJoin(int i, std::vector<std::string> string_array) // parameter: 1channel, pwd
-// {
-// 	if (this->isRegistered(i) == 0)
-// 	{
-// 		std::cout << "Client not registered"  << std::endl;
-// 		return ;
-// 	}
-// 	std::cout << "cmdJoin" << " : " << string_array[0] << std::endl;
-// 	if (string_array.size() < 2)
-// 	{
-// 		this->_clients[i - 1].sendMessage("Error: JOIN command requires at least 1 argument: <channel> [password]");
-//         return;
-// 	}
-// 	std::string channelName = string_array[1]; //for now only 1 channel as parameter allowed
-// 	std::string pwd = (string_array.size() > 2) ? string_array[2] : "";
-// 	if (!isValidChannelName(channelName))
-// 	{
-// 		this->_clients[i - 1].sendMessage("Error: Invalid channel name. Channel names must start with '#' and no space allowed.");
-// 		return ;
-// 	}
-// 	Channel * channel = findChannelByName(channelName);
-// 	if (!channel)
-// 	{
-// 		channel = new Channel(channelName, *this);
-// 		channel->addOperator(&this->_clients[i - 1]);
-// 		this->_channels.push_back(channel);
-// 	}
-// 	channel->joinChannel(&this->_clients[i - 1], pwd); //handle in channel
+    std::string channelName = string_array[1];
+    std::string mode = (string_array.size() > 2) ? string_array[2] : "";
+    std::string extra_cmd = (string_array.size() > 3) ? string_array[3] : "";
 
-// }
+    Channel* channel = findChannelByName(channelName);
+    if (!channel)
+    {
+        this->_clients[i - 1].sendMessage(":Server 403 " + channelName + " :No such channel");
+        return;
+    }
 
-// void	Server::cmdPart(int i, std::vector<std::string> string_array) //parameter: 1channel, reason
-// {
-// 	if (this->isRegistered(i) == 0)
-// 	{
-// 		std::cout << "Client not registered"  << std::endl;
-// 		return ;
-// 	}
-// 	std::cout << "cmdPart" << " : " << string_array[0] << std::endl;
-// 	if (string_array.size() < 2) {
-//         this->_clients[i].sendMessage("Error: PART command requires a channel name.");
-//         return;
-//     }
-// 	std::string &channelName = string_array[1]; //for now only 1 channel as parameter allowed
-// 	std::string reason = string_array.size() > 2 ? string_array[2] : "";
-// 	if (!isValidChannelName(channelName))
-// 	{
-// 		this->_clients[i].sendMessage("Error: Invalid channel name. Channel names must start with '#' and no space allowed.");
-// 		return ;
-// 	}
-// 	Channel *channel = findChannelByName(channelName);
-// 	if (!channel)
-// 	{
-// 		this->_clients[i].sendMessage("Error: Channel " + channelName + " does not exist.");
-// 		return ;
-// 	}
-// 	if (!channel->isClientInChannel(&_clients[i]))
-// 	{
-// 		this->_clients[i].sendMessage("Error: You are not in the channel " + channelName);
-// 		return ;
-// 	}
-// 	channel->partChannel(&_clients[i], reason); //handle in channel
-// 	if (channel->isEmpty())
-// 	{
-// 		for (std::vector<Channel*>::iterator it = this->_channels.begin(); it != this->_channels.end(); ) 
-// 		{
-//     		if (*it == channel)
-// 			{
-//         		this->_channels.erase(it);
-//         		break;
-//     		}
-// 			else
-// 				++it;
-// 		}
-// 		delete channel;
-// 	}
-// 	std::cout << "Client[" << i << "] parted from channel " << channelName << std::endl;
-// }
+    if (mode.empty())
+    {
+        // Return current channel modes
+        this->_clients[i - 1].sendMessage(":Server 324 " + this->_clients[i - 1].getNickname() +
+                                          " " + channelName + " " + channel->getMode("")); //! check needed
+        return;
+    }
 
-// //
+    if (!channel->isOperator(&this->_clients[i - 1]))
+    {
+        this->_clients[i - 1].sendMessage(":Server 482 " + channelName + " :You're not a channel operator");
+        return;
+    }
 
-// void	Server::cmdKick(int i, std::vector<std::string> string_array)
-// {
-// 	if (this->isRegistered(i) == 0)
-// 	{
-// 		std::cout << "Client not registered"  << std::endl;
-// 		return ;
-// 	}
-// 	std::cout << "cmdKick" << " : " << string_array[0] << std::endl;
-// 	if (string_array.size() < 3)
-// 	{
-// 		this->_clients[i - 1].sendMessage("Error: KICK command requires at least 2 arguments: <channel> <nickname>");
-// 		return ;
-// 	}
-// 	std::string channelName = string_array[1];
-//     std::string targetNickname = string_array[2];
-// 	std::string reason = string_array.size() > 3 ? string_array[3] : "No reason provided.";
-// 	Channel *channel = findChannelByName(channelName);
-// 	if (!channel)
-// 	{
-// 		this->_clients[i - 1].sendMessage("Error: Channel " + channelName + " not found.");
-// 		return ;
-// 	}
-// 	Client *operatorClient = &_clients[i - 1];
-// 	if (!channel->isOperator(operatorClient))
-// 	{
-// 		operatorClient->sendMessage("Error: You are not an operator in the channel " + channelName + ".");
-//         return ;
-// 	}
-// 	Client *targetClient = findClientByNickname(targetNickname);
-// 	if (!targetClient)
-// 	{
-// 		operatorClient->sendMessage("Error: Client with nickname " + targetNickname + " not found.");
-//         return ;
-// 	}
-// 	if (!channel->isClientInChannel(targetClient))
-// 	{
-// 		operatorClient->sendMessage("Error: Client " + targetNickname + " is not in the channel " + channelName + ".");
-//         return ;
-// 	}
-// 	channel->kickClient(targetClient, reason);
-//     channel->broadcastMessage(targetNickname + " has been kicked from the channel " + channelName + " for: " + reason);
-//     std::cout << "Client " << targetNickname << " has been kicked from channel " << channelName << " by operator " 
-//               << operatorClient->getNickname() << ". Reason: " << reason << std::endl;
-// }
+    channel->setMode(mode, extra_cmd, &_clients[i - 1]);
+    this->_clients[i - 1].sendMessage("Mode updated successfully."); // keep?
+}
 
-// void	Server::cmdInvite(int i, std::vector<std::string> string_array)
-// {
-// 	if (this->isRegistered(i) == 0)
-// 	{
-// 		std::cout << "Client not registered"  << std::endl;
-// 		return ;
-// 	}
-// 	std::cout << "cmdInvite" << " : " << string_array[0] << std::endl;
 
-//     if (string_array.size() < 3)
-//     {
-//         this->_clients[i].sendMessage("Error: INVITE command requires at least two arguments: <nickname> <channel>");
-//         return;
-//     }
-
-//     std::string targetNickname = string_array[1];
-//     std::string channelName = string_array[2];
-
-//     Channel* channel = findChannelByName(channelName);
-//     if (!channel)
-//     {
-//         this->_clients[i].sendMessage("Error: Channel " + channelName + " not found.");
-//         return;
-//     }
-
-//     if (!channel->isOperator(&this->_clients[i]))
-//     {
-//         this->_clients[i].sendMessage("Error: You are not an operator in this channel.");
-//         return;
-//     }
-
-//     Client* targetClient = findClientByNickname(targetNickname);
-//     if (!targetClient)
-//     {
-//         this->_clients[i].sendMessage("Error: Target client " + targetNickname + " not found.");
-//         return;
-//     }
-//     channel->inviteClient(targetClient);
-// }
-
-// void	Server::cmdTopic(int i, std::vector<std::string> string_array)
-// {
-// 	if (this->isRegistered(i) == 0)
-// 	{
-// 		std::cout << "Client not registered" << std::endl;
-// 		return ;
-// 	}
-// 	std::cout << "cmdTopic" << " : " << string_array[0] << std::endl;
-
-//     if (string_array.size() < 2)
-//     {
-//         this->_clients[i].sendMessage("Error: TOPIC command requires a channel name.");
-//         return;
-//     }
-
-// 	std::string channelName = string_array[1];
-//     std::string newTopic = (string_array.size() > 2) ? string_array[2] : ""; // parameter with new_topic
-
-// 	Channel* channel = findChannelByName(channelName);
-// 	if (!channel)
-// 	{
-// 		this->_clients[i].sendMessage("Error: Channel " + channelName + " not found.");
-// 		return ;
-// 	}
-
-// 	if (!channel->isOperator(&this->_clients[i]))
-// 	{
-// 		this->_clients[i].sendMessage("Error: You are not an operator in this channel.");
-// 		return ;
-// 	}
-//     channel->setTopic(newTopic);
-// 	this->_clients[i].sendMessage("Topic updated successfully.");
-// }
-
-// void	Server::cmdMode(int i, std::vector<std::string> string_array)
-// {
-//     if (this->isRegistered(i) == 0)
-//     {
-//         std::cout << "Client not registered" << std::endl;
-//         return;
-//     }
-//     std::cout << "cmdMode" << " : " << string_array[0] << std::endl;
-//     if (string_array.size() < 3)
-//     {
-//         this->_clients[i].sendMessage("Error: MODE command requires a channel name, mode, and value.");
-//         return;
-//     }
-//     std::string channelName = string_array[1];
-//     std::string mode = string_array[2];
-//     std::string extra_cmd = (string_array.size() > 3) ? string_array[3] : "";
-
-//     Channel* channel = findChannelByName(channelName);
-//     if (!channel)
-//     {
-//         this->_clients[i].sendMessage("Error: Channel " + channelName + " not found.");
-//         return;
-//     }
-//     if (!channel->isOperator(&this->_clients[i]))
-//     {
-//         this->_clients[i].sendMessage("Error: You are not an operator in this channel.");
-//         return;
-//     }
-//     channel->setMode(mode, extra_cmd);
-//     this->_clients[i].sendMessage("Mode updated successfully.");
-// }
-// bool Server::isValidChannelName(const std::string& channelName)
-// {
-//     // start with # and no space
-//     return !channelName.empty() && channelName[0] == '#' && channelName.find(' ') == std::string::npos;
-// }
-
-// void	Server::cmdJoin(int i, std::vector<std::string> string_array) // parameter: 1channel, pwd
-// {
-// 	if (this->isRegistered(i) == 0)
-// 	{
-// 		std::cout << "Client not registered"  << std::endl;
-// 		return ;
-// 	}
-// 	std::cout << "cmdJoin" << " : " << string_array[0] << std::endl;
-// 	if (string_array.size() < 2)
-// 	{
-// 		this->_clients[i - 1].sendMessage("Error: JOIN command requires at least 1 argument: <channel> [password]");
-//         return;
-// 	}
-// 	std::string channelName = string_array[1]; //for now only 1 channel as parameter allowed
-// 	std::string pwd = (string_array.size() > 2) ? string_array[2] : "";
-// 	if (!isValidChannelName(channelName))
-// 	{
-// 		this->_clients[i - 1].sendMessage("Error: Invalid channel name. Channel names must start with '#' and no space allowed.");
-// 		return ;
-// 	}
-// 	Channel * channel = findChannelByName(channelName);
-// 	if (!channel)
-// 	{
-// 		channel = new Channel(channelName, *this);
-// 		channel->addOperator(&this->_clients[i - 1]);
-// 		this->_channels.push_back(channel);
-// 	}
-// 	channel->joinChannel(&this->_clients[i - 1], pwd); //handle in channel
-// }
-
-// void	Server::cmdPart(int i, std::vector<std::string> string_array) //parameter: 1channel, reason
-// {
-// 	if (this->isRegistered(i) == 0)
-// 	{
-// 		std::cout << "Client not registered"  << std::endl;
-// 		return ;
-// 	}
-// 	std::cout << "cmdPart" << " : " << string_array[0] << std::endl;
-// 	if (string_array.size() < 2) {
-//         this->_clients[i].sendMessage("Error: PART command requires a channel name.");
-//         return;
-//     }
-// 	std::string &channelName = string_array[1]; //for now only 1 channel as parameter allowed
-// 	std::string reason = string_array.size() > 2 ? string_array[2] : "";
-// 	if (!isValidChannelName(channelName))
-// 	{
-// 		this->_clients[i - 1].sendMessage("Error: Invalid channel name. Channel names must start with '#' and no space allowed.");
-// 		return ;
-// 	}
-// 	Channel *channel = findChannelByName(channelName);
-// 	if (!channel)
-// 	{
-// 		this->_clients[i - 1].sendMessage("Error: Channel " + channelName + " does not exist.");
-// 		return ;
-// 	}
-// 	if (!channel->isClientInChannel(&_clients[i - 1]))
-// 	{
-// 		this->_clients[i].sendMessage("Error: You are not in the channel " + channelName);
-// 		return ;
-// 	}
-// 	channel->partChannel(&_clients[i], reason); //handle in channel
-// 	if (channel->isEmpty())
-// 	{
-// 		for (std::vector<Channel*>::iterator it = this->_channels.begin(); it != this->_channels.end(); ) 
-// 		{
-//     		if (*it == channel)
-// 			{
-//         		this->_channels.erase(it);
-//         		break;
-//     		}
-// 			else
-// 				++it;
-// 		}
-// 		delete channel;
-// 	}
-// 	std::cout << "Client[" << i - 1 << "] parted from channel " << channelName << std::endl;
-// }
-
-// //
-
-// void	Server::cmdKick(int i, std::vector<std::string> string_array)
-// {
-// 	if (this->isRegistered(i) == 0)
-// 	{
-// 		std::cout << "Client not registered"  << std::endl;
-// 		return ;
-// 	}
-// 	std::cout << "cmdKick" << " : " << string_array[0] << std::endl;
-// 	if (string_array.size() < 3)
-// 	{
-// 		this->_clients[i - 1].sendMessage("Error: KICK command requires at least 2 arguments: <channel> <nickname>");
-// 		return ;
-// 	}
-// 	std::string channelName = string_array[1];
-//     std::string targetNickname = string_array[2];
-// 	std::string reason = string_array.size() > 3 ? string_array[3] : "No reason provided.";
-// 	Channel *channel = findChannelByName(channelName);
-// 	if (!channel)
-// 	{
-// 		this->_clients[i - 1].sendMessage("Error: Channel " + channelName + " not found.");
-// 		return ;
-// 	}
-// 	Client *operatorClient = &_clients[i - 1];
-// 	if (!channel->isOperator(operatorClient))
-// 	{
-// 		operatorClient->sendMessage("Error: You are not an operator in the channel " + channelName + ".");
-//         return ;
-// 	}
-// 	Client *targetClient = findClientByNickname(targetNickname);
-// 	if (!targetClient)
-// 	{
-// 		operatorClient->sendMessage("Error: Client with nickname " + targetNickname + " not found.");
-//         return ;
-// 	}
-// 	if (!channel->isClientInChannel(targetClient))
-// 	{
-// 		operatorClient->sendMessage("Error: Client " + targetNickname + " is not in the channel " + channelName + ".");
-//         return ;
-// 	}
-// 	channel->kickClient(targetClient, reason);
-//     channel->broadcastMessage(targetNickname + " has been kicked from the channel " + channelName + " for: " + reason);
-//     std::cout << "Client " << targetNickname << " has been kicked from channel " << channelName << " by operator " 
-//               << operatorClient->getNickname() << ". Reason: " << reason << std::endl;
-// }
-
-// void	Server::cmdInvite(int i, std::vector<std::string> string_array)
-// {
-// 	if (this->isRegistered(i) == 0)
-// 	{
-// 		std::cout << "Client not registered"  << std::endl;
-// 		return ;
-// 	}
-// 	std::cout << "cmdInvite" << " : " << string_array[0] << std::endl;
-
-//     if (string_array.size() < 3)
-//     {
-//         this->_clients[i - 1].sendMessage("Error: INVITE command requires at least two arguments: <nickname> <channel>");
-//         return;
-//     }
-
-//     std::string targetNickname = string_array[1];
-//     std::string channelName = string_array[2];
-
-//     Channel* channel = findChannelByName(channelName);
-//     if (!channel)
-//     {
-//         this->_clients[i - 1].sendMessage("Error: Channel " + channelName + " not found.");
-//         return;
-//     }
-
-//     if (!channel->isOperator(&this->_clients[i - 1]))
-//     {
-//         this->_clients[i - 1].sendMessage("Error: You are not an operator in this channel.");
-//         return;
-//     }
-
-//     Client* targetClient = findClientByNickname(targetNickname);
-//     if (!targetClient)
-//     {
-//         this->_clients[i - 1].sendMessage("Error: Target client " + targetNickname + " not found.");
-//         return;
-//     }
-//     channel->inviteClient(targetClient);
-// }
-
-// void Server::cmdTopic(int i, std::vector<std::string> string_array)
-// {
-//     if (this->isRegistered(i) == 0)
-//     {
-//         std::cout << "Client not registered" << std::endl;
-//         return;
-//     }
-
-//     if (string_array.size() < 2)
-//     {
-//         this->_clients[i - 1].sendMessage("Error: TOPIC command requires a channel name.");
-//         return;
-//     }
-
-//     std::string channelName = string_array[1];
-//     Channel* channel = findChannelByName(channelName);
-//     if (!channel)
-//     {
-//         this->_clients[i - 1].sendMessage("Error: Channel " + channelName + " not found.");
-//         return;
-//     }
-
-//     if (!channel->isOperator(&this->_clients[i - 1]))
-//     {
-//         this->_clients[i - 1].sendMessage("Error: You are not an operator in this channel.");
-//         return;
-//     }
-
-//     // check topic
-//     if (string_array.size() == 2)
-//     {
-//         std::string currentTopic = channel->getTopic();
-//         if (currentTopic.empty())
-//         {
-//             this->_clients[i - 1].sendMessage("Current topic is: No topic set.");
-//         }
-//         else
-//         {
-//             this->_clients[i - 1].sendMessage("Current topic: " + currentTopic);
-//         }
-//         return;
-//     }
-
-// 	//join multiple parameters as new topic
-//     if (string_array.size() > 2)
-//     {
-//         std::string newTopic;
-//         for (size_t j = 2; j < string_array.size(); ++j)
-//         {
-//             newTopic += string_array[j] + " ";
-//         }
-//         newTopic = newTopic.substr(0, newTopic.size() - 1);
-//         channel->setTopic(newTopic);
-//         this->_clients[i - 1].sendMessage("Topic updated successfully.");
-//     }
-//     else
-//     {
-//         this->_clients[i - 1].sendMessage("Error: Incorrect number of parameters.");
-//     }
-// }
-
-// void	Server::cmdMode(int i, std::vector<std::string> string_array)
-// {
-//     if (this->isRegistered(i) == 0)
-//     {
-//         std::cout << "Client not registered" << std::endl;
-//         return;
-//     }
-//     std::cout << "cmdMode" << " : " << string_array[0] << std::endl;
-//     if (string_array.size() < 3)
-//     {
-//         this->_clients[i - 1].sendMessage("Error: MODE command requires a channel name, mode, and value.");
-//         return;
-//     }
-//     std::string channelName = string_array[1];
-//     std::string mode = string_array[2];
-//     std::string extra_cmd = (string_array.size() > 3) ? string_array[3] : "";
-
-//     Channel* channel = findChannelByName(channelName);
-//     if (!channel)
-//     {
-//         this->_clients[i - 1].sendMessage("Error: Channel " + channelName + " not found.");
-//         return;
-//     }
-//     if (!channel->isOperator(&this->_clients[i - 1]))
-//     {
-//         this->_clients[i - 1].sendMessage("Error: You are not an operator in this channel.");
-//         return;
-//     }
-//     channel->setMode(mode, extra_cmd, &_clients[i - 1]);
-//     this->_clients[i - 1].sendMessage("Mode updated successfully.");
-// }
 
 

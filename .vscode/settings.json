@@ -50,7 +50,8 @@
         "optional": "cpp",
         "ranges": "cpp",
         "span": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "csignal": "cpp"
     }
 =======
 	"files.associations": {

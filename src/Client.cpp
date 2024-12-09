@@ -2,7 +2,7 @@
 
 // Client::Client(int fd): client_fd(fd), _passwordIsCorrect(0), _isLogged(0)
 // Client::Client(int fd): client_fd(fd), _passwordIsCorrect(0)
-Client::Client(int fd): nick("*"),client_fd(fd), _passwordIsCorrect(0), _isRegistered(0)
+Client::Client(int fd): nick("*"),host(getSystemHostname()), client_fd(fd), _passwordIsCorrect(0), _isRegistered(0)
 // Client::Client(int fd): client_fd(fd)
 {
     recv_buf = "";
@@ -19,10 +19,17 @@ void Client::updateBuffer(std::string str){
 // 	return _buffer;
 // }
 
-void Client::clearBuffer(){
+void Client::clearBuffer()
+{
 	std::cout << "CLEARBUF: " << _buffer << std::endl;
 	_buffer.empty();
 	std::cout << "AFTER: " << _buffer << std::endl;
+}
+std::string Client::getSystemHostname() {
+    char hostname[1024];
+    if (gethostname(hostname, sizeof(hostname)) == 0)
+        return std::string(hostname);
+    return "unknown";
 }
 
 void Client::setFd(int fd){
@@ -44,7 +51,10 @@ void Client::setOldNick(const std::string& oldnickname)
     oldnick = oldnickname;
 }
 
-
+void Client::setHostname(const std::string& hostname)
+{
+    host = hostname;
+}
 
 const std::string& Client::getNickname() const
 {
@@ -66,6 +76,11 @@ const std::string& Client::getOldNick() const
 //     if (send(client_fd, message.c_str(), message.length(), 0) == -1)
 //         perror("send");
 // }
+std::string Client::getHostname() const
+{
+    return (host);
+}
+
 void Client::sendMessage(const std::string &message)
 {
     if (client_fd <= 0)

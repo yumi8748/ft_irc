@@ -11,7 +11,7 @@ class Server;
 
 class Channel{
     private:
-        // Server& server;
+        Server& server;
         std::string name;
         std::vector<Client*> clients;
         std::vector<Client*> invitedClients;
@@ -28,11 +28,12 @@ class Channel{
 		 Channel(const std::string& n);
         // Channel(const Channel &src);
         // Channel &operator=(const Channel &src);
-        // Channel(const std::string& n, Server& srv);
+        Channel(const std::string& n, Server& srv);
         const std::string& getName() const;
         void addClient(Client* client);
         void removeClient(Client* client);
         void broadcastMessage(std::string message);
+        void broadcastMessage(const std::string &message, Client *excludeClient);
         void changeCh_pwd(std::string newCh_pwd);
         //client join&leave channel(s)
         void joinChannel(Client* client, const std::string& password);
@@ -41,7 +42,7 @@ class Channel{
         bool isOperator(Client* client) const;
         void addOperator(Client* client);
         void removeOperator(Client* client);
-        void kickClient(Client* client, std::string &reason);
+        void kickClient(Client* client);
         void inviteClient(Client* client);
         void addInvitedClient(Client* client);
         void removeInvitedClient(Client* client);

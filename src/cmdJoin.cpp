@@ -2,11 +2,37 @@
 
 void	Server::cmdJoin(int i, std::vector<std::string> string_array)
 {
-	// if (this->isRegistered(i) == 0)
-	// {
-	// 	std::cout << "Client not registered"  << std::endl;
-	// 	return ;
-	// }
+	if (this->_clients[i - 1].getIsRegistered() == 0)
+	{
+		std::string msg = "Error : Client is not registered\r\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+		return ;
+	}
+	// yumi added
+	// if (string_array.size() < 2)
+    // {
+    //     this->_clients[i - 1].sendMessage("[Error 461] JOIN : Not enough parameters\n");
+    //     return;
+    // }
+
+    // std::string channelName = string_array[1];
+    // std::string pwd = (string_array.size() > 2) ? string_array[2] : ""; // 預設密碼為空
+
+    // if (!isValidChannelName(channelName))
+    // {
+    //     this->_clients[i - 1].sendMessage("[Error 403] " + channelName + " : Invalid channel name\n");
+    //     return;
+    // }
+
+    // Channel *channel = findChannelByName(channelName);
+    // if (!channel)
+    // {
+    //     channel = new Channel(channelName);
+    //     channel->addOperator(&this->_clients[i - 1]);
+    //     _channels.push_back(*channel); //
+    // }
+    // channel->joinChannel(&this->_clients[i - 1], pwd);
+	
 	for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); it++)
 	{
 		if ((*it).getName() == string_array[1])

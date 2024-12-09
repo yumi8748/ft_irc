@@ -18,7 +18,7 @@ int	Server::checkStringFormat(std::string str)
 	int j = 0;
 	while (str[j])
 	{
-		if (isalnum(str[j]) == 0 && str[j] != '_')
+		if (isalnum(str[j]) == 0 && str[j] != '_' && str[j] != '-')
 			return 1;
 		j++;
 	}

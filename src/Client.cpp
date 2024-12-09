@@ -1,9 +1,6 @@
 #include "../includes/Irc.hpp"
 
-// Client::Client(int fd): client_fd(fd), _passwordIsCorrect(0), _isLogged(0)
-// Client::Client(int fd): client_fd(fd), _passwordIsCorrect(0)
 Client::Client(int fd): nick("*"),host(getSystemHostname()), client_fd(fd), _passwordIsCorrect(0), _isRegistered(0)
-// Client::Client(int fd): client_fd(fd)
 {
     recv_buf = "";
 }
@@ -71,11 +68,6 @@ const std::string& Client::getOldNick() const
     return (oldnick);
 }
 
-// void Client::sendMessage(const std::string &message)
-// {
-//     if (send(client_fd, message.c_str(), message.length(), 0) == -1)
-//         perror("send");
-// }
 std::string Client::getHostname() const
 {
     return (host);
@@ -107,36 +99,6 @@ void Client::removeChannel(Channel* channel)
     }
 }
 
-// void Client::Recv()
-// {
-//     char buf[1024];
-//     int bytes_received = recv(client_fd, buf, sizeof(buf) - 1, 0);
-//     if (bytes_received > 0)
-//     {
-//         buf[bytes_received] = '\0';
-//         recv_buf += buf;
-//     }
-//     else if (bytes_received == 0)
-//     {
-//         close(client_fd);
-//         client_fd = -1;
-//     }
-//     else
-//         perror("recv");
-// }
-
-// void Client::Send()
-// {
-//     if (!recv_buf.empty())
-//     {
-//         int bytes_sent = send(client_fd, recv_buf.c_str(), recv_buf.length(), 0);
-//         if (bytes_sent > 0)
-//             recv_buf.erase(bytes_sent); //Erases part of the string
-//         else
-//             perror("send");
-//     }
-// }
-
 int Client::getFd() const
 {
     return client_fd;
@@ -158,11 +120,6 @@ bool Client::isInvited(Client* client, Channel* channel)
 
     return false;
 }
-
-// std::string Client::getName(void)
-// {
-// 	return this->nick;
-// }
 
 void	Client::setBuffer(std::string str)
 {

@@ -27,10 +27,9 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array)
     if (!channel)
     {
         // Channel newChannel(channelName);
-        // newChannel.addOperator(&this->_clients[i - 1]); // 将客户端设为操作员
+        // newChannel.addOperator(&this->_clients[i - 1]);
         // _channels.push_back(newChannel);
 
-        // 将该用户加入频道
         // channel = &_channels.back();
         this->_channels.push_back(Channel(channelName));
         channel = &_channels.back();

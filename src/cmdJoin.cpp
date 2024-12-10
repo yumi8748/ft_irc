@@ -26,16 +26,17 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array)
 	Channel* channel = findChannelByName(channelName);
     if (!channel)
     {
-        // Channel newChannel(channelName);
-        // newChannel.addOperator(&this->_clients[i - 1]);
-        // _channels.push_back(newChannel);
-
-        // channel = &_channels.back();
-        this->_channels.push_back(Channel(channelName));
+        Channel newChannel(channelName);
+        newChannel.addClient(&this->_clients[i - 1]);
+        newChannel.addOperator(&this->_clients[i - 1]);
+        _channels.push_back(newChannel);
         channel = &_channels.back();
-        channel->addOperator(&this->_clients[i - 1]);
+        // this->_channels.push_back(Channel(channelName));
+        // channel = &_channels.back();
+        // channel->addOperator(&this->_clients[i - 1]);
     }
-    channel->joinChannel(&this->_clients[i - 1], pwd);
+    else
+        channel->joinChannel(&this->_clients[i - 1], pwd);
 
     std::string msg = ":" + this->_clients[i - 1].getNickname() + " JOIN " + string_array[1] + "\r\n";
     std::cout << msg << std::endl;

@@ -311,7 +311,7 @@ void Channel::joinChannel(Client* client, const std::string& password)
     }
 
     // Assign operator privileges if this is the first client
-    if (clients.empty())
+    if (clients.empty() || operators.empty())
     {
         operators.push_back(client);
         client->sendMessage("You are now an operator in channel " + name);
@@ -320,6 +320,7 @@ void Channel::joinChannel(Client* client, const std::string& password)
     // Add client to the channel
     clients.push_back(client);
     client->addChannel(this);
+    // addClient(client);
 
     // Notify all clients in the channel about the join event
     for (std::size_t k = 0; k < clients.size(); ++k)

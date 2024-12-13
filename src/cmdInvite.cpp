@@ -24,6 +24,8 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
         return;
     }
 
+    std::cout << "Checking if client " << this->_clients[i - 1].getName() << " is an operator in channel " << channelName << std::endl;
+    std::cout << "Client address in cmdInvite: " << &this->_clients[i - 1] << std::endl;
     if (!channel->isOperator(&this->_clients[i - 1]))
     {
         this->_clients[i - 1].sendMessage(":localhost 482 " + channelName + " :You're not a channel operator");

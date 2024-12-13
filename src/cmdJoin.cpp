@@ -26,17 +26,24 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array)
 	Channel* channel = findChannelByName(channelName);
     if (!channel)
     {
-        Channel newChannel(channelName);
-        newChannel.addClient(&this->_clients[i - 1]);
-        newChannel.addOperator(&this->_clients[i - 1]);
-        _channels.push_back(newChannel);
-        channel = &_channels.back();
-        // this->_channels.push_back(Channel(channelName));
+        // Channel newChannel(channelName);
+        // newChannel.addClient(&this->_clients[i - 1]);
+        // newChannel.addOperator(&this->_clients[i - 1]);
+        // _channels.push_back(newChannel);
         // channel = &_channels.back();
-        // channel->addOperator(&this->_clients[i - 1]);
+        std::cout << "Channel " << channelName << " not found. Creating new channel." << std::endl;
+        this->_channels.push_back(Channel(channelName));
+        channel = &_channels.back();
+        channel->addClient(&this->_clients[i - 1]);
+        channel->addOperator(&this->_clients[i - 1]);
+        std::cout << "Client " << this->_clients[i - 1].getName() << " added as operator to channel " << channelName << std::endl;
+        std::cout << "Client address in cmdJoin: " << &this->_clients[i - 1] << std::endl;
     }
     else
+    {
+        std::cout << "Channel " << channelName << " found. Joining channel." << std::endl;
         channel->joinChannel(&this->_clients[i - 1], pwd);
+    }
 
     std::string msg = ":" + this->_clients[i - 1].getNickname() + " JOIN " + string_array[1] + "\r\n";
     std::cout << msg << std::endl;

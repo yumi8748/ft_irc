@@ -41,6 +41,19 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array)
         channel->addClient(this->_clients[i - 1]);
         channel->addOperator(this->_clients[i - 1]);
         std::cout << "Client " << this->_clients[i - 1].getNickname() << " added as operator to channel " << channelName << std::endl;
+        
+        std::string msg = ":" + this->_clients[i - 1].getNickname() + " JOIN " + string_array[1] + "\r\n";
+        
+        std::cout << msg << std::endl;
+        send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+
+        std::string msg2 = ":localhost 353 " + this->_clients[i - 1].getNickname() + " = " + string_array[1] + " :@" + this->_clients[i - 1].getNickname() + "\r\n";
+        std::cout << msg2 << std::endl;
+        send(this->_clients[i - 1].getFd(), msg2.c_str(), msg2.length(), 0);
+
+        std::string msg3 = ":localhost 366 " + this->_clients[i - 1].getNickname() + " " + string_array[1] + " :End of /NAMES list\r\n";
+        std::cout << msg3 << std::endl;
+        send(this->_clients[i - 1].getFd(), msg3.c_str(), msg3.length(), 0);
     }
     else
     {
@@ -69,16 +82,4 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array)
     //     std::cout << "Channel " << channelName << " found. Joining channel." << std::endl;
     //     channel.joinChannel(this->_clients[i - 1], pwd);
     // }
-
-    std::string msg = ":" + this->_clients[i - 1].getNickname() + " JOIN " + string_array[1] + "\r\n";
-    std::cout << msg << std::endl;
-    send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
-
-    std::string msg2 = ":localhost 353 " + this->_clients[i - 1].getNickname() + " = " + string_array[1] + " :@" + this->_clients[i - 1].getNickname() + "\r\n";
-    std::cout << msg2 << std::endl;
-    send(this->_clients[i - 1].getFd(), msg2.c_str(), msg2.length(), 0);
-
-    std::string msg3 = ":localhost 366 " + this->_clients[i - 1].getNickname() + " " + string_array[1] + " :End of /NAMES list\r\n";
-    std::cout << msg3 << std::endl;
-    send(this->_clients[i - 1].getFd(), msg3.c_str(), msg3.length(), 0);
 }

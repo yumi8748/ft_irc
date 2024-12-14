@@ -73,7 +73,7 @@ std::string Client::getHostname() const
     return (host);
 }
 
-void Client::sendMessage(const std::string &message)
+void Client::sendMessage(const std::string &message) const
 {
     if (client_fd <= 0)
     {
@@ -86,14 +86,14 @@ void Client::sendMessage(const std::string &message)
         perror("send");
 }
 
-void Client::addChannel(Channel* ch)
+void Client::addChannel(const Channel &ch)
 {
     channels.push_back(ch);
 }
 
-void Client::removeChannel(Channel* channel)
+void Client::removeChannel(const Channel &channel)
 {
-    std::vector<Channel*>::iterator it = std::find(channels.begin(), channels.end(), channel);
+    std::vector<Channel>::iterator it = std::find(channels.begin(), channels.end(), channel);
     if (it != channels.end()) {
         channels.erase(it);
     }
@@ -104,15 +104,15 @@ int Client::getFd() const
     return client_fd;
 }
 
-bool Client::isInvited(Client* client, Channel* channel)
+bool Client::isInvited(const Client &client, const Channel &channel) const
 {
-    if (!client || !channel) {
+    if (client.getFd() <= 0 || channel.getName().empty()) {
         return false;
     }
 
-    const std::vector<Client*>& invitedClients = channel->getInvitedClients();
+    const std::vector<Client>& invitedClients = channel.getInvitedClients();
 
-    for (std::vector<Client*>::const_iterator it = invitedClients.begin(); it != invitedClients.end(); ++it) {
+    for (std::vector<Client>::const_iterator it = invitedClients.begin(); it != invitedClients.end(); ++it) {
         if (*it == client) {
             return true;
         }
@@ -150,7 +150,7 @@ int	Client::getPasswordIsCorrect(void)
  {
     return _isRegistered;
  }
-std::string Client::getName(void)
+std::string Client::getName(void) const
 {
 	return this->nick;
 }

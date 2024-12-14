@@ -16,8 +16,10 @@ class Client{
         std::string _buffer; // take the message until \r\n
         std::string host;
         std::string buffer; // take the message until \r\n
-        std::vector<Channel*> channels;
-        std::vector<Channel*> joinedChannels; // 用戶加入的頻道
+        // std::vector<Channel*> channels;
+        // std::vector<Channel*> joinedChannels;
+        std::vector<Channel> channels;
+        std::vector<Channel> joinedChannels;
         int client_fd;
         std::string recv_buf;
         std::string getSystemHostname();
@@ -26,6 +28,15 @@ class Client{
     public:
         Client(){};
         ~Client(){};
+        bool operator==(const Client& other) const
+        {
+            return this->client_fd == other.client_fd;
+        }
+        bool operator!=(const Client& other) const
+        {
+            return !(*this == other);
+        }
+
         Client(int fd);
         void setFd(int fd);
         void setNickname(const std::string& nickname);
@@ -43,12 +54,12 @@ class Client{
 		const std::string& getOldNick() const;
         void setHostname(const std::string& hostname);
         std::string getHostname() const;
-        void sendMessage(const std::string &message);
-        void addChannel(Channel* ch);
-        void removeChannel(Channel* channel);
+        void sendMessage(const std::string &message) const;
+        void addChannel(const Channel &ch);
+        void removeChannel(const Channel &channel);
         void Send();
         int getFd() const;
-        bool isInvited(Client* client, Channel* channel);
+        bool isInvited(const Client &client, const Channel &channel) const;
         
 		void setPasswordIsCorrect(void);
 		int getPasswordIsCorrect(void);
@@ -56,7 +67,7 @@ class Client{
 		std::string &	getBuffer(void);
         // void Recv();
 
-		std::string getName(void);
+		std::string getName(void) const;
 };
 
 #endif

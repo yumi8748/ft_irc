@@ -15,8 +15,8 @@ void Server::cmdTopic(int i, std::vector<std::string> string_array)
     }
 
     std::string channelName = string_array[1];
-    Channel* channel = findChannelByName(channelName);
-    if (!channel)
+    Channel channel = findChannelByName(channelName);
+    if (channel == Channel())
     {
         this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel");
         return;
@@ -24,7 +24,7 @@ void Server::cmdTopic(int i, std::vector<std::string> string_array)
 
     if (string_array.size() == 2)
     {
-        std::string currentTopic = channel->getTopic();
+        std::string currentTopic = channel.getTopic();
         if (currentTopic.empty())
         {
             this->_clients[i - 1].sendMessage(":localhost 331 " + channelName + " :No topic is set");
@@ -36,7 +36,7 @@ void Server::cmdTopic(int i, std::vector<std::string> string_array)
         return;
     }
 
-    if (!channel->isOperator(&this->_clients[i - 1]))
+    if (!channel.isOperator(this->_clients[i - 1]))
     {
         this->_clients[i - 1].sendMessage(":localhost 482 " + channelName + " :You're not a channel operator");
         return;
@@ -49,11 +49,11 @@ void Server::cmdTopic(int i, std::vector<std::string> string_array)
     }
     newTopic = newTopic.substr(0, newTopic.size() - 1);
 
-    channel->setTopic(newTopic);
+    channel.setTopic(newTopic);
     std::string topicMessage = ":" + this->_clients[i - 1].getNickname() + "!" +
                                this->_clients[i - 1].getUsername() + "@" +
                                this->_clients[i - 1].getHostname() + " TOPIC " + channelName + " :" + newTopic;
-    channel->broadcastMessage(topicMessage);
+    channel.broadcastMessage(topicMessage);
 
     std::cout << "Topic for channel " << channelName << " updated to: " << newTopic << std::endl;
 }

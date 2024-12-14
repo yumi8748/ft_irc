@@ -8,7 +8,7 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array)
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		return ;
 	}
-	// yumi added
+
 	if (string_array.size() < 2)
     {
         this->_clients[i - 1].sendMessage("[Error 461] JOIN : Not enough parameters\n");
@@ -23,27 +23,52 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array)
         return;
     }
 
-	Channel* channel = findChannelByName(channelName);
-    if (!channel)
+    Channel* channel = NULL;
+    for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
     {
-        // Channel newChannel(channelName);
-        // newChannel.addClient(&this->_clients[i - 1]);
-        // newChannel.addOperator(&this->_clients[i - 1]);
-        // _channels.push_back(newChannel);
-        // channel = &_channels.back();
+        if (it->getName() == channelName)
+        {
+            channel = &(*it);
+            break;
+        }
+    }
+
+    if (channel == NULL)
+    {
         std::cout << "Channel " << channelName << " not found. Creating new channel." << std::endl;
         this->_channels.push_back(Channel(channelName));
         channel = &_channels.back();
-        channel->addClient(&this->_clients[i - 1]);
-        channel->addOperator(&this->_clients[i - 1]);
-        std::cout << "Client " << this->_clients[i - 1].getName() << " added as operator to channel " << channelName << std::endl;
-        std::cout << "Client address in cmdJoin: " << &this->_clients[i - 1] << std::endl;
+        channel->addClient(this->_clients[i - 1]);
+        channel->addOperator(this->_clients[i - 1]);
+        std::cout << "Client " << this->_clients[i - 1].getNickname() << " added as operator to channel " << channelName << std::endl;
     }
     else
     {
         std::cout << "Channel " << channelName << " found. Joining channel." << std::endl;
-        channel->joinChannel(&this->_clients[i - 1], pwd);
+        channel->joinChannel(this->_clients[i - 1], pwd);
     }
+
+	// Channel channel = findChannelByName(channelName);
+    // if (channel == Channel())
+    // {
+    //     // Channel newChannel(channelName);
+    //     // newChannel.addClient(&this->_clients[i - 1]);
+    //     // newChannel.addOperator(&this->_clients[i - 1]);
+    //     // _channels.push_back(newChannel);
+    //     // channel = &_channels.back();
+    //     std::cout << "Channel " << channelName << " not found. Creating new channel." << std::endl;
+    //     this->_channels.push_back(Channel(channelName));
+    //     channel = _channels.back();
+    //     channel.addClient(this->_clients[i - 1]);
+    //     channel.addOperator(this->_clients[i - 1]);
+    //     std::cout << "Client " << this->_clients[i - 1].getName() << " added as operator to channel " << channelName << std::endl;
+    //     // std::cout << "Client address in cmdJoin: " << &this->_clients[i - 1] << std::endl;
+    // }
+    // else
+    // {
+    //     std::cout << "Channel " << channelName << " found. Joining channel." << std::endl;
+    //     channel.joinChannel(this->_clients[i - 1], pwd);
+    // }
 
     std::string msg = ":" + this->_clients[i - 1].getNickname() + " JOIN " + string_array[1] + "\r\n";
     std::cout << msg << std::endl;

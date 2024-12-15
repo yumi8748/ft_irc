@@ -43,7 +43,7 @@ class Channel{
         const std::string& getName() const;
         void addClient(const Client &client);
         void removeClient(const Client &client);
-        void broadcastMessage(std::string message);
+        void broadcastMessage(const std::string& message);
         void broadcastMessage(const std::string &message, const Client &excludeClient);
         void changeCh_pwd(std::string newCh_pwd);
         //client join&leave channel(s)

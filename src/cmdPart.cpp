@@ -18,23 +18,33 @@ void	Server::cmdPart(int i, std::vector<std::string> string_array) //parameter: 
 		this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel\n");
 		return ;
 	}
-	Channel channel = findChannelByName(channelName);
-	if (channel == Channel())
+	// Channel channel = findChannelByName(channelName);
+	Channel* channel = NULL;
+    for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        if (it->getName() == channelName)
+        {
+            channel = &(*it);
+            break;
+        }
+    }
+
+    if (channel == NULL)
 	{
 		this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel\n");
 		return ;
 	}
-	if (!channel.isClientInChannel(_clients[i - 1]))
+	if (!channel->isClientInChannel(_clients[i - 1]))
 	{
 		this->_clients[i - 1].sendMessage(":localhost 442 " + channelName + " :You are not on that channel\n");
 		return ;
 	}
-	channel.partChannel(_clients[i], reason); //handle in channel
-	if (channel.isEmpty())
+	channel->partChannel(_clients[i - 1], reason); //handle in channel
+	if (channel->isEmpty())
 	{
 		for (std::vector<Channel>::iterator it = this->_channels.begin(); it != this->_channels.end(); ) 
 		{
-    		if ((*it) == channel)
+    		if ((*it) == *channel)
 			{
         		it = this->_channels.erase(it);
         		break;
@@ -43,5 +53,5 @@ void	Server::cmdPart(int i, std::vector<std::string> string_array) //parameter: 
 				++it;
 		}
 	}
-	std::cout << "Client[" << i - 1 << "] parted from channel " << channelName << std::endl;
+	std::cout << "Client "<< _clients[i - 1].getNickname() << " parted from channel " << channelName << std::endl;
 }

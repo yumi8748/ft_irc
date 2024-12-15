@@ -82,8 +82,11 @@ void Client::sendMessage(const std::string &message) const
     }
     
     std::string formattedMessage = message + "\r\n";
+    std::cout << "Sending message to client_fd " << client_fd << ": " << formattedMessage << std::endl;
     if (send(client_fd, formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
         perror("send");
+    else
+        std::cout << "Message sent successfully." << std::endl;
 }
 
 void Client::addChannel(const Channel &ch)
@@ -113,7 +116,7 @@ bool Client::isInvited(const Client &client, const Channel &channel) const
     const std::vector<Client>& invitedClients = channel.getInvitedClients();
 
     for (std::vector<Client>::const_iterator it = invitedClients.begin(); it != invitedClients.end(); ++it) {
-        if (*it == client) {
+        if (it->getFd() == client.getFd()) {
             return true;
         }
     }

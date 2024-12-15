@@ -36,11 +36,11 @@ void Channel::addClient(const Client &client)
 // }
 
 
-void Channel::broadcastMessage(std::string msg) //server msg
+void Channel::broadcastMessage(const std::string& message)
 {
-    for (size_t i = 0; i < clients.size(); ++i)
+    for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it)
     {
-        clients[i].sendMessage(msg);
+        it->sendMessage(message);
     }
 }
 
@@ -290,24 +290,34 @@ void Channel::joinChannel(Client &client, const std::string& password)
     if (std::find(clients.begin(), clients.end(), client) != clients.end())
     {
         client.sendMessage(":localhost 443 " + client.getNickname() + " " + name + " : You are already in the channel\n");
+        std::cout << "Client " << client.getNickname() << " is already in the channel " << name << std::endl;
         return;
     }
 
     if (inviteOnly == true && client.isInvited(client, *this) == false)
     {
-        client.sendMessage(":localhost 473 " + name + " : You need an invitation to join\n");
+        std::string message = ":localhost 473 " + name + " : You need an invitation to join\n";
+        std::string formattedMessage = message + "\r\n";
+        std::cout << "Sending message to client_fd " << client.getFd() << ": " << formattedMessage << std::endl;
+        if (send(client.getFd(), formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
+            perror("send");
+        else
+            std::cout << "Message sent successfully." << std::endl;
+        std::cout << "Client " << client.getNickname() << " needs an invitation to join channel " << name << std::endl;
         return;
     }
 
     if (!Ch_pwd.empty() && Ch_pwd != password)
     {
         client.sendMessage(":localhost 475 " + name + " : Incorrect channel password\n");
+        std::cout << "Client " << client.getNickname() << " provided incorrect password for channel " << name << std::endl;
         return;
     }
 
     if (userLimits > 0 && clients.size() >= static_cast<std::size_t>(userLimits))
     {
         client.sendMessage(":localhost 471 " + name + " : Channel is full\n");
+        std::cout << "Channel " << name << " is full, client " << client.getNickname() << " cannot join" << std::endl;
         return;
     }
 
@@ -316,6 +326,7 @@ void Channel::joinChannel(Client &client, const std::string& password)
     {
         operators.push_back(client);
         client.sendMessage("You are now an operator in channel " + name);
+        std::cout << "Client " << client.getNickname() << " is now an operator in channel " << name << std::endl;
     }
 
     // Add client to the channel
@@ -352,20 +363,23 @@ void Channel::joinChannel(Client &client, const std::string& password)
 }
 
 
-void Channel::partChannel(Client &client, const std::string& message)
+void Channel::partChannel(Client& client, const std::string& reason)
 {
     std::vector<Client>::iterator it = std::find(clients.begin(), clients.end(), client);
-    if (it == clients.end()) {
-        client.sendMessage(":localhost 441 " + client.getNickname() + " " + name + " :They aren't on that channel\n");
-        return;
+    if (it != clients.end())
+    {
+        clients.erase(it);
+        client.removeChannel(*this);
+        std::string partMessage = ":" + client.getNickname() + " PART " + name + " :" + reason + "\r\n";
+        broadcastMessage(partMessage);
+
+        // Debug statement to check client after parting
+        std::cout << "Client " << client.getNickname() << " has parted from channel " << name << std::endl;
     }
-    std::string partMessage = client.getNickname() + " has left the channel " + name;
-    if (!message.empty()) {
-        partMessage += " (" + message + ")";
+    else
+    {
+        std::cerr << "Error: Client " << client.getNickname() << " not found in channel " << name << std::endl;
     }
-    broadcastMessage(partMessage);
-    clients.erase(it);
-    client.removeChannel(*this);
 }
 
 std::vector<Client> Channel::getClients(void)

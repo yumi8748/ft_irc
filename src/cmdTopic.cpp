@@ -46,7 +46,7 @@ void Server::cmdTopic(int i, std::vector<std::string> string_array)
         return;
     }
 
-    if (!channel->isOperator(this->_clients[i - 1]))
+    if (channel->getTopicRestricted() == true && !channel->isOperator(this->_clients[i - 1]))
     {
         this->_clients[i - 1].sendMessage(":localhost 482 " + channelName + " :You're not a channel operator");
         return;

@@ -37,6 +37,8 @@ void	Server::lineParsing(std::string line, int i)
 		cmdMode(i, line_splitted);
 	else if (line_splitted[0] == "KICK")
 		cmdKick(i, line_splitted);
+	else if (line_splitted[0] == "PING")
+		cmdPing(i, line_splitted);
 }
 
 // void	Server::commandParsing(int i, std::string buf)
@@ -169,7 +171,8 @@ void	Server::bufferParsing(int i, std::string string)
 	{
 		lineParsing(string_array[j], i);
 	}
-	this->_clients[i - 1].getBuffer().clear();
+	if (string_array[0] != "QUIT")
+		this->_clients[i - 1].getBuffer().clear();
 }
 
 int		Server::isRegistered(int i)

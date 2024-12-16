@@ -8,11 +8,12 @@ class Client;
 
 class Server{
     public:
-        Server(){_fd = -1;};
+        // Server(){};
+        Server(int, std::string);
         ~Server(){};
 
         // INITS:
-        void InitServer(int, char*);
+        void InitServer();
         void InitSockets();
 
         // FD:
@@ -45,6 +46,8 @@ class Server{
 	    void	cmdInvite(int i, std::vector<std::string> string_array);
 	    void	cmdTopic(int i, std::vector<std::string> string_array);
 	    void	cmdMode(int i, std::vector<std::string> string_array);
+        void    cmdPing(int i, std::vector<std::string> string_array);
+        void    cmdPong(int i, std::string);
 		int		isRegistered(int i);
         void	lineParsing(std::string line, int i);
 		void	checkRegistration(int i);
@@ -61,8 +64,9 @@ class Server{
     private:
         // VARIABLES:
         int _port;
-        int _fd;
         std::string _pwd;
+        int _fd;
+        std::string _lastPing;
         static int _sig;
 
         // VECTORS:

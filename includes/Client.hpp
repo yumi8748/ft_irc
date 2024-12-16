@@ -2,7 +2,6 @@
 #define CLIENT_HPP
 
 #include "Channel.hpp"
-#include "Commands.hpp"
 #include "Server.hpp"
 #include "Macros.hpp"
 
@@ -13,16 +12,13 @@ class Client{
         std::string nick;
 		std::string oldnick;
         std::string usr;
-        std::string _buffer; // take the message until \r\n
         std::string host;
         std::string buffer; // take the message until \r\n
         // std::vector<Channel*> channels;
         // std::vector<Channel*> joinedChannels;
         std::vector<Channel> channels;
-        std::vector<Channel> joinedChannels;
+        // std::vector<Channel> joinedChannels;
         int client_fd;
-        std::string recv_buf;
-        std::string getSystemHostname();
 		int _passwordIsCorrect;
         int _isRegistered;
     public:
@@ -60,6 +56,7 @@ class Client{
         void Send();
         int getFd() const;
         bool isInvited(const Client &client, const Channel &channel) const;
+        std::string getSystemHostname();
         
 		void setPasswordIsCorrect(void);
 		int getPasswordIsCorrect(void);

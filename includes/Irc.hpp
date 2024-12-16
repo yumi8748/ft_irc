@@ -3,7 +3,6 @@
 
 #include "Server.hpp"
 #include "Macros.hpp"
-#include "Commands.hpp"
 #include "Channel.hpp"
 #include "Client.hpp"
 

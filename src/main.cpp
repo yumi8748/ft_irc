@@ -14,11 +14,12 @@ int main(int ac, char **av){
 		std::cout << "Error: input format: ./ircserv <port> <password>" << std::endl;
 		return 1; // handle return msg
 	}
-	Server server;
+	std::string str(av[2]);
+	Server server(std::atoi(av[1]), str);
 	try {
     signal(SIGINT, Server::SigHandler);
     signal(SIGQUIT, Server::SigHandler);
-		server.InitServer(std::atoi(av[1]), av[2]);
+		server.InitServer();
 	}
 	catch (ErrThrow &e){
 		server.CloseServer();

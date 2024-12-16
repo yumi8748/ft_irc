@@ -2,7 +2,6 @@
 #define CHANNEL_HPP
 
 #include "Client.hpp"
-#include "Commands.hpp"
 #include "Macros.hpp"
 #include "Server.hpp"
 

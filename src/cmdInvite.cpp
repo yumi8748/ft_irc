@@ -7,13 +7,19 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
 		this->_clients[i - 1].sendMessage(":localhost 451  :You have not registered");
 		return ;
 	}
-
+    for (std::string::size_type i = 0; i < string_array.size(); i++)
+        std::cout << YELLOW << string_array[i] << std::endl;
+    std::cout << RESET;
+    // If the user doesn't specify the channel, IRSSI will append the current channel the user is in
+    // to the INVITE command 
+    // e.g. /INVITE yu-chen (from user in channel #a) --> string_array ==  INVITE yu-chen #a
+    // CONDITIONAL JUMPS IN CMDINVITE
     if (string_array.size() < 3)
     {
         this->_clients[i - 1].sendMessage(":localhost 461 INVITE :Not enough parameters");
         return;
     }
-
+    std::cout << "out\n";
     std::string targetNickname = string_array[1];
     std::string channelName = string_array[2];
 

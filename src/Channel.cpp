@@ -1,8 +1,17 @@
 #include "../includes/Channel.hpp"
 
 
-Channel::Channel(const std::string& n): name(n), inviteOnly(false), topicRestricted(false), userLimits(100), topic("")  // limits set to?
+Channel::Channel(const std::string& n): name(n), Ch_pwd(""), inviteOnly(false), topicRestricted(true), userLimits(100), topic("")  // limits set to?
 {
+        // std::vector<Client> clients;
+        // std::vector<Client> invitedClients;
+        // std::vector<Client> operators;
+        // std::string Ch_pwd;
+        // bool inviteOnly;
+        // bool topicRestricted;
+        // int userLimits; // -1 for none
+        // std::string topic;
+        // std::map<std::string, std::string> modes;
 }
 
 const std::string& Channel::getName() const
@@ -418,6 +427,7 @@ void Channel::partChannel(Client& client, const std::string& reason)
     {
         clients.erase(it);
         client.removeChannel(*this);
+        client.sendMessage("You have parted from channel " + it->getName() + "\n");
         std::string partMessage = ":" + client.getNickname() + " PART " + name + " :" + reason + "\r\n";
         broadcastMessage(partMessage);
 

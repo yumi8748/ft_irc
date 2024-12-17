@@ -277,9 +277,9 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
                     }
                     else
                     {
-                        client.sendMessage(":localhost 443 " + client.getNickname() + " " + value + " " + name + " :is already an operator\r\n");
+                        client.sendMessage(":localhost 324 " + client.getNickname() + " " + name + " " + value + " " + " :is already an operator\r\n");
                         continue;
-                    }
+                    }//not yet
                 }
                 else
                 {
@@ -295,8 +295,7 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
                     }
                     else
                     {
-                        client.sendMessage(":localhost 441 " + value + " " + name + 
-                            " :is not an operator and cannot be removed." + "\r\n");
+                        client.sendMessage(":localhost 324 " + client.getNickname() + " " + name + " " + value + " " + " :is not an operator and cannot be removed" + "\r\n"); //not yet
                         continue;
                     }
                 }
@@ -355,8 +354,8 @@ void Channel::joinChannel(Client &client, const std::string& password)
 {
     if (std::find(clients.begin(), clients.end(), client) != clients.end())
     {
-        client.sendMessage(":localhost 443 " + client.getNickname() + " " + name + " : You are already in the channel\r\n");
-        std::cout << "Client " << client.getNickname() << " is already in the channel\r\n" << name << std::endl;
+        // client.sendMessage(":localhost 443 " + client.getNickname() + " " + name + " :You are already in the channel\r\n");
+        // std::cout << "Client " << client.getNickname() << " is already in the channel\r\n" << name << std::endl;
         return;
     }
 

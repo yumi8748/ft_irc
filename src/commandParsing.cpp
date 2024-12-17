@@ -12,7 +12,7 @@ void	Server::lineParsing(std::string line, int i)
 	{
 		line_splitted.push_back(tmp);
 	}
-	std::cout << line_splitted.size() << std::endl;
+	// std::cout << line_splitted.size() << std::endl;
 	if (line == "CAP LS")
 		cmdCap(i);
 	else if (line_splitted[0] == "PASS")
@@ -22,7 +22,7 @@ void	Server::lineParsing(std::string line, int i)
 	else if (line_splitted[0] == "NICK")
 		cmdNick(i, line_splitted);
 	else if (line_splitted[0] == "QUIT")
-		cmdQuit(i, line_splitted);
+		cmdQuit(i);
 	else if (line_splitted[0] == "PRIVMSG")
 		cmdPrivmsg(i, line_splitted, line);
 	else if (line_splitted[0] == "JOIN")
@@ -171,7 +171,7 @@ void	Server::bufferParsing(int i, std::string string)
 	{
 		lineParsing(string_array[j], i);
 	}
-	if (string_array[0] != "QUIT")
+	if (string_array[0].compare(0, 4, "QUIT") != 0)
 		this->_clients[i - 1].getBuffer().clear();
 }
 

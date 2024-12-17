@@ -1,8 +1,8 @@
 #include "../includes/Irc.hpp"
 
-void	Server::cmdQuit(int i, std::vector<std::string> string_array)
+void	Server::cmdQuit(int i)
 {
-	std::cout << "cmdQuit" << " : "  << i << string_array[0] << std::endl;
+	// std::cout << "cmdQuit" << " : "  << i << string_array[0] << std::endl;
 	int fd = _fds[i].fd;
 	CloseClients(fd);
     close(fd);

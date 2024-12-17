@@ -38,7 +38,7 @@ class Server{
 	    void	cmdNick(int i, std::vector<std::string> string_array);
 	    void	cmdUser(int i, std::vector<std::string> string_array);
 	    void	cmdPass(int i, std::vector<std::string> string_array);
-	    void	cmdQuit(int i, std::vector<std::string> string_array);
+	    void	cmdQuit(int i);
 	    void	cmdPrivmsg(int, std::vector<std::string>, std::string);
 	    void	cmdJoin(int i, std::vector<std::string> string_array);
 	    void	cmdPart(int i, std::vector<std::string> string_array);

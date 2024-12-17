@@ -23,7 +23,7 @@ void Server::InitServer(){
   while (_sig == 0){
     if ((poll(&_fds[0], _fds.size(), -1) == -1) && _sig == 0)
       throw ErrThrow("Poll error");
-    std::cout << "hi" << std::endl;
+    // std::cout << "hi" << std::endl;
     for (size_t i = 0; i < _fds.size(); i++){
       if (_sig == 0 && (_fds[i].revents & POLLIN)){
         if (_fds[i].fd == _fd)

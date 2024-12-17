@@ -53,6 +53,7 @@ class Channel{
         void addOperator(const Client &client);
         void removeOperator(const Client &client);
         void kickClient(Client &client);
+        // void inviteClient(Client &client, Client &targetclient);
         void inviteClient(Client &client);
         void addInvitedClient(const Client &client);
         void removeInvitedClient(const Client &client);

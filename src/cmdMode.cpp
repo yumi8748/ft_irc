@@ -60,6 +60,23 @@ std::string Channel::getMode(const std::string& mode) const
     return ("");
 }
 
+std::string intToString(int num)
+{
+    if (num == 0) return "0";
+    std::string result;
+    bool isNegative = (num < 0);
+    if (isNegative) num = -num;
+
+    while (num > 0)
+    {
+        result.insert(result.begin(), '0' + (num % 10));
+        num /= 10;
+    }
+
+    if (isNegative) result.insert(result.begin(), '-');
+    return result;
+}
+
 void Channel::setMode(const std::string& modeStr, const std::string& value, const Client& client)
 {
     if (modeStr.empty())
@@ -158,7 +175,7 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
                     {
                         client.sendMessage(":localhost 324 " + client.getNickname() + " " + name + " " + value + " " + " :is already an operator\r\n");
                         continue;
-                    }//not yet
+                    }
                 }
                 else
                 {
@@ -197,7 +214,7 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
                 break;
 
             default:
-                client.sendMessage(":localhost 472 " + std::string(1, mode) + " :is unknown mode char to me" + "\r\n");
+                client.sendMessage(":localhost 472 " + client.getNickname() + " " + std::string(1, mode) + " :is unknown mode char to me" + "\r\n");
                 continue;
         }
 

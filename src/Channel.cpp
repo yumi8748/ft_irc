@@ -14,7 +14,7 @@ void Channel::addClient(const Client &client)
 {
     if (clients.size() >= static_cast<std::size_t>(userLimits))
     {
-        std::cerr << "Channel is full! Cannot add client." << std::endl;
+        client.sendMessage(":localhost 471 " + client.getNickname() + " " + name + " :Cannot join channel (+l)\r\n");
         return ;
     }
     clients.push_back(client);
@@ -97,23 +97,6 @@ void Channel::removeOperator(const Client &client)
             break;
         }
     }
-}
-
-std::string intToString(int num)
-{
-    if (num == 0) return "0";
-    std::string result;
-    bool isNegative = (num < 0);
-    if (isNegative) num = -num;
-
-    while (num > 0)
-    {
-        result.insert(result.begin(), '0' + (num % 10));
-        num /= 10;
-    }
-
-    if (isNegative) result.insert(result.begin(), '-');
-    return result;
 }
 
 bool Channel::isEmpty() const

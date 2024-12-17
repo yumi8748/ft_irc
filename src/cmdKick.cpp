@@ -4,13 +4,13 @@ void	Server::cmdKick(int i, std::vector<std::string> string_array)
 {
 	if (this->isRegistered(i) == 0)
 	{
-		this->_clients[i - 1].sendMessage(":localhost 451 * :You have not registered\r\n");
+		this->_clients[i - 1].sendMessage(":localhost 451 :You have not registered\r\n");
 		return ;
 	}
 	std::cout << "cmdKick" << " : " << string_array[0] << std::endl;
 	if (string_array.size() < 3)
 	{
-		this->_clients[i - 1].sendMessage(":localhost 461 KICK :Not enough parameters\r\n");
+		this->_clients[i - 1].sendMessage(":localhost 461 " + _clients[i - 1].getNickname() + " KICK :Not enough parameters\r\n");
 		return ;
 	}
 	std::string channelName = string_array[1];
@@ -28,13 +28,13 @@ void	Server::cmdKick(int i, std::vector<std::string> string_array)
 
     if (channel == NULL)
 	{
-		this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel" + "\r\n");
+		this->_clients[i - 1].sendMessage(":localhost 403 " + _clients[i - 1].getNickname() + " " +  channelName + " :No such channel\r\n");
 		return ;
 	}
 	Client operatorClient = _clients[i - 1];
 	if (!channel->isOperator(operatorClient))
 	{
-		operatorClient.sendMessage(":localhost 482 " + channelName + " :You're not a channel operator" + "\r\n");
+		operatorClient.sendMessage(":localhost 482 " + _clients[i - 1].getNickname() + " " + channelName + " :You're not an IRC operator\r\n");
         return ;
 	}
 	 Client* targetClient = NULL;
@@ -50,12 +50,12 @@ void	Server::cmdKick(int i, std::vector<std::string> string_array)
 
     if (targetClient == NULL)
 	{
-		operatorClient.sendMessage(":localhost 401 " + targetNickname + " :No such nick/channel" + "\r\n");
+		operatorClient.sendMessage(":localhost 401 " + _clients[i - 1].getNickname() + " " + targetNickname + " :No such nick/channel\r\n");
         return ;
 	}
 	if (!channel->isClientInChannel(*targetClient))
 	{
-		operatorClient.sendMessage(":localhost 441 " + targetNickname + " " + channelName + " :They aren't on that channel" + "\r\n");
+		operatorClient.sendMessage(":localhost 441 " + _clients[i - 1].getNickname() + " " + targetNickname + " " + channelName + " :They aren't on that channel" + "\r\n");
         return ;
 	}//for irssi
 	std::string kickMessage = ":" + operatorClient.getNickname() + "!" + operatorClient.getUsername() + "@" + operatorClient.getHostname() +

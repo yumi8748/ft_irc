@@ -8,14 +8,14 @@ void	Server::cmdPart(int i, std::vector<std::string> string_array) //parameter: 
 		return ;
 	}
 	if (string_array.size() < 2) {
-        this->_clients[i - 1].sendMessage(":localhost 461 PART :Not enough parameters\r\n");
+        this->_clients[i - 1].sendMessage(":localhost 461 " + _clients[i - 1].getNickname() + " PART :Not enough parameters\r\n");
         return;
     }
 	std::string &channelName = string_array[1]; //for now only 1 channel as parameter allowed
 	std::string reason = string_array.size() > 2 ? string_array[2] : "";
 	if (!isValidChannelName(channelName))
 	{
-		this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel\r\n");
+		this->_clients[i - 1].sendMessage(":localhost 403 " + _clients[i - 1].getNickname() + " " + channelName + " :No such channel\r\n");
 		return ;
 	}
 	// Channel channel = findChannelByName(channelName);
@@ -31,12 +31,12 @@ void	Server::cmdPart(int i, std::vector<std::string> string_array) //parameter: 
 
     if (channel == NULL)
 	{
-		this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel\r\n");
+		this->_clients[i - 1].sendMessage(":localhost 403 " + _clients[i - 1].getNickname() + " " +  channelName + " :No such channel\r\n");
 		return ;
 	}
 	if (!channel->isClientInChannel(_clients[i - 1]))
 	{
-		this->_clients[i - 1].sendMessage(":localhost 442 " + channelName + " :You are not on that channel\r\n");
+		this->_clients[i - 1].sendMessage(":localhost 442 " + _clients[i - 1].getNickname() + " " + channelName + " :You aren't on that channel\r\n");
 		return ;
 	}
 	channel->partChannel(_clients[i - 1], reason); //handle in channel

@@ -4,7 +4,7 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
 {
 	if (this->isRegistered(i) == 0)
 	{
-		this->_clients[i - 1].sendMessage(":localhost 451  :You have not registered");
+		this->_clients[i - 1].sendMessage(":localhost 451  :You have not registered\r\n");
 		return ;
 	}
     for (std::string::size_type i = 0; i < string_array.size(); i++)
@@ -16,7 +16,7 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
     // CONDITIONAL JUMPS IN CMDINVITE
     if (string_array.size() < 3)
     {
-        this->_clients[i - 1].sendMessage(":localhost 461 INVITE :Not enough parameters");
+        this->_clients[i - 1].sendMessage(":localhost 461 INVITE :Not enough parameters\r\n");
         return;
     }
     std::cout << "out\n";
@@ -35,7 +35,7 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
 
     if (channel == NULL)
     {
-        this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel");
+        this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel\r\n");
         return;
     }
 
@@ -50,7 +50,7 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
     // std::cout << "Client address in cmdInvite: " << &this->_clients[i - 1] << std::endl;
     if (!channel->isOperator(this->_clients[i - 1]))
     {
-        this->_clients[i - 1].sendMessage(":localhost 482 " + channelName + " :You're not a channel operator");
+        this->_clients[i - 1].sendMessage(":localhost 482 " + channelName + " :You're not a channel operator\r\n");
         return;
     }
 
@@ -67,10 +67,10 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
 
     if (targetClient == NULL)
     {
-        this->_clients[i - 1].sendMessage(":localhost 401 " + targetNickname + " :No such nick/channel");
+        this->_clients[i - 1].sendMessage(":localhost 401 " + targetNickname + " :No such nick/channel\r\n");
         return;
     }
     channel->inviteClient(*targetClient);
-    this->_clients[i - 1].sendMessage(":localhost 341 " + this->_clients[i - 1].getNickname() + " " + targetNickname + " " + channelName);
-    targetClient->sendMessage(":localhost :You have been invited to join " + channelName + " by " + this->_clients[i - 1].getNickname());
+    this->_clients[i - 1].sendMessage(":localhost 341 " + this->_clients[i - 1].getNickname() + " " + targetNickname + " " + channelName + "\r\n");
+    targetClient->sendMessage(":localhost :You have been invited to join " + channelName + " by " + this->_clients[i - 1].getNickname() + "\r\n");
 }

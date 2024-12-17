@@ -27,7 +27,7 @@
 
 // Recommended useful macros
 #define USER_ID(nickname, username) (":" + nickname + "!" + username + "@localhost")
-#define RPL_INVITE(user_id, invited, channel) (user_id + " INVITE " + invited + " #" + channel + "\r\n")
+#define RPL_INVITE(USER_ID, invited, channel) (USER_ID + " INVITE " + invited + " #" + channel + "\r\n")
 #define ERR_INVALIDMODEPARAM(client, channel, mode, password) ("696 " + client + " #" + channel + " " + mode + " " + password + " : password must only contained alphabetic character\r\n")
 
 // Parsing / debugging / testing macros

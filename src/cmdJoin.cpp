@@ -32,7 +32,7 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array)
             break;
         }
     }
-
+	
     if (channel == NULL)
     {
         std::cout << "Channel " << channelName << " not found. Creating new channel." << std::endl;

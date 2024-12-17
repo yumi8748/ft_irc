@@ -185,14 +185,14 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
 {
     if (modeStr.empty())
     {
-        client.sendMessage(":localhost 461 MODE :Not enough parameters");
+        client.sendMessage(":localhost 461 " + client.getNickname() + " MODE :Not enough parameters\r\n");
         return;
     }
 
     char operation = modeStr[0]; // '+' or '-'
     if (operation != '+' && operation != '-')
     {
-        client.sendMessage(":localhost 501 :Unknown MODE flag");
+        client.sendMessage(":localhost 501 " + client.getNickname() + " :Unknown MODE flag\r\n");
         return;
     }
 
@@ -239,19 +239,27 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
             {
                 Client* targetClient = NULL;
 
-            // 查找匹配暱稱的客戶端
-            for (size_t j = 0; j < this->getClients().size(); ++j)
-            {
-                if (this->getClients()[j].getNickname() == value)
-                {
-                    targetClient = &this->getClients()[j];
-                    break;
-                }
-            }
+				// for (size_t j = 0; j < this->getClients().size(); ++j)
+				// {
+				// 	if (this->getClients()[j].getNickname() == value)
+				// 	{
+				// 		targetClient = &this->getClients()[j];
+				// 		break;
+				// 	}
+				// }
 
-            if (!targetClient)
+				for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+				{
+					if (it->getNickname() == value)
+					{
+						targetClient = &(*it);
+						break;
+					}
+				}
+
+				if (!targetClient)
                 {
-                    client.sendMessage(":localhost 401 " + value + " :No such nick/channel");
+                    client.sendMessage(":localhost 401 " + client.getNickname() + " " + value + " :No such nick/channel\r\n");
                     continue;
                 }
 
@@ -260,16 +268,16 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
                     if (!isOperator(*targetClient))
                     {
                         addOperator(*targetClient);
-                        modeMessage = ":Server MODE " + name + " " + operation + "o " + value;
-                        feedback = "You have granted operator privileges to " + value + ".";
+                        modeMessage = ":Server MODE " + name + " " + operation + "o " + value + "\r\n";
+                        feedback = "You have granted operator privileges to " + value + "." + "\r\n";
 
                         // Notify targetClient
                         targetClient->sendMessage(":localhost NOTICE " + targetClient->getNickname() + 
-                            " :You have been granted operator privileges in channel " + name + ".");
+                            " :You have been granted operator privileges in channel " + name + "." + "\r\n");
                     }
                     else
                     {
-                        client.sendMessage(":localhost 443 " + value + " " + name + " :is already an operator");
+                        client.sendMessage(":localhost 443 " + client.getNickname() + " " + value + " " + name + " :is already an operator\r\n");
                         continue;
                     }
                 }
@@ -278,17 +286,17 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
                     if (isOperator(*targetClient))
                     {
                         removeOperator(*targetClient);
-                        modeMessage = ":Server MODE " + name + " " + operation + "o " + value;
-                        feedback = "You have removed operator privileges from " + value + ".";
+                        modeMessage = ":Server MODE " + name + " " + operation + "o " + value + "\r\n";
+                        feedback = "You have removed operator privileges from " + value + "." + "\r\n";
 
                         // Notify targetClient
                         targetClient->sendMessage(":localhost NOTICE " + targetClient->getNickname() + 
-                            " :Your operator privileges in channel " + name + " have been revoked.");
+                            " :Your operator privileges in channel " + name + " have been revoked." + "\r\n");
                     }
                     else
                     {
                         client.sendMessage(":localhost 441 " + value + " " + name + 
-                            " :is not an operator and cannot be removed.");
+                            " :is not an operator and cannot be removed." + "\r\n");
                         continue;
                     }
                 }
@@ -299,19 +307,19 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
                 if (operation == '+')
                 {
                     userLimits = std::atoi(value.c_str());
-                    modeMessage = ":Server MODE " + name + " " + operation + "l " + intToString(userLimits);
-                    feedback = "You have set the channel user limit to " + intToString(userLimits) + ".";
+                    modeMessage = ":Server MODE " + name + " " + operation + "l " + intToString(userLimits) + "\r\n";
+                    feedback = "You have set the channel user limit to " + intToString(userLimits) + "." + "\r\n";
                 }
                 else
                 {
                     userLimits = -1; // Remove limit
-                    modeMessage = ":Server MODE " + name + " " + operation + "l";
-                    feedback = "You have removed the user limit for the channel.";
+                    modeMessage = ":Server MODE " + name + " " + operation + "l" + "\r\n";
+                    feedback = "You have removed the user limit for the channel\r\n.";
                 }
                 break;
 
             default:
-                client.sendMessage(":localhost 472 " + std::string(1, mode) + " :is unknown mode char to me");
+                client.sendMessage(":localhost 472 " + std::string(1, mode) + " :is unknown mode char to me" + "\r\n");
                 continue;
         }
 
@@ -320,7 +328,7 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
         broadcastMessage(modeMessage, client);
 
         // Send intuitive feedback to the client
-        client.sendMessage(":localhost NOTICE " + client.getNickname() + " :" + feedback);
+        client.sendMessage(":localhost NOTICE " + client.getNickname() + " :" + feedback + "\r\n");
     }
 }
 
@@ -347,34 +355,35 @@ void Channel::joinChannel(Client &client, const std::string& password)
 {
     if (std::find(clients.begin(), clients.end(), client) != clients.end())
     {
-        client.sendMessage(":localhost 443 " + client.getNickname() + " " + name + " : You are already in the channel\n");
-        std::cout << "Client " << client.getNickname() << " is already in the channel " << name << std::endl;
+        client.sendMessage(":localhost 443 " + client.getNickname() + " " + name + " : You are already in the channel\r\n");
+        std::cout << "Client " << client.getNickname() << " is already in the channel\r\n" << name << std::endl;
         return;
     }
 
     if (inviteOnly == true && client.isInvited(client, *this) == false)
     {
-        std::string message = ":localhost 473 " + name + " : You need an invitation to join\n";
-        std::string formattedMessage = message + "\r\n";
+        std::string formattedMessage = ":localhost 473 " + client.getNickname() + " " + name + " :Cannot join channel (+i)\r\n";
+        // std::string formattedMessage = message + "\r\n";
         std::cout << "Sending message to client_fd " << client.getFd() << ": " << formattedMessage << std::endl;
         if (send(client.getFd(), formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
             perror("send");
         else
             std::cout << "Message sent successfully." << std::endl;
-        std::cout << "Client " << client.getNickname() << " needs an invitation to join channel " << name << std::endl;
+        std::cout << "Client " << client.getNickname() << " needs an invitation to join channel\r\n" << name << std::endl;
+		// client.sendMessage("Get a proper key you loser\n");
         return;
     }
 
     if (!Ch_pwd.empty() && Ch_pwd != password)
     {
-        client.sendMessage(":localhost 475 " + name + " : Incorrect channel password\n");
-        std::cout << "Client " << client.getNickname() << " provided incorrect password for channel " << name << std::endl;
+        client.sendMessage(":localhost 475 " + client.getNickname() + " " + name + " :Cannot join channel (+k)\r\n");
+        std::cout << "Client " << client.getNickname() << " provided incorrect password for channel\r\n" << name << std::endl;
         return;
     }
 
     if (userLimits > 0 && clients.size() >= static_cast<std::size_t>(userLimits))
     {
-        client.sendMessage(":localhost 471 " + name + " : Channel is full\n");
+        client.sendMessage(":localhost 471 " + client.getNickname() + " " + name + " :Cannot join channel (+l)\r\n");
         std::cout << "Channel " << name << " is full, client " << client.getNickname() << " cannot join" << std::endl;
         return;
     }
@@ -383,7 +392,7 @@ void Channel::joinChannel(Client &client, const std::string& password)
     if (clients.empty() || operators.empty())
     {
         operators.push_back(client);
-        client.sendMessage("You are now an operator in channel " + name);
+        client.sendMessage("You are now an operator in channel " + name + "\r\n");
         std::cout << "Client " << client.getNickname() << " is now an operator in channel " << name << std::endl;
     }
 
@@ -401,7 +410,7 @@ void Channel::joinChannel(Client &client, const std::string& password)
     }
 
     // Send NAMES list to the joining client
-    std::string namesList = ":localhost 353 " + client.getNickname() + " = " + name + " :@";
+    std::string namesList = ":localhost 353 " + client.getNickname() + " = " + name + " :@" + "\r\n";
     for (std::size_t j = 0; j < clients.size(); ++j)
     {
         if (j > 0)
@@ -413,7 +422,7 @@ void Channel::joinChannel(Client &client, const std::string& password)
     send(client.getFd(), namesList.c_str(), namesList.length(), 0);
 
     // Send end of NAMES list
-    std::string endNamesMsg = ":localhost 366 " + client.getNickname() + " " + name + " :End of /NAMES list.\r\n";
+    std::string endNamesMsg = ":localhost 366 " + client.getNickname() + " " + name + " :End of /NAMES list\r\n";
     std::cout << endNamesMsg << std::endl;
     send(client.getFd(), endNamesMsg.c_str(), endNamesMsg.length(), 0);
 

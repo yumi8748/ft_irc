@@ -69,3 +69,18 @@ void	Server::cmdKick(int i, std::vector<std::string> string_array)
 	std::cout << "Client " << targetNickname << " has been kicked from channel " << channelName
 			  << " by operator " << operatorClient.getNickname() << ". Reason: " << (reason.empty() ? "No reason" : reason) << std::endl;
 }
+
+void Channel::kickClient(Client &client)
+{
+	std::vector<Client >::iterator it = std::find(clients.begin(), clients.end(), client);
+	if (it != clients.end())
+	{
+		clients.erase(it);
+		client.removeChannel(*this);
+		std::cout << "Client " << client.getNickname() << " has been removed from channel " << name << std::endl;
+	}
+	else
+	{
+		std::cerr << "Client not found in channel " << name << "!" << std::endl;
+	}
+}

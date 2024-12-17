@@ -51,3 +51,161 @@ void Server::cmdMode(int i, std::vector<std::string> string_array)
     channel->setMode(mode, extra_cmd, _clients[i - 1]);
     this->_clients[i - 1].sendMessage("Mode updated successfully."); // keep?
 }
+
+std::string Channel::getMode(const std::string& mode) const
+{
+    std::map<std::string, std::string>::const_iterator it = modes.find(mode);
+    if (it != modes.end())
+        return (it->second);
+    return ("");
+}
+
+void Channel::setMode(const std::string& modeStr, const std::string& value, const Client& client)
+{
+    if (modeStr.empty())
+    {
+        client.sendMessage(":localhost 461 " + client.getNickname() + " MODE :Not enough parameters\r\n");
+        return;
+    }
+
+    char operation = modeStr[0]; // '+' or '-'
+    if (operation != '+' && operation != '-')
+    {
+        client.sendMessage(":localhost 501 " + client.getNickname() + " :Unknown MODE flag\r\n");
+        return;
+    }
+
+    // Apply modes one by one
+    for (size_t i = 1; i < modeStr.size(); ++i)
+    {
+        char mode = modeStr[i];
+        std::string modeMessage;  // Standard IRC MODE message
+        std::string feedback;    // Intuitive message for the client
+        switch (mode)
+        {
+            case 'i': // Invite-only
+                inviteOnly = (operation == '+');
+                modeMessage = ":Server MODE " + name + " " + operation + "i";
+                feedback = (operation == '+') ? 
+                    "You have set the channel to invite-only mode." : 
+                    "You have disabled invite-only mode for the channel.";
+                break;
+
+            case 't': // Topic restrictions
+                topicRestricted = (operation == '+');
+                modeMessage = ":Server MODE " + name + " " + operation + "t";
+                feedback = (operation == '+') ? 
+                    "You have restricted topic changes to operators only." : 
+                    "You have allowed everyone to change the topic.";
+                break;
+
+            case 'k': // Channel password
+                if (operation == '+')
+                {
+                    Ch_pwd = value;
+                    modeMessage = ":Server MODE " + name + " " + operation + "k " + value;
+                    feedback = "You have set the channel password to: " + value;
+                }
+                else
+                {
+                    Ch_pwd.clear();
+                    modeMessage = ":Server MODE " + name + " " + operation + "k";
+                    feedback = "You have removed the channel password.";
+                }
+                break;
+
+            case 'o': // Operator privileges
+            {
+                Client* targetClient = NULL;
+
+				// for (size_t j = 0; j < this->getClients().size(); ++j)
+				// {
+				// 	if (this->getClients()[j].getNickname() == value)
+				// 	{
+				// 		targetClient = &this->getClients()[j];
+				// 		break;
+				// 	}
+				// }
+
+				for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+				{
+					if (it->getNickname() == value)
+					{
+						targetClient = &(*it);
+						break;
+					}
+				}
+
+				if (!targetClient)
+                {
+                    client.sendMessage(":localhost 401 " + client.getNickname() + " " + value + " :No such nick/channel\r\n");
+                    continue;
+                }
+
+                if (operation == '+')
+                {
+                    if (!isOperator(*targetClient))
+                    {
+                        addOperator(*targetClient);
+                        modeMessage = ":Server MODE " + name + " " + operation + "o " + value + "\r\n";
+                        feedback = "You have granted operator privileges to " + value + "." + "\r\n";
+
+                        // Notify targetClient
+                        targetClient->sendMessage(":localhost NOTICE " + targetClient->getNickname() + 
+                            " :You have been granted operator privileges in channel " + name + "." + "\r\n");
+                    }
+                    else
+                    {
+                        client.sendMessage(":localhost 324 " + client.getNickname() + " " + name + " " + value + " " + " :is already an operator\r\n");
+                        continue;
+                    }//not yet
+                }
+                else
+                {
+                    if (isOperator(*targetClient))
+                    {
+                        removeOperator(*targetClient);
+                        modeMessage = ":Server MODE " + name + " " + operation + "o " + value + "\r\n";
+                        feedback = "You have removed operator privileges from " + value + "." + "\r\n";
+
+                        // Notify targetClient
+                        targetClient->sendMessage(":localhost NOTICE " + targetClient->getNickname() + 
+                            " :Your operator privileges in channel " + name + " have been revoked." + "\r\n");
+                    }
+                    else
+                    {
+                        client.sendMessage(":localhost 324 " + client.getNickname() + " " + name + " " + value + " " + " :is not an operator and cannot be removed" + "\r\n"); //not yet
+                        continue;
+                    }
+                }
+                break;
+            }
+
+            case 'l': // User limit
+                if (operation == '+')
+                {
+                    userLimits = std::atoi(value.c_str());
+                    modeMessage = ":Server MODE " + name + " " + operation + "l " + intToString(userLimits) + "\r\n";
+                    feedback = "You have set the channel user limit to " + intToString(userLimits) + "." + "\r\n";
+                }
+                else
+                {
+                    userLimits = -1; // Remove limit
+                    modeMessage = ":Server MODE " + name + " " + operation + "l" + "\r\n";
+                    feedback = "You have removed the user limit for the channel\r\n.";
+                }
+                break;
+
+            default:
+                client.sendMessage(":localhost 472 " + std::string(1, mode) + " :is unknown mode char to me" + "\r\n");
+                continue;
+        }
+
+        // Send standard IRC mode message
+        client.sendMessage(modeMessage);
+        broadcastMessage(modeMessage, client);
+
+        // Send intuitive feedback to the client
+        client.sendMessage(":localhost NOTICE " + client.getNickname() + " :" + feedback + "\r\n");
+    }
+}

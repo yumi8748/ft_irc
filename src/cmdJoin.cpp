@@ -45,7 +45,6 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array)
         std::cout << "Client " << this->_clients[i - 1].getNickname() << " added as operator to channel " << channelName << std::endl;
         
         std::string msg = ":" + this->_clients[i - 1].getNickname() + " JOIN " + string_array[1] + "\r\n";
-        
         std::cout << msg << std::endl;
         send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 
@@ -84,4 +83,85 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array)
     //     std::cout << "Channel " << channelName << " found. Joining channel." << std::endl;
     //     channel.joinChannel(this->_clients[i - 1], pwd);
     // }
+}
+
+void Channel::joinChannel(Client &client, const std::string& password)
+{
+    if (std::find(clients.begin(), clients.end(), client) != clients.end())
+    {
+        // client.sendMessage(":localhost 443 " + client.getNickname() + " " + name + " :You are already in the channel\r\n");
+        // std::cout << "Client " << client.getNickname() << " is already in the channel\r\n" << name << std::endl;
+        return;
+    }
+
+    if (inviteOnly == true && client.isInvited(client, *this) == false)
+    {
+        std::string formattedMessage = ":localhost 473 " + client.getNickname() + " " + name + " :Cannot join channel (+i)\r\n";
+        // std::string formattedMessage = message + "\r\n";
+        std::cout << "Sending message to client_fd " << client.getFd() << ": " << formattedMessage << std::endl;
+        if (send(client.getFd(), formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
+            perror("send");
+        else
+            std::cout << "Message sent successfully." << std::endl;
+        std::cout << "Client " << client.getNickname() << " needs an invitation to join channel\r\n" << name << std::endl;
+		// client.sendMessage("Get a proper key you loser\n");
+        return;
+    }
+
+    if (!Ch_pwd.empty() && Ch_pwd != password)
+    {
+        client.sendMessage(":localhost 475 " + client.getNickname() + " " + name + " :Cannot join channel (+k)\r\n");
+        std::cout << "Client " << client.getNickname() << " provided incorrect password for channel\r\n" << name << std::endl;
+        return;
+    }
+
+    if (userLimits > 0 && clients.size() >= static_cast<std::size_t>(userLimits))
+    {
+        client.sendMessage(":localhost 471 " + client.getNickname() + " " + name + " :Cannot join channel (+l)\r\n");
+        std::cout << "Channel " << name << " is full, client " << client.getNickname() << " cannot join" << std::endl;
+        return;
+    }
+
+    // Assign operator privileges if this is the first client
+    // if (clients.empty() || operators.empty())
+    // {
+    //     operators.push_back(client);
+    //     client.sendMessage("You are now an operator in channel " + name + "\r\n");
+    //     std::cout << "Client " << client.getNickname() << " is now an operator in channel " << name << std::endl;
+    // }
+
+    // Add client to the channel
+    clients.push_back(client);
+    client.addChannel(*this);
+    // addClient(client);
+
+    // Notify all clients in the channel about the join event
+    for (std::size_t k = 0; k < clients.size(); ++k)
+    {
+        std::string joinMsg = ":" + client.getNickname() + " JOIN " + name + "\r\n";
+        std::cout << joinMsg << std::endl;
+        send(clients[k].getFd(), joinMsg.c_str(), joinMsg.length(), 0);
+    }
+
+    // Send NAMES list to the joining client
+    // std::string namesList = ":localhost 353 " + client.getNickname() + " = " + name + " :@";
+	std::string namesList = ":localhost 353 " + client.getNickname() + " = " + name + " :";
+    for (std::size_t j = 0; j < clients.size(); ++j)
+    {
+        if (j > 0)
+            namesList += " ";
+		if (isOperator(clients[j]))
+			namesList += "@";
+        namesList += clients[j].getNickname();
+    }
+    namesList += "\r\n";
+    std::cout << namesList << std::endl;
+    send(client.getFd(), namesList.c_str(), namesList.length(), 0);
+
+    // Send end of NAMES list
+    std::string endNamesMsg = ":localhost 366 " + client.getNickname() + " " + name + " :End of /NAMES list\r\n";
+    std::cout << endNamesMsg << std::endl;
+    send(client.getFd(), endNamesMsg.c_str(), endNamesMsg.length(), 0);
+
+    std::cout << "Client " << client.getNickname() << " successfully joined channel " << name << std::endl;
 }

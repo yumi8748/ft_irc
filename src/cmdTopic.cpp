@@ -67,3 +67,14 @@ void Server::cmdTopic(int i, std::vector<std::string> string_array)
 
     std::cout << "Topic for channel " << channelName << " updated to: " << newTopic << std::endl;
 }
+
+void Channel::setTopic(const std::string& newTopic)
+{
+    topic = newTopic;
+    std::cout << "Channel topic updated to: " << topic << std::endl;
+}
+
+std::string Channel::getTopic() const
+{
+    return (topic);
+}

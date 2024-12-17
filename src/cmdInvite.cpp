@@ -74,3 +74,33 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
     this->_clients[i - 1].sendMessage(":localhost 341 " + this->_clients[i - 1].getNickname() + " " + targetNickname + " " + channelName + "\r\n");
     targetClient->sendMessage(":localhost :You have been invited to join " + channelName + " by " + this->_clients[i - 1].getNickname() + "\r\n");
 }
+
+void Channel::inviteClient(Client &client)
+{
+    if (std::find(clients.begin(), clients.end(), client) != clients.end())
+    {
+        std::cerr << "Error: Client " << client.getNickname() << " is already in the channel " << name << "." << std::endl;
+        return ;
+    }
+    // clients.push_back(client);
+    // client.addChannel(*this);
+	addInvitedClient(client);
+    std::cout << "Client " << client.getNickname() << " has been invited to the channel " << name << "." << std::endl;
+}
+
+void Channel::addInvitedClient(const Client &client) {
+    if (std::find(invitedClients.begin(), invitedClients.end(), client) == invitedClients.end()) {
+        invitedClients.push_back(client);
+    }
+}
+
+void Channel::removeInvitedClient(const Client &client) {
+    std::vector<Client>::iterator it = std::find(invitedClients.begin(), invitedClients.end(), client);
+    if (it != invitedClients.end()) {
+        invitedClients.erase(it);
+    }
+}
+
+const std::vector<Client>& Channel::getInvitedClients() const {
+    return invitedClients;
+}

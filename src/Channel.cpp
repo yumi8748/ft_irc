@@ -388,12 +388,12 @@ void Channel::joinChannel(Client &client, const std::string& password)
     }
 
     // Assign operator privileges if this is the first client
-    if (clients.empty() || operators.empty())
-    {
-        operators.push_back(client);
-        client.sendMessage("You are now an operator in channel " + name + "\r\n");
-        std::cout << "Client " << client.getNickname() << " is now an operator in channel " << name << std::endl;
-    }
+    // if (clients.empty() || operators.empty())
+    // {
+    //     operators.push_back(client);
+    //     client.sendMessage("You are now an operator in channel " + name + "\r\n");
+    //     std::cout << "Client " << client.getNickname() << " is now an operator in channel " << name << std::endl;
+    // }
 
     // Add client to the channel
     clients.push_back(client);
@@ -416,7 +416,7 @@ void Channel::joinChannel(Client &client, const std::string& password)
             namesList += " ";
         namesList += clients[j].getNickname();
     }
-    namesList += "\r\n";
+    // namesList += "\r\n";
     std::cout << namesList << std::endl;
     send(client.getFd(), namesList.c_str(), namesList.length(), 0);
 

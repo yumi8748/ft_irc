@@ -1,15 +1,16 @@
 #include "../includes/Irc.hpp"
 
-Client::Client(int fd): nick("*"),oldnick(""),usr(""),host(getSystemHostname()),buffer(""),client_fd(fd), _passwordIsCorrect(0), _isRegistered(0)
+Client::Client(int fd): nick("*"),oldnick(""),usr(""),host("localhost"),buffer(""),client_fd(fd), _passwordIsCorrect(0), _isRegistered(0)
 {
+	std::cout << GREEN << host << std::endl;
 }
 
-std::string Client::getSystemHostname() {
-    char hostname[1024];
-    if (gethostname(hostname, sizeof(hostname)) == 0)
-        return std::string(hostname);
-    return "unknown";
-}
+// std::string Client::getSystemHostname() {
+//     char hostname[1024];
+//     if (gethostname(hostname, sizeof(hostname)) == 0)
+//         return std::string(hostname);
+//     return "unknown";
+// }
 
 void Client::setFd(int fd){
     client_fd = fd;
@@ -30,10 +31,10 @@ void Client::setOldNick(const std::string& oldnickname)
     oldnick = oldnickname;
 }
 
-void Client::setHostname(const std::string& hostname)
-{
-    host = hostname;
-}
+// void Client::setHostname(const std::string& hostname)
+// {
+//     host = hostname;
+// }
 
 const std::string& Client::getNickname() const
 {

@@ -59,6 +59,7 @@ class Server{
         bool isValidChannelName(const std::string& channelName);
         Channel findChannelByName(const std::string& channelName);
         Client findClientByNickname(const std::string& nickname);
+		int findClientIndex(const Client*);
         void setMode(const std::string& mode, const std::string& value);
 
     private:

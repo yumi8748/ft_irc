@@ -130,8 +130,9 @@ void Channel::inviteClient(Client &client)
         std::cerr << "Error: Client " << client.getNickname() << " is already in the channel " << name << "." << std::endl;
         return ;
     }
-    clients.push_back(client);
-    client.addChannel(*this);
+    // clients.push_back(client);
+    // client.addChannel(*this);
+	addInvitedClient(client);
     std::cout << "Client " << client.getNickname() << " has been invited to the channel " << name << "." << std::endl;
 }
 
@@ -425,14 +426,13 @@ void Channel::partChannel(Client& client, const std::string& reason)
     std::vector<Client>::iterator it = std::find(clients.begin(), clients.end(), client);
     if (it != clients.end())
     {
-        clients.erase(it);
         client.removeChannel(*this);
-        client.sendMessage("You have parted from channel " + it->getName() + "\n");
-        std::string partMessage = ":" + client.getNickname() + " PART " + name + " :" + reason + "\r\n";
-        broadcastMessage(partMessage);
+        client.sendMessage("You have parted from channel " + name + "\n");
+		client.sendMessage(USER_ID(client.getNickname(), client.getUsername()) + " PART " + name + " :" + reason + "\r\n");
 
         // Debug statement to check client after parting
         std::cout << "Client " << client.getNickname() << " has parted from channel " << name << std::endl;
+        clients.erase(it);
     }
     else
     {

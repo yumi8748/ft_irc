@@ -48,7 +48,7 @@ class Client{
         const std::string& getNickname() const;
         const std::string& getUsername() const;
 		const std::string& getOldNick() const;
-        void setHostname(const std::string& hostname);
+        // void setHostname(const std::string& hostname);
         std::string getHostname() const;
         void sendMessage(const std::string &message) const;
         void addChannel(const Channel &ch);
@@ -56,7 +56,7 @@ class Client{
         void Send();
         int getFd() const;
         bool isInvited(const Client &client, const Channel &channel) const;
-        std::string getSystemHostname();
+        // std::string getSystemHostname();
         
 		void setPasswordIsCorrect(void);
 		int getPasswordIsCorrect(void);

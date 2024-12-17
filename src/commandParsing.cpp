@@ -189,24 +189,24 @@ int		Server::isRegistered(int i)
 	}
 }
 
-Channel Server::findChannelByName(const std::string& channelName)
-{
-    for (size_t j = 0; j < this->_channels.size(); j++)
-    {
-        if (this->_channels[j].getName() == channelName)
-            return (this->_channels[j]);
-    }
-    return Channel();
-}
-Client Server::findClientByNickname(const std::string& nickname)
-{
-    for (size_t j = 0; j < this->_clients.size(); j++)
-	{
-        if (this->_clients[j].getNickname() == nickname)
-            return (this->_clients[j]);
-    }
-    return Client();
-}
+// Channel Server::findChannelByName(const std::string& channelName)
+// {
+//     for (size_t j = 0; j < this->_channels.size(); j++)
+//     {
+//         if (this->_channels[j].getName() == channelName)
+//             return (this->_channels[j]);
+//     }
+//     return Channel();
+// }
+// Client Server::findClientByNickname(const std::string& nickname)
+// {
+//     for (size_t j = 0; j < this->_clients.size(); j++)
+// 	{
+//         if (this->_clients[j].getNickname() == nickname)
+//             return (this->_clients[j]);
+//     }
+//     return Client();
+// }
 
 bool Server::isValidChannelName(const std::string& channelName)
 {

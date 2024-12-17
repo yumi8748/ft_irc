@@ -54,13 +54,23 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
         return;
     }
 
-    Client targetClient = findClientByNickname(targetNickname);
-    if (targetClient == Client())
+    Client* targetClient = NULL;
+
+    for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+    {
+        if (it->getNickname() == targetNickname)
+        {
+            targetClient = &(*it);
+            break;
+        }
+    }
+
+    if (targetClient == NULL)
     {
         this->_clients[i - 1].sendMessage(":localhost 401 " + targetNickname + " :No such nick/channel");
         return;
     }
-    channel->inviteClient(targetClient);
+    channel->inviteClient(*targetClient);
     this->_clients[i - 1].sendMessage(":localhost 341 " + this->_clients[i - 1].getNickname() + " " + targetNickname + " " + channelName);
-    targetClient.sendMessage(":localhost :You have been invited to join " + channelName + " by " + this->_clients[i - 1].getNickname());
+    targetClient->sendMessage(":localhost :You have been invited to join " + channelName + " by " + this->_clients[i - 1].getNickname());
 }

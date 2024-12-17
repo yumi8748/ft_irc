@@ -57,9 +57,8 @@ class Server{
 		void 	userMsg(int i, std::vector<std::string> string_array, std::string buffer);
         //YUMI
         bool isValidChannelName(const std::string& channelName);
-        Channel findChannelByName(const std::string& channelName);
-        Client findClientByNickname(const std::string& nickname);
-		int findClientIndex(const Client*);
+        // Channel findChannelByName(const std::string& channelName);
+        // Client findClientByNickname(const std::string& nickname);
         void setMode(const std::string& mode, const std::string& value);
 
     private:

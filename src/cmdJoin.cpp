@@ -11,7 +11,9 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array)
 
 	if (string_array.size() < 2)
     {
-        this->_clients[i - 1].sendMessage("[Error 461] JOIN : Not enough parameters\n");
+        // this->_clients[i - 1].sendMessage("[Error 461] JOIN : Not enough parameters\n");
+		std::string msg = ":localhost 461 " + this->_clients[i - 1].getNickname() + " JOIN :Not enough parameters\r\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
         return;
     }
 
@@ -19,7 +21,7 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array)
     std::string pwd = (string_array.size() > 2) ? string_array[2] : "";
     if (!isValidChannelName(channelName))
     {
-        this->_clients[i - 1].sendMessage("[Error 403] " + channelName + " : Invalid channel name\n");
+        this->_clients[i - 1].sendMessage("Error : " + channelName + " : Invalid channel name\n");
         return;
     }
 

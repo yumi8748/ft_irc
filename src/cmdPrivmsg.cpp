@@ -17,7 +17,7 @@ void Server::channelMsg(int i, std::vector<std::string> string_array, std::strin
 	}
 	if (k == static_cast<int>(getChannels().size()))
 	{
-		msg = ":localhost 401 " + this->_clients[i - 1].getNickname() + " " + string_array[1] + " :No such channel\r\n";
+		msg = ":localhost 401 " + string_array[1] + " :No such channel\r\n";
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		return;
 	}
@@ -70,7 +70,7 @@ void Server::userMsg(int i, std::vector<std::string> string_array, std::string b
 	}
 	if (k == static_cast<int>(getClients().size()))
 	{
-		msg = ":localhost 401 " + this->_clients[i - 1].getNickname() + " " + string_array[1] + " :No such nickname\r\n";
+		msg = ":localhost 401 " + this->_clients[i - 1].getNickname() + " :No such nick\r\n";
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		return;
 	}

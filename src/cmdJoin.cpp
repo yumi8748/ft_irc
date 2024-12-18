@@ -89,7 +89,7 @@ void Channel::joinChannel(Client &client, const std::string& password)
 {
     if (std::find(clients.begin(), clients.end(), client) != clients.end())
     {
-        // client.sendMessage(":localhost 443 " + client.getNickname() + " " + name + " :You are already in the channel\r\n");
+        // client.sendMessage(":localhost  " + client.getNickname() + " " + name + " :You are already in the channel\r\n");
         // std::cout << "Client " << client.getNickname() << " is already in the channel\r\n" << name << std::endl;
         return;
     }

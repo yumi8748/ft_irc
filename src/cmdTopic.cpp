@@ -4,13 +4,13 @@ void Server::cmdTopic(int i, std::vector<std::string> string_array)
 {
     if (this->isRegistered(i) == 0)
     {
-        this->_clients[i - 1].sendMessage(":localhost 451 * :You have not registered\r\n");
+        this->_clients[i - 1].sendMessage(":localhost 451 " + _clients[i - 1].getNickname() + " :You have not registered\r\n");
         return;
     }
 
     if (string_array.size() < 2)
     {
-        this->_clients[i - 1].sendMessage(":localhost 461 TOPIC :Not enough parameters\r\n");
+        this->_clients[i - 1].sendMessage(":localhost 461 " + _clients[i - 1].getNickname() + " TOPIC :Not enough parameters\r\n");
         return;
     }
 
@@ -28,7 +28,7 @@ void Server::cmdTopic(int i, std::vector<std::string> string_array)
 
     if (channel == NULL)
     {
-        this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel\r\n");
+        this->_clients[i - 1].sendMessage(":localhost 403 "+ _clients[i - 1].getNickname() + " " + channelName + " :No such channel\r\n");
         return;
     }
 
@@ -37,18 +37,18 @@ void Server::cmdTopic(int i, std::vector<std::string> string_array)
         // std::string currentTopic = channel.getTopic();
         if (channel->getTopic().empty())
         {
-            this->_clients[i - 1].sendMessage(":localhost 331 " + channelName + " :No topic is set\r\n");
+            this->_clients[i - 1].sendMessage(":localhost 331 " + _clients[i - 1].getNickname() + " " + channelName + " :No topic is set\r\n");
         }
         else
         {
-            this->_clients[i - 1].sendMessage(":localhost 332 " + channelName + " :" + channel->getTopic() + "\r\n");
+            this->_clients[i - 1].sendMessage(":localhost 332 " + _clients[i - 1].getNickname() + " " + channelName + " :" + channel->getTopic() + "\r\n");
         }
         return;
     }
 
     if (channel->getTopicRestricted() == true && !channel->isOperator(this->_clients[i - 1]))
     {
-        this->_clients[i - 1].sendMessage(":localhost 482 " + channelName + " :You're not a channel operator" + "\r\n");
+        this->_clients[i - 1].sendMessage(":localhost 482 " + _clients[i - 1].getNickname() + " " + channelName + " :You're not channel operator" + "\r\n");
         return;
     }
 

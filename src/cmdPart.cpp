@@ -13,11 +13,11 @@ void	Server::cmdPart(int i, std::vector<std::string> string_array) //parameter: 
     }
 	std::string &channelName = string_array[1]; //for now only 1 channel as parameter allowed
 	std::string reason = string_array.size() > 2 ? string_array[2] : "";
-	if (!isValidChannelName(channelName))
-	{
-		this->_clients[i - 1].sendMessage(":localhost 403 " + _clients[i - 1].getNickname() + " " + channelName + " :No such channel\r\n");
-		return ;
-	}
+	// if (!isValidChannelName(channelName))
+	// {
+	// 	this->_clients[i - 1].sendMessage(":localhost 403 " + _clients[i - 1].getNickname() + " " + channelName + " :No such channel\r\n");
+	// 	return ;
+	// }
 	// Channel channel = findChannelByName(channelName);
 	Channel* channel = NULL;
     for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)

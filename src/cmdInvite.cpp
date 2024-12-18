@@ -39,6 +39,12 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
         return;
     }
 
+    if (!channel->isClientInChannel(_clients[i - 1]))
+	{
+		this->_clients[i - 1].sendMessage(":localhost 442 " + _clients[i - 1].getNickname() + " " + channelName + " :You aren't on that channel\r\n");
+		return ;
+	}
+
     // Channel channel = findChannelByName(channelName);
     // if (channel == Channel())
     // {

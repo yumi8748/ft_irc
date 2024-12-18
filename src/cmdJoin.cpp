@@ -19,8 +19,11 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array)
 
     std::string channelName = string_array[1];
     std::string pwd = (string_array.size() > 2) ? string_array[2] : "";
-    if (!isValidChannelName(channelName))
+    // std::cout << "ICI 1 " <<  isValidChannelName(channelName) << std::endl;
+    std::cout << "ICI :" <<  channelName << std::endl;
+    if (isValidChannelName(channelName) == 0)
     {
+    //    std::cout << "NOT OK 5" << std::endl;
         this->_clients[i - 1].sendMessage("Error : " + channelName + " : Invalid channel name\n");
         return;
     }

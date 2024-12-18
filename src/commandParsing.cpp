@@ -211,6 +211,24 @@ int		Server::isRegistered(int i)
 bool Server::isValidChannelName(const std::string& channelName)
 {
     // start with # and no space
-	// std::cout << "OK" << std::endl;
-    return !channelName.empty() && channelName[0] == '#' && channelName.find(' ') == std::string::npos;
+	// std::cout << "NOT OK 2" << std::endl;
+    // return !channelName.empty() && channelName[0] == '#' && channelName.find(' ') == std::string::npos;
+	int j = 0;
+	while (channelName[j])
+	{
+		// std::cout << "OK 3" << channelName[j] << std::endl;
+		if (channelName[0] != '#')
+		{
+			return 0;
+		}
+		if (channelName[j] == ',' || channelName[j] == ' ' || channelName[j] == 7)
+		{
+
+			// std::cout <<  "OK 4" <<  channelName[j] << std::endl;
+			return 0;
+
+		}
+		j++;
+	}
+	return 1;
 }

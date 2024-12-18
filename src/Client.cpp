@@ -64,9 +64,9 @@ void Client::sendMessage(const std::string &message) const
         return;
     }
     
-    std::string formattedMessage = message + "\r\n";
-    std::cout << "Sending message to client_fd " << client_fd << ": " << formattedMessage << std::endl;
-    if (send(client_fd, formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
+    // std::string formattedMessage = message + "\r\n";
+    std::cout << "Sending message to client_fd " << client_fd << ": " << message << std::endl;
+    if (send(client_fd, message.c_str(), message.length(), 0) == -1)
         perror("send");
     else
         std::cout << "Message sent successfully." << std::endl;

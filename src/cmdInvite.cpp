@@ -67,10 +67,10 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
 
     if (targetClient == NULL)
     {
-        this->_clients[i - 1].sendMessage(":localhost 401 " + _clients[i - 1].getNickname() + " " + targetNickname + " :No such nick/channel\r\n");
+        this->_clients[i - 1].sendMessage(":localhost 401 " + _clients[i - 1].getNickname() + " " + targetNickname + " :No such nick\r\n");
         return;
     }
-    if (std::find(_clients.begin(), _clients.end(), _clients[i - 1]) != _clients.end())
+    if (std::find(_clients.begin(), _clients.end(), *targetClient) != _clients.end())
     {
         this->_clients[i - 1].sendMessage(":localhost 443 " + _clients[i - 1].getNickname() + " " + targetClient->getNickname() + " " + channel->getName() + " :is already on channel");
         return ;

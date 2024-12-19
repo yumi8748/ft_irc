@@ -76,27 +76,29 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
         this->_clients[i - 1].sendMessage(":localhost 401 " + _clients[i - 1].getNickname() + " " + targetNickname + " :No such nick\r\n");
         return;
     }
-    if (std::find(_clients.begin(), _clients.end(), *targetClient) != _clients.end())
-    {
-        this->_clients[i - 1].sendMessage(":localhost 443 " + _clients[i - 1].getNickname() + " " + targetClient->getNickname() + " " + channel->getName() + " :is already on channel");
-        return ;
-    } 
-    channel->inviteClient(*targetClient);
-    this->_clients[i - 1].sendMessage(":localhost 341 " + this->_clients[i - 1].getNickname() + " " + targetNickname + " " + channelName + "\r\n");
-    targetClient->sendMessage(":localhost :You have been invited to join " + channelName + " by " + this->_clients[i - 1].getNickname() + "\r\n");
+    // if (std::find(channel->getClients().begin(), channel->getClients().end(), *targetClient) != channel->getClients().end())
+    // {
+    //     this->_clients[i - 1].sendMessage(":localhost 443 " + _clients[i - 1].getNickname() + " " + targetClient->getNickname() + " " + channel->getName() + " :is already on channel\r\n");
+    //     return ;
+    // } 
+    channel->inviteClient(_clients[i - 1], *targetClient);
+    // this->_clients[i - 1].sendMessage(":localhost 341 " + this->_clients[i - 1].getNickname() + " " + targetNickname + " " + channelName + "\r\n");
+    // targetClient->sendMessage(":localhost :You have been invited to join " + channelName + " by " + this->_clients[i - 1].getNickname() + "\r\n");
 }
 
-// void Channel::inviteClient(Client &client, Client &targetclient)
-void Channel::inviteClient(Client &client)
+// void Channel::inviteClient(Client &client)
+void Channel::inviteClient(Client &client, Client &targetclient)
 {
-    // if (std::find(clients.begin(), clients.end(), client) != clients.end())
-    // {
-    //     std::cerr << ":localhost 443 " << client.getNickname() << " " << targetclient.getNickname() << " " << this->getName() << " :is already on channel"<< std::endl;
-    //     return ;
-    // }
-    // clients.push_back(client);
-    // client.addChannel(*this);
-	addInvitedClient(client);
+    if (std::find(clients.begin(), clients.end(), targetclient) != clients.end())
+    {
+        client.sendMessage(":localhost 443 " + client.getNickname() + " " + targetclient.getNickname() + " " + this->getName() + " :is already on channel\r\n");
+        return ;
+    }
+    clients.push_back(targetclient);
+    targetclient.addChannel(*this);
+	addInvitedClient(targetclient);
+    client.sendMessage(":localhost 341 " + client.getNickname() + " " + targetclient.getNickname() + " " + this->getName() + "\r\n");
+    targetclient.sendMessage(":localhost :You have been invited to join " + this->getName() + " by " + client.getNickname() + "\r\n");
     std::cout << "Client " << client.getNickname() << " has been invited to the channel " << name << "." << std::endl;
 }
 

@@ -40,6 +40,12 @@ void	Server::cmdPart(int i, std::vector<std::string> string_array) //parameter: 
 		return ;
 	}
 	channel->partChannel(_clients[i - 1], reason); //handle in channel
+	//for critical
+	channel->broadcastMessage(
+    USER_ID(_clients[i - 1].getNickname(), _clients[i - 1].getUsername()) + " PART " + channelName + (reason.empty() ? "\r\n" : " :" + reason + "\r\n"),
+    _clients[i - 1]);
+
+
 	if (channel->isEmpty())
 	{
 		for (std::vector<Channel>::iterator it = this->_channels.begin(); it != this->_channels.end(); ) 
@@ -61,11 +67,20 @@ void Channel::partChannel(Client& client, const std::string& reason)
     std::vector<Client>::iterator it = std::find(clients.begin(), clients.end(), client);
     if (it != clients.end())
     {
+		std::string Reason = reason.empty() ? "No reason provided" : reason;
+
+        // Ensure username and nickname are valid
+        if (client.getNickname().empty() || client.getUsername().empty()) {
+            std::cerr << "Error: Client " << client.getNickname() << " has invalid nickname or username.\n";
+            return;
+        }
         client.removeChannel(*this);
         client.sendMessage("You have parted from channel " + name + "\n");
-		client.sendMessage(USER_ID(client.getNickname(), client.getUsername()) + " PART " + name + " :" + reason + "\r\n");
-
-        // Debug statement to check client after parting
+		// client.sendMessage(USER_ID(client.getNickname(), client.getUsername()) + " PART " + name + " :" + Reason + "\r\n");
+        client.sendMessage(USER_ID(client.getNickname(), client.getUsername()) 
+                   + " PART " + name 
+                   + (reason.empty() ? "\r\n" : " :" + reason + "\r\n"));
+		// Debug statement to check client after parting
         std::cout << "Client " << client.getNickname() << " has parted from channel " << name << std::endl;
         clients.erase(it);
     }

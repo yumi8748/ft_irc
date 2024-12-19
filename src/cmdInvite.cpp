@@ -78,7 +78,7 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
     }
     if (std::find(_clients.begin(), _clients.end(), *targetClient) != _clients.end())
     {
-        this->_clients[i - 1].sendMessage(":localhost 443 " + _clients[i - 1].getNickname() + " " + targetClient->getNickname() + " " + channel->getName() + " :is already on channel");
+        this->_clients[i - 1].sendMessage(":localhost 443 " + _clients[i - 1].getNickname() + " " + targetClient->getNickname() + " " + channel->getName() + " :is already on channel\r\n");
         return ;
     } 
     channel->inviteClient(*targetClient);

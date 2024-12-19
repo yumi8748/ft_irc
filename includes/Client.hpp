@@ -2,7 +2,6 @@
 #define CLIENT_HPP
 
 #include "Channel.hpp"
-#include "Commands.hpp"
 #include "Server.hpp"
 #include "Macros.hpp"
 
@@ -13,19 +12,27 @@ class Client{
         std::string nick;
 		std::string oldnick;
         std::string usr;
-        std::string _buffer; // take the message until \r\n
         std::string host;
         std::string buffer; // take the message until \r\n
-        std::vector<Channel*> channels;
-        std::vector<Channel*> joinedChannels; // 用戶加入的頻道
+        // std::vector<Channel*> channels;
+        // std::vector<Channel*> joinedChannels;
+        std::vector<Channel> channels;
+        // std::vector<Channel> joinedChannels;
         int client_fd;
-        std::string recv_buf;
-        std::string getSystemHostname();
 		int _passwordIsCorrect;
         int _isRegistered;
     public:
         Client(){};
         ~Client(){};
+        bool operator==(const Client& other) const
+        {
+            return this->client_fd == other.client_fd;
+        }
+        bool operator!=(const Client& other) const
+        {
+            return !(*this == other);
+        }
+
         Client(int fd);
         void setFd(int fd);
         void setNickname(const std::string& nickname);
@@ -41,14 +48,15 @@ class Client{
         const std::string& getNickname() const;
         const std::string& getUsername() const;
 		const std::string& getOldNick() const;
-        void setHostname(const std::string& hostname);
+        // void setHostname(const std::string& hostname);
         std::string getHostname() const;
-        void sendMessage(const std::string &message);
-        void addChannel(Channel* ch);
-        void removeChannel(Channel* channel);
+        void sendMessage(const std::string &message) const;
+        void addChannel(const Channel &ch);
+        void removeChannel(const Channel &channel);
         void Send();
         int getFd() const;
-        bool isInvited(Client* client, Channel* channel);
+        bool isInvited(const Client &client, const Channel &channel) const;
+        // std::string getSystemHostname();
         
 		void setPasswordIsCorrect(void);
 		int getPasswordIsCorrect(void);
@@ -56,7 +64,7 @@ class Client{
 		std::string &	getBuffer(void);
         // void Recv();
 
-		std::string getName(void);
+		std::string getName(void) const;
 };
 
 #endif

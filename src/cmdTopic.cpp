@@ -4,41 +4,51 @@ void Server::cmdTopic(int i, std::vector<std::string> string_array)
 {
     if (this->isRegistered(i) == 0)
     {
-        this->_clients[i - 1].sendMessage(":localhost 451 * :You have not registered");
+        this->_clients[i - 1].sendMessage(":localhost 451 " + _clients[i - 1].getNickname() + " :You have not registered\r\n");
         return;
     }
 
     if (string_array.size() < 2)
     {
-        this->_clients[i - 1].sendMessage(":localhost 461 TOPIC :Not enough parameters");
+        this->_clients[i - 1].sendMessage(":localhost 461 " + _clients[i - 1].getNickname() + " TOPIC :Not enough parameters\r\n");
         return;
     }
 
     std::string channelName = string_array[1];
-    Channel* channel = findChannelByName(channelName);
-    if (!channel)
+    // Channel channel = findChannelByName(channelName);
+    Channel* channel = NULL;
+    for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
     {
-        this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel");
+        if (it->getName() == channelName)
+        {
+            channel = &(*it);
+            break;
+        }
+    }
+
+    if (channel == NULL)
+    {
+        this->_clients[i - 1].sendMessage(":localhost 403 "+ _clients[i - 1].getNickname() + " " + channelName + " :No such channel\r\n");
         return;
     }
 
     if (string_array.size() == 2)
     {
-        std::string currentTopic = channel->getTopic();
-        if (currentTopic.empty())
+        // std::string currentTopic = channel.getTopic();
+        if (channel->getTopic().empty())
         {
-            this->_clients[i - 1].sendMessage(":localhost 331 " + channelName + " :No topic is set");
+            this->_clients[i - 1].sendMessage(":localhost 331 " + _clients[i - 1].getNickname() + " " + channelName + " :No topic is set\r\n");
         }
         else
         {
-            this->_clients[i - 1].sendMessage(":localhost 332 " + channelName + " :" + currentTopic);
+            this->_clients[i - 1].sendMessage(":localhost 332 " + _clients[i - 1].getNickname() + " " + channelName + " :" + channel->getTopic() + "\r\n");
         }
         return;
     }
 
-    if (!channel->isOperator(&this->_clients[i - 1]))
+    if (channel->getTopicRestricted() == true && !channel->isOperator(this->_clients[i - 1]))
     {
-        this->_clients[i - 1].sendMessage(":localhost 482 " + channelName + " :You're not a channel operator");
+        this->_clients[i - 1].sendMessage(":localhost 482 " + _clients[i - 1].getNickname() + " " + channelName + " :You're not channel operator" + "\r\n");
         return;
     }
 
@@ -56,4 +66,15 @@ void Server::cmdTopic(int i, std::vector<std::string> string_array)
     channel->broadcastMessage(topicMessage);
 
     std::cout << "Topic for channel " << channelName << " updated to: " << newTopic << std::endl;
+}
+
+void Channel::setTopic(const std::string& newTopic)
+{
+    topic = newTopic;
+    std::cout << "Channel topic updated to: " << topic << std::endl;
+}
+
+std::string Channel::getTopic() const
+{
+    return (topic);
 }

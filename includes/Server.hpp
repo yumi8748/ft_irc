@@ -8,11 +8,12 @@ class Client;
 
 class Server{
     public:
-        Server(){_fd = -1;};
+        // Server(){};
+        Server(int, std::string);
         ~Server(){};
 
         // INITS:
-        void InitServer(int, char*);
+        void InitServer();
         void InitSockets();
 
         // FD:
@@ -37,7 +38,7 @@ class Server{
 	    void	cmdNick(int i, std::vector<std::string> string_array);
 	    void	cmdUser(int i, std::vector<std::string> string_array);
 	    void	cmdPass(int i, std::vector<std::string> string_array);
-	    void	cmdQuit(int i, std::vector<std::string> string_array);
+	    void	cmdQuit(int i);
 	    void	cmdPrivmsg(int, std::vector<std::string>, std::string);
 	    void	cmdJoin(int i, std::vector<std::string> string_array);
 	    void	cmdPart(int i, std::vector<std::string> string_array);
@@ -45,6 +46,8 @@ class Server{
 	    void	cmdInvite(int i, std::vector<std::string> string_array);
 	    void	cmdTopic(int i, std::vector<std::string> string_array);
 	    void	cmdMode(int i, std::vector<std::string> string_array);
+        void    cmdPing(int i, std::vector<std::string> string_array);
+        void    cmdPong(int i, std::string);
 		int		isRegistered(int i);
         void	lineParsing(std::string line, int i);
 		void	checkRegistration(int i);
@@ -54,15 +57,16 @@ class Server{
 		void 	userMsg(int i, std::vector<std::string> string_array, std::string buffer);
         //YUMI
         bool isValidChannelName(const std::string& channelName);
-        Channel* findChannelByName(const std::string& channelName);
-        Client* findClientByNickname(const std::string& nickname);
+        // Channel findChannelByName(const std::string& channelName);
+        // Client findClientByNickname(const std::string& nickname);
         void setMode(const std::string& mode, const std::string& value);
 
     private:
         // VARIABLES:
         int _port;
-        int _fd;
         std::string _pwd;
+        int _fd;
+        std::string _lastPing;
         static int _sig;
 
         // VECTORS:

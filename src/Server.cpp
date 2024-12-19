@@ -6,16 +6,15 @@
 
 int Server::_sig = 0;
 
+Server::Server(int port, std::string pwd):_port(port),_pwd(pwd),_fd(-1),_lastPing(""){}
+
 void Server::SigHandler(int signum){
   (void)signum;
   _sig = 1;
   std::cout << ": " RED "QUIT input received\n";
 }
 
-void Server::InitServer(int port, char *pwd){
-  std::string password(pwd);
-  _pwd = pwd;
-  _port = port;
+void Server::InitServer(){
   InitSockets();
   if (_fd > 0)
     std::cout<<PURPLE<<"Server["<<_fd<<"]"<<GREEN<<" connected successfully"<<RESET<<std::endl;
@@ -24,6 +23,7 @@ void Server::InitServer(int port, char *pwd){
   while (_sig == 0){
     if ((poll(&_fds[0], _fds.size(), -1) == -1) && _sig == 0)
       throw ErrThrow("Poll error");
+    // std::cout << "hi" << std::endl;
     for (size_t i = 0; i < _fds.size(); i++){
       if (_sig == 0 && (_fds[i].revents & POLLIN)){
         if (_fds[i].fd == _fd)
@@ -76,8 +76,7 @@ void Server::AcceptClient(){
   if (lisFd < 0)
     perror("listen");
   Client client(lisFd);
-  std::cout<<PURPLE<<user_id(client.getNickname(), client.getUsername())<<GREEN<<" connected successfully to "<<PURPLE<<"Server["<<_fd<<"]\n"<<RESET;  
-  std::cout<<PURPLE<<user_id(client.getNickname(), client.getUsername())<<GREEN<<" connected successfully to "<<PURPLE<<"Server["<<_fd<<"]"<<RESET;  
+  std::cout<<PURPLE<<USER_ID(client.getNickname(), client.getUsername())<<GREEN<<" connected successfully to "<<PURPLE<<"Server["<<_fd<<"]" RESET<<std::endl;  
 
   // ADDING TO THE POLL VECTOR
   pollNew.fd = lisFd;
@@ -85,12 +84,13 @@ void Server::AcceptClient(){
   pollNew.revents = 0;
   _fds.push_back(pollNew);
   // client.do_stuff?
-  client.setHostname(client.getHostname());
+//   client.setHostname(client.getHostname());
   client.setFd(lisFd);
   _clients.push_back(client);
 }
 
 void Server::ReceiveData(int fd, int i){
+  // (void)i;
   char buf[1024] = {0};
   ssize_t recData = recv(fd, buf, sizeof(buf) - 1, 0);
   if (recData <= 0){
@@ -99,6 +99,8 @@ void Server::ReceiveData(int fd, int i){
     // maybe put close in closeClients?
   }
   else{
+    // PARSE FOR "PING:<num>"
+    // REPLY "PONG:<num>"
     // buf[recData] = 0;
     // parse?
     std::cout << PURPLE << "Client["<<fd<<"]: "<< RESET << buf; 
@@ -118,15 +120,19 @@ void Server::CloseServer(){
   }
   if (_fd > 0){
     std::cout<<PURPLE<<"Server["<<_fd<<"]"<<RED<<" has disconnected"<<RESET<<std::endl;
-      close(_fd);
+    close(_fd);
   }
 }
 
 void Server::CloseClients(int fd){
   for (size_t i = 0; i < _fds.size(); i++){
-    if (_fds[i].fd == fd){_fds.erase(_fds.begin() + i); break;}}
+    if (_fds[i].fd == fd){
+      _fds.erase(_fds.begin() + i); 
+      break;}}
   for (size_t i = 0; i < _clients.size(); i++){
-    if (_clients[i].getFd() == fd){_clients.erase(_clients.begin() + i); break;}}
+    if (_clients[i].getFd() == fd){
+      _clients.erase(_clients.begin() + i);
+       break;}}
 }
 
 void Server::CloseMessage(std::string errMsg){

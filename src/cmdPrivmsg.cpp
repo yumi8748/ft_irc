@@ -17,7 +17,7 @@ void Server::channelMsg(int i, std::vector<std::string> string_array, std::strin
 	}
 	if (k == static_cast<int>(getChannels().size()))
 	{
-		msg = ":localhost 401 " + this->_clients[i - 1].getNickname() + " " + string_array[1] + " :No such channel\r\n";
+		msg = ":localhost 401 " + string_array[1] + " :No such channel\r\n";
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		return;
 	}
@@ -29,7 +29,7 @@ void Server::channelMsg(int i, std::vector<std::string> string_array, std::strin
 			int k = 0;
 			while (k < static_cast<int>((*it).getClients().size()))
 			{
-				if ((*it).getClients()[k]->getNickname() == this->_clients[i - 1].getNickname())
+				if ((*it).getClients()[k].getNickname() == this->_clients[i - 1].getNickname())
 					break;
 				k++;
 			}
@@ -42,10 +42,10 @@ void Server::channelMsg(int i, std::vector<std::string> string_array, std::strin
 			int j = 0;
 			while (j < static_cast<int>((*it).getClients().size()))
 			{
-				if (this->_clients[i - 1].getNickname() != (*it).getClients()[j]->getNickname())
+				if (this->_clients[i - 1].getNickname() != (*it).getClients()[j].getNickname())
 				{
 					msg = ":" + this->_clients[i - 1].getNickname() + "!" + this->_clients[i - 1].getUsername() + "@localhost PRIVMSG " + string_array[1] + " " + message + "\r\n";
-					send((*it).getClients()[j]->getFd(), msg.c_str(), msg.length(), 0);
+					send((*it).getClients()[j].getFd(), msg.c_str(), msg.length(), 0);
 				}
 				j++;
 			}
@@ -70,7 +70,7 @@ void Server::userMsg(int i, std::vector<std::string> string_array, std::string b
 	}
 	if (k == static_cast<int>(getClients().size()))
 	{
-		msg = ":localhost 401 " + this->_clients[i - 1].getNickname() + " " + string_array[1] + " :No such nickname\r\n";
+		msg = ":localhost 401 " + this->_clients[i - 1].getNickname() + " :No such nick\r\n";
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		return;
 	}

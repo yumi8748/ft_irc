@@ -1,33 +1,16 @@
 #include "../includes/Irc.hpp"
 
-Client::Client(int fd): nick("*"),host(getSystemHostname()), client_fd(fd), _passwordIsCorrect(0), _isRegistered(0)
+Client::Client(int fd): nick("*"),oldnick(""),usr(""),host("localhost"),buffer(""),client_fd(fd), _passwordIsCorrect(0), _isRegistered(0)
 {
-    recv_buf = "";
+	std::cout << GREEN << host << std::endl;
 }
 
-void Client::updateBuffer(std::string str){
-	std::cout << "STRING UPDATE: " RED << str << RESET << std::endl;
-	_buffer = str;	
-	std::cout << "UPDATEBUF: " << _buffer << std::endl;
-}
-
-// std::string Client::getBuffer(){
-// 	std::cout << "GETBUF: " << _buffer << std::endl;
-// 	return _buffer;
+// std::string Client::getSystemHostname() {
+//     char hostname[1024];
+//     if (gethostname(hostname, sizeof(hostname)) == 0)
+//         return std::string(hostname);
+//     return "unknown";
 // }
-
-void Client::clearBuffer()
-{
-	std::cout << "CLEARBUF: " << _buffer << std::endl;
-	_buffer.empty();
-	std::cout << "AFTER: " << _buffer << std::endl;
-}
-std::string Client::getSystemHostname() {
-    char hostname[1024];
-    if (gethostname(hostname, sizeof(hostname)) == 0)
-        return std::string(hostname);
-    return "unknown";
-}
 
 void Client::setFd(int fd){
     client_fd = fd;
@@ -48,10 +31,10 @@ void Client::setOldNick(const std::string& oldnickname)
     oldnick = oldnickname;
 }
 
-void Client::setHostname(const std::string& hostname)
-{
-    host = hostname;
-}
+// void Client::setHostname(const std::string& hostname)
+// {
+//     host = hostname;
+// }
 
 const std::string& Client::getNickname() const
 {
@@ -73,7 +56,7 @@ std::string Client::getHostname() const
     return (host);
 }
 
-void Client::sendMessage(const std::string &message)
+void Client::sendMessage(const std::string &message) const
 {
     if (client_fd <= 0)
     {
@@ -81,19 +64,22 @@ void Client::sendMessage(const std::string &message)
         return;
     }
     
-    std::string formattedMessage = message + "\r\n";
-    if (send(client_fd, formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
+    // std::string formattedMessage = message + "\r\n";
+    std::cout << "Sending message to client_fd " << client_fd << ": " << message << std::endl;
+    if (send(client_fd, message.c_str(), message.length(), 0) == -1)
         perror("send");
+    else
+        std::cout << "Message sent successfully." << std::endl;
 }
 
-void Client::addChannel(Channel* ch)
+void Client::addChannel(const Channel &ch)
 {
     channels.push_back(ch);
 }
 
-void Client::removeChannel(Channel* channel)
+void Client::removeChannel(const Channel &channel)
 {
-    std::vector<Channel*>::iterator it = std::find(channels.begin(), channels.end(), channel);
+    std::vector<Channel>::iterator it = std::find(channels.begin(), channels.end(), channel);
     if (it != channels.end()) {
         channels.erase(it);
     }
@@ -104,16 +90,16 @@ int Client::getFd() const
     return client_fd;
 }
 
-bool Client::isInvited(Client* client, Channel* channel)
+bool Client::isInvited(const Client &client, const Channel &channel) const
 {
-    if (!client || !channel) {
+    if (client.getFd() <= 0 || channel.getName().empty()) {
         return false;
     }
 
-    const std::vector<Client*>& invitedClients = channel->getInvitedClients();
+    const std::vector<Client>& invitedClients = channel.getInvitedClients();
 
-    for (std::vector<Client*>::const_iterator it = invitedClients.begin(); it != invitedClients.end(); ++it) {
-        if (*it == client) {
+    for (std::vector<Client>::const_iterator it = invitedClients.begin(); it != invitedClients.end(); ++it) {
+        if (it->getFd() == client.getFd()) {
             return true;
         }
     }
@@ -150,7 +136,7 @@ int	Client::getPasswordIsCorrect(void)
  {
     return _isRegistered;
  }
-std::string Client::getName(void)
+std::string Client::getName(void) const
 {
 	return this->nick;
 }

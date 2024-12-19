@@ -76,16 +76,6 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
         this->_clients[i - 1].sendMessage(":localhost 401 " + _clients[i - 1].getNickname() + " " + targetNickname + " :No such nick\r\n");
         return;
     }
-<<<<<<< HEAD
-    if (std::find(_clients.begin(), _clients.end(), *targetClient) != _clients.end())
-    {
-        this->_clients[i - 1].sendMessage(":localhost 443 " + _clients[i - 1].getNickname() + " " + targetClient->getNickname() + " " + channel->getName() + " :is already on channel\r\n");
-        return ;
-    } 
-    channel->inviteClient(*targetClient);
-    this->_clients[i - 1].sendMessage(":localhost 341 " + this->_clients[i - 1].getNickname() + " " + targetNickname + " " + channelName + "\r\n");
-    targetClient->sendMessage(":localhost :You have been invited to join " + channelName + " by " + this->_clients[i - 1].getNickname() + "\r\n");
-=======
     // if (std::find(channel->getClients().begin(), channel->getClients().end(), *targetClient) != channel->getClients().end())
     // {
     //     this->_clients[i - 1].sendMessage(":localhost 443 " + _clients[i - 1].getNickname() + " " + targetClient->getNickname() + " " + channel->getName() + " :is already on channel\r\n");
@@ -94,7 +84,6 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
     channel->inviteClient(_clients[i - 1], *targetClient);
     // this->_clients[i - 1].sendMessage(":localhost 341 " + this->_clients[i - 1].getNickname() + " " + targetNickname + " " + channelName + "\r\n");
     // targetClient->sendMessage(":localhost :You have been invited to join " + channelName + " by " + this->_clients[i - 1].getNickname() + "\r\n");
->>>>>>> origin/invitefixed
 }
 
 // void Channel::inviteClient(Client &client)

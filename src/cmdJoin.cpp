@@ -104,9 +104,43 @@ void Channel::joinChannel(Client &client, const std::string& password)
 {
     if (std::find(clients.begin(), clients.end(), client) != clients.end())
     {
-        // client.sendMessage(":localhost  " + client.getNickname() + " " + name + " :You are already in the channel\r\n");
-        // std::cout << "Client " << client.getNickname() << " is already in the channel\r\n" << name << std::endl;
-        return;
+         for (std::size_t k = 0; k < clients.size(); ++k)
+		{
+			// std::string joinMsg = ":" + client.getNickname() + " JOIN " + name + "\r\n";
+			std::string joinMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@localhost" + " JOIN " + name + "\r\n";
+			std::cout << joinMsg;
+			send(clients[k].getFd(), joinMsg.c_str(), joinMsg.length(), 0);
+		}
+		// std::cout << "ICI : [" << getTopic().size() << "]" << std::endl;
+		if (getTopic().size() != 0)
+		{
+			std::string endNamesMsg = ":localhost 332 " + client.getNickname() + " " + name + " " + getTopic() + "\r\n";
+			std::cout << endNamesMsg;
+			send(client.getFd(), endNamesMsg.c_str(), endNamesMsg.length(), 0);
+		}
+		// Send NAMES list to the joining client
+		// std::string namesList = ":localhost 353 " + client.getNickname() + " = " + name + " :@";
+		// std::string namesList = ":localhost 353 " + client.getNickname() + " = " + name + " :";
+		std::string namesList = "353 " + client.getNickname() + "!" + client.getUsername() + "@localhost " + "= " + name + " :";
+		
+		for (std::size_t j = 0; j < clients.size(); ++j)
+		{
+			if (j > 0)
+				namesList += " ";
+			if (isOperator(clients[j]))
+				namesList += "@";
+			namesList += clients[j].getNickname();
+		}
+		namesList += "\r\n";
+		std::cout << namesList;
+		send(client.getFd(), namesList.c_str(), namesList.length(), 0);
+
+		// Send end of NAMES list
+		// std::string endNamesMsg = ":localhost 366 " + client.getNickname() + " " + name + " :End of /NAMES list\r\n";
+		std::string endNamesMsg = "366 " + client.getNickname() + "!" + client.getUsername() + "@localhost " + name + " :End of NAMES list\r\n";
+		std::cout << endNamesMsg;
+		send(client.getFd(), endNamesMsg.c_str(), endNamesMsg.length(), 0);
+			return;
     }
 
     if (inviteOnly == true && client.isInvited(client, *this) == false)

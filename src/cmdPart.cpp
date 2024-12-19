@@ -83,5 +83,6 @@ void Channel::partChannel(Client& client, const std::string& reason)
 		// Debug statement to check client after parting
         std::cout << "Client " << client.getNickname() << " has parted from channel " << name << std::endl;
         clients.erase(it);
+		removeInvitedClient(client);
     }
 }

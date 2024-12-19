@@ -2,15 +2,17 @@
 
 void Server::cmdMode(int i, std::vector<std::string> string_array)
 {
+	Client curr = _clients[i - 1];
+	std::string cliname = curr.getNickname() + " ";
     if (this->isRegistered(i) == 0)
     {
-        this->_clients[i - 1].sendMessage(":localhost 451 * :You have not registered\r\n");
+        curr.sendMessage(":localhost 451 " + cliname + ":You have not registered\r\n");
         return;
     }
 
     if (string_array.size() < 2)
     {
-        this->_clients[i - 1].sendMessage(":localhost 461 MODE :Not enough parameters\r\n");
+        curr.sendMessage(":localhost 461 " + cliname + "MODE :Not enough parameters\r\n");
         return;
     }
 
@@ -30,26 +32,25 @@ void Server::cmdMode(int i, std::vector<std::string> string_array)
 
     if (channel == NULL)
     {
-        this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel" + "\r\n");
+        curr.sendMessage(":localhost 403 " + cliname + channelName + " :No such channel" + "\r\n");
         return;
     }
 
     if (mode.empty())
     {
         // Return current channel modes
-        this->_clients[i - 1].sendMessage(":localhost 324 " + this->_clients[i - 1].getNickname() +
-                                          " " + channelName + " " + channel->getMode("") + "\r\n"); //! check needed
+        curr.sendMessage(":localhost 324 " + cliname + channelName + " " + channel->getMode("") + "\r\n"); //! check needed
         return;
     }
 
-    if (!channel->isOperator(this->_clients[i - 1]))
+    if (!channel->isOperator(curr))
     {
-        this->_clients[i - 1].sendMessage(":localhost 482 " + channelName + " :You're not a channel operator" + "\r\n");
+        curr.sendMessage(":localhost 482 " + cliname + channelName + " :You're not a channel operator\r\n");
         return;
     }
 
-    channel->setMode(mode, extra_cmd, _clients[i - 1]);
-    this->_clients[i - 1].sendMessage("Mode updated successfully."); // keep?
+    channel->setMode(mode, extra_cmd, curr);
+    curr.sendMessage("Mode updated successfully."); // keep?
 }
 
 std::string Channel::getMode(const std::string& mode) const
@@ -79,16 +80,17 @@ std::string intToString(int num)
 
 void Channel::setMode(const std::string& modeStr, const std::string& value, const Client& client)
 {
+	std::string cliname = client.getNickname() + " ";
     if (modeStr.empty())
     {
-        client.sendMessage(":localhost 461 " + client.getNickname() + " MODE :Not enough parameters\r\n");
+        client.sendMessage(":localhost 461 " + cliname + "MODE :Not enough parameters\r\n");
         return;
     }
 
     char operation = modeStr[0]; // '+' or '-'
     if (operation != '+' && operation != '-')
     {
-        client.sendMessage(":localhost 501 " + client.getNickname() + " :Unknown MODE flag\r\n");
+        client.sendMessage(":localhost 501 " + cliname + ":Unknown MODE flag\r\n");
         return;
     }
 
@@ -155,7 +157,7 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
 
 				if (!targetClient)
                 {
-                    client.sendMessage(":localhost 401 " + client.getNickname() + " " + value + " :No such nick/channel\r\n");
+                    client.sendMessage(":localhost 401 " + cliname + value + " :No such nick/channel\r\n");
                     continue;
                 }
 
@@ -173,7 +175,7 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
                     }
                     else
                     {
-                        client.sendMessage(":localhost 324 " + client.getNickname() + " " + name + " " + value + " " + " :is already an operator\r\n");
+                        client.sendMessage(":localhost 324 " + cliname + " " + name + " " + value + " " + " :is already an operator\r\n");
                         continue;
                     }
                 }
@@ -191,7 +193,7 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
                     }
                     else
                     {
-                        client.sendMessage(":localhost 324 " + client.getNickname() + " " + name + " " + value + " " + " :is not an operator and cannot be removed" + "\r\n"); //not yet
+                        client.sendMessage(":localhost 324 " + cliname + " " + name + " " + value + " " + " :is not an operator and cannot be removed" + "\r\n"); //not yet
                         continue;
                     }
                 }
@@ -214,7 +216,7 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
                 break;
 
             default:
-                client.sendMessage(":localhost 472 " + client.getNickname() + " " + std::string(1, mode) + " :is unknown mode char to me" + "\r\n");
+                client.sendMessage(":localhost 472 " + cliname + std::string(1, mode) + " :is unknown mode char to me" + "\r\n");
                 continue;
         }
 
@@ -223,6 +225,6 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
         broadcastMessage(modeMessage, client);
 
         // Send intuitive feedback to the client
-        client.sendMessage(":localhost NOTICE " + client.getNickname() + " :" + feedback + "\r\n");
+        client.sendMessage(":localhost NOTICE " + cliname + " :" + feedback + "\r\n");
     }
 }

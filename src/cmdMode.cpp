@@ -100,19 +100,21 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
         char mode = modeStr[i];
         std::string modeMessage;  // Standard IRC MODE message
         std::string feedback;    // Intuitive message for the client
+		std::string usrId = USER_ID(client.getNickname(), client.getUsername());
         switch (mode)
         {
             case 'i': // Invite-only
                 inviteOnly = (operation == '+');
-                modeMessage = ":Server MODE " + name + " " + operation + "i";
+                modeMessage = usrId + " MODE " + name + " " + operation + "i";
                 feedback = (operation == '+') ? 
                     "You have set the channel to invite-only mode." : 
                     "You have disabled invite-only mode for the channel.";
                 break;
 
             case 't': // Topic restrictions
+				std::cout << YELLOW "in T\n" RESET;
                 topicRestricted = (operation == '+');
-                modeMessage = ":Server MODE " + name + " " + operation + "t";
+                modeMessage = usrId + " MODE " + name + " " + operation + "t";
                 feedback = (operation == '+') ? 
                     "You have restricted topic changes to operators only." : 
                     "You have allowed everyone to change the topic.";
@@ -122,13 +124,13 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
                 if (operation == '+')
                 {
                     Ch_pwd = value;
-                    modeMessage = ":Server MODE " + name + " " + operation + "k " + value;
+               		modeMessage = usrId + " MODE " + name + " " + operation + "k";
                     feedback = "You have set the channel password to: " + value;
                 }
                 else
                 {
                     Ch_pwd.clear();
-                    modeMessage = ":Server MODE " + name + " " + operation + "k";
+               		modeMessage = usrId + " MODE " + name + " " + operation + "k";
                     feedback = "You have removed the channel password.";
                 }
                 break;
@@ -166,7 +168,7 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
                     if (!isOperator(*targetClient))
                     {
                         addOperator(*targetClient);
-                        modeMessage = ":Server MODE " + name + " " + operation + "o " + value + "\r\n";
+               			modeMessage = usrId + " MODE " + name + " " + operation + "o " + value;
                         feedback = "You have granted operator privileges to " + value + "." + "\r\n";
 
                         // Notify targetClient
@@ -184,7 +186,7 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
                     if (isOperator(*targetClient))
                     {
                         removeOperator(*targetClient);
-                        modeMessage = ":Server MODE " + name + " " + operation + "o " + value + "\r\n";
+               		modeMessage = usrId + " MODE " + name + " " + operation + "o " + value;
                         feedback = "You have removed operator privileges from " + value + "." + "\r\n";
 
                         // Notify targetClient
@@ -204,13 +206,13 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
                 if (operation == '+')
                 {
                     userLimits = std::atoi(value.c_str());
-                    modeMessage = ":Server MODE " + name + " " + operation + "l " + intToString(userLimits) + "\r\n";
+					modeMessage = usrId + " MODE " + name + " " + operation + "l " + intToString(userLimits);
                     feedback = "You have set the channel user limit to " + intToString(userLimits) + "." + "\r\n";
                 }
                 else
                 {
                     userLimits = -1; // Remove limit
-                    modeMessage = ":Server MODE " + name + " " + operation + "l" + "\r\n";
+					modeMessage = usrId + " MODE " + name + " " + operation + "l";
                     feedback = "You have removed the user limit for the channel\r\n.";
                 }
                 break;
@@ -221,8 +223,9 @@ void Channel::setMode(const std::string& modeStr, const std::string& value, cons
         }
 
         // Send standard IRC mode message
-        client.sendMessage(modeMessage);
-        broadcastMessage(modeMessage, client);
+        client.sendMessage(modeMessage + "\r\n");
+		std::cout << YELLOW << modeMessage << "\n" << feedback << RESET << std::endl;
+        // broadcastMessage(modeMessage, client);
 
         // Send intuitive feedback to the client
         client.sendMessage(":localhost NOTICE " + cliname + " :" + feedback + "\r\n");

@@ -56,21 +56,45 @@ void	Server::cmdPart(int i, std::vector<std::string> string_array) //parameter: 
 	std::cout << "Client "<< _clients[i - 1].getNickname() << " parted from channel " << channelName << std::endl;
 }
 
-void Channel::partChannel(Client& client, const std::string& reason)
-{
-    std::vector<Client>::iterator it = std::find(clients.begin(), clients.end(), client);
-    if (it != clients.end())
-    {
-        client.removeChannel(*this);
-        client.sendMessage("You have parted from channel " + name + "\n");
-		client.sendMessage(USER_ID(client.getNickname(), client.getUsername()) + " PART " + name + " :" + reason + "\r\n");
+// void Channel::partChannel(Client& client, const std::string& reason)
+// {
+//     std::vector<Client>::iterator it = std::find(clients.begin(), clients.end(), client);
+//     if (it != clients.end())
+//     {
+//         client.removeChannel(*this);
+//         client.sendMessage("You have parted from channel " + name + "\n");
+// 		client.sendMessage(USER_ID(client.getNickname(), client.getUsername()) + " PART " + name + " :" + reason + "\r\n");
 
-        // Debug statement to check client after parting
-        std::cout << "Client " << client.getNickname() << " has parted from channel " << name << std::endl;
+//         // Debug statement to check client after parting
+//         std::cout << "Client " << client.getNickname() << " has parted from channel " << name << std::endl;
+//         clients.erase(it);
+//     }
+//     else
+//     {
+//         std::cerr << "Error: Client " << client.getNickname() << " not found in channel " << name << std::endl;
+//     }
+// }
+
+void Channel::partChannel(Client& client, const std::string& reason) {
+    std::vector<Client>::iterator it = std::find(clients.begin(), clients.end(), client);
+    if (it != clients.end()) {
+        client.removeChannel(*this);
+        std::string message = USER_ID(client.getNickname(), client.getUsername()) 
+                              + " PART " + name 
+                              + (reason.empty() ? "\r\n" : " :" + reason + "\r\n");
+
+        // Notify the client
+        client.sendMessage("You have parted from channel " + name + "\n");
+        client.sendMessage(message);
+
+        // Notify other clients in the channel
+        for (std::vector<Client>::iterator other = clients.begin(); other != clients.end(); ++other) {
+            if (*other != client) {
+                (*other).sendMessage(message);
+            }
+        }
+
+        // Remove the client from the channel
         clients.erase(it);
-    }
-    else
-    {
-        std::cerr << "Error: Client " << client.getNickname() << " not found in channel " << name << std::endl;
     }
 }

@@ -4,24 +4,30 @@ void	Server::bufferParsing(int i, std::string string)
 {
 	this->_clients[i - 1].setBuffer(string);
 	if (this->_clients[i - 1].getBuffer() == "\r\n")
-		return;
+		return(this->_clients[i - 1].getBuffer().clear());
 	if (this->_clients[i - 1].getBuffer().find("\r\n") == std::string::npos)
 		return;
 	std::vector<std::string> string_array;
-	std::stringstream ss(this->_clients[i - 1].getBuffer());
-	std::string line;
-	std::string tmp;
- 	while(std::getline(ss, line))
+	std::string line = this->_clients[i - 1].getBuffer();
+	size_t pos = line.find_first_of("\r\n");
+	int len;
+    while (pos != std::string::npos)
 	{
-		size_t pos = line.find_first_of("\r\n");
+		len = 0;
 		if (pos > 0)
 			string_array.push_back(line.substr(0,pos));
-	}
+		if (line[pos] == '\n')
+			len = 1;
+		else
+			len = 2;
+        line.erase(0, pos + len);
+        pos = line.find_first_of("\r\n");
+    }
 	for (size_t j =0; j < string_array.size(); j++)
 	{
 		lineParsing(string_array[j], i);
 	}
-	if (string_array[0].compare(0, 4, "QUIT") != 0)
+	if (string_array.size() > 0 && string_array[0].compare(0, 4, "QUIT") != 0)
 		this->_clients[i - 1].getBuffer().clear();
 }
 
@@ -34,7 +40,6 @@ void	Server::lineParsing(std::string line, int i)
 
  	while(std::getline(ss, tmp, del))
 	{
-		std::cout << tmp << std::endl;
 		line_splitted.push_back(tmp);
 	}
 	if (line == "CAP LS")

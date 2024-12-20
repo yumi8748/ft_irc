@@ -3,9 +3,10 @@
 void	Server::bufferParsing(int i, std::string string)
 {
 	this->_clients[i - 1].setBuffer(string);
+	if (this->_clients[i - 1].getBuffer() == "\r\n")
+		return;
 	if (this->_clients[i - 1].getBuffer().find("\r\n") == std::string::npos)
 		return;
-	
 	std::vector<std::string> string_array;
 	std::stringstream ss(this->_clients[i - 1].getBuffer());
 	std::string line;
@@ -13,9 +14,9 @@ void	Server::bufferParsing(int i, std::string string)
  	while(std::getline(ss, line))
 	{
 		size_t pos = line.find_first_of("\r\n");
-		string_array.push_back(line.substr(0,pos));
+		if (pos > 0)
+			string_array.push_back(line.substr(0,pos));
 	}
-
 	for (size_t j =0; j < string_array.size(); j++)
 	{
 		lineParsing(string_array[j], i);
@@ -27,13 +28,13 @@ void	Server::bufferParsing(int i, std::string string)
 void	Server::lineParsing(std::string line, int i)
 {
 	std::vector<std::string> line_splitted;
-
 	std::stringstream ss(line);
 	std::string tmp;
 	char del = ' ';
 
  	while(std::getline(ss, tmp, del))
 	{
+		std::cout << tmp << std::endl;
 		line_splitted.push_back(tmp);
 	}
 	if (line == "CAP LS")

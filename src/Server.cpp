@@ -75,7 +75,7 @@ void Server::AcceptClient(){
   if (lisFd < 0)
     perror("listen");
   Client client(lisFd);
-  std::cout<<PURPLE<<USER_ID(client.getNickname(), client.getUsername())<<GREEN<<" connected successfully to "<<PURPLE<<"Server["<<_fd<<"]" RESET<<std::endl;  
+  std::cout<<PURPLE<<"Client["<<lisFd<<"]"<<GREEN<<" connected successfully to "<<PURPLE<<"Server["<<_fd<<"]" RESET<<std::endl;  
 
   // ADDING TO THE POLL VECTOR
   pollNew.fd = lisFd;

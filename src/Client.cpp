@@ -2,7 +2,7 @@
 
 Client::Client(int fd): nick("*"),oldnick(""),usr(""),host("localhost"),buffer(""),client_fd(fd), _passwordIsCorrect(0), _isRegistered(0)
 {
-	std::cout << GREEN << host << std::endl;
+	// std::cout << GREEN << host << std::endl;
 }
 
 // std::string Client::getSystemHostname() {

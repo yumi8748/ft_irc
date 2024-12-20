@@ -150,7 +150,6 @@ void	Server::bufferParsing(int i, std::string string)
 	{
 		if (pos + 2 == std::string::npos)
 			return;
-		std::cout << "inside" <<std::endl;
 		string_array.push_back(str.substr(0, pos));
 		std::cout << string_array[0].length() << std::endl;
     }

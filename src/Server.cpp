@@ -23,7 +23,6 @@ void Server::InitServer(){
   while (_sig == 0){
     if ((poll(&_fds[0], _fds.size(), -1) == -1) && _sig == 0)
       throw ErrThrow("Poll error");
-    // std::cout << "hi" << std::endl;
     for (size_t i = 0; i < _fds.size(); i++){
       if (_sig == 0 && (_fds[i].revents & POLLIN)){
         if (_fds[i].fd == _fd)
@@ -99,17 +98,8 @@ void Server::ReceiveData(int fd, int i){
     // maybe put close in closeClients?
   }
   else{
-    // PARSE FOR "PING:<num>"
-    // REPLY "PONG:<num>"
-    // buf[recData] = 0;
-    // parse?
     std::cout << PURPLE << "Client["<<fd<<"]: "<< RESET << buf; 
-    // std::string buffer(buf);
-    // buf[recData] = 0;
-    // std::string buffer(buf);
-    // commandParsing(i, buf);
     bufferParsing(i, buf);
-	// (void)i;
   }
 }
 

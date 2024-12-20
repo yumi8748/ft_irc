@@ -10,7 +10,7 @@ CMP		= 1
 CLEAR 	= @clear
 
 SRC_DIR := src
-SOURCES := main.cpp Channel.cpp Client.cpp Server.cpp commandParsing.cpp cmdNick.cpp cmdPass.cpp cmdQuit.cpp cmdUser.cpp cmdPrivmsg.cpp Authentification.cpp cmdJoin.cpp cmdCap.cpp cmdKick.cpp cmdInvite.cpp cmdTopic.cpp cmdMode.cpp cmdPart.cpp cmdPing.cpp cmdPong.cpp
+SOURCES := main.cpp Channel.cpp Client.cpp Server.cpp CommandParsing.cpp cmdNick.cpp cmdPass.cpp cmdQuit.cpp cmdUser.cpp cmdPrivmsg.cpp Registration.cpp cmdJoin.cpp cmdCap.cpp cmdKick.cpp cmdInvite.cpp cmdTopic.cpp cmdMode.cpp cmdPart.cpp cmdPing.cpp cmdPong.cpp
 SRC		:= $(addprefix $(SRC_DIR)/, $(SOURCES))
 
 OBJ_DIR := .objs

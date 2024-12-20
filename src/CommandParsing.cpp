@@ -1,5 +1,29 @@
 #include "../includes/Irc.hpp"
 
+void	Server::bufferParsing(int i, std::string string)
+{
+	this->_clients[i - 1].setBuffer(string);
+	if (this->_clients[i - 1].getBuffer().find("\r\n") == std::string::npos)
+		return;
+	
+	std::vector<std::string> string_array;
+	std::stringstream ss(this->_clients[i - 1].getBuffer());
+	std::string line;
+	std::string tmp;
+ 	while(std::getline(ss, line))
+	{
+		size_t pos = line.find_first_of("\r\n");
+		string_array.push_back(line.substr(0,pos));
+	}
+
+	for (size_t j =0; j < string_array.size(); j++)
+	{
+		lineParsing(string_array[j], i);
+	}
+	if (string_array[0].compare(0, 4, "QUIT") != 0)
+		this->_clients[i - 1].getBuffer().clear();
+}
+
 void	Server::lineParsing(std::string line, int i)
 {
 	std::vector<std::string> line_splitted;
@@ -12,7 +36,6 @@ void	Server::lineParsing(std::string line, int i)
 	{
 		line_splitted.push_back(tmp);
 	}
-	// std::cout << line_splitted.size() << std::endl;
 	if (line == "CAP LS")
 		cmdCap(i);
 	else if (line_splitted[0] == "PASS")
@@ -40,6 +63,52 @@ void	Server::lineParsing(std::string line, int i)
 	else if (line_splitted[0] == "PING")
 		cmdPing(i, line_splitted);
 }
+
+// Channel Server::findChannelByName(const std::string& channelName)
+// {
+//     for (size_t j = 0; j < this->_channels.size(); j++)
+//     {
+//         if (this->_channels[j].getName() == channelName)
+//             return (this->_channels[j]);
+//     }
+//     return Channel();
+// }
+// Client Server::findClientByNickname(const std::string& nickname)
+// {
+//     for (size_t j = 0; j < this->_clients.size(); j++)
+// 	{
+//         if (this->_clients[j].getNickname() == nickname)
+//             return (this->_clients[j]);
+//     }
+//     return Client();
+// }
+
+bool Server::isValidChannelName(const std::string& channelName)
+{
+    // start with # and no space
+	// std::cout << "NOT OK 2" << std::endl;
+    // return !channelName.empty() && channelName[0] == '#' && channelName.find(' ') == std::string::npos;
+	int j = 0;
+	while (channelName[j])
+	{
+		// std::cout << "OK 3" << channelName[j] << std::endl;
+		if (channelName[0] != '#')
+		{
+			return 0;
+		}
+		if (channelName[j] == ',' || channelName[j] == ' ' || channelName[j] == 7)
+		{
+
+			// std::cout <<  "OK 4" <<  channelName[j] << std::endl;
+			return 0;
+
+		}
+		j++;
+	}
+	return 1;
+}
+
+// --------------------------LOIC and FRED Parsing
 
 // void	Server::lineParsing(std::string str, int i)
 // {
@@ -136,49 +205,25 @@ void	Server::lineParsing(std::string line, int i)
 // 		cmdPing(i, line_splitted);
 // }
 
-void	Server::bufferParsing(int i, std::string string)
-{
-	std::vector<std::string> string_array;
-	
-	this->_clients[i - 1].setBuffer(string);
-	std::string str = this->_clients[i - 1].getBuffer();
-	std::cout << str.length() << std::endl;
-	std::string del = "\r\n";
-
-	size_t pos = str.rfind(del);
-	if (pos != std::string::npos)
-	{
-		if (pos + 2 == std::string::npos)
-			return;
-		string_array.push_back(str.substr(0, pos));
-		std::cout << string_array[0].length() << std::endl;
-    }
-	else{
-		return;
-	}
-
-	for (size_t j =0; j < string_array.size(); j++)
-	{
-		lineParsing(string_array[j], i);
-	}
-	if (string_array[0].compare(0, 4, "QUIT") != 0)
-		this->_clients[i - 1].getBuffer().clear();
-}
-
 // void	Server::bufferParsing(int i, std::string string)
 // {
-// 	this->_clients[i - 1].setBuffer(string);
-// 	if (this->_clients[i - 1].getBuffer().find("\r\n") == std::string::npos)
-// 		return;
-	
 // 	std::vector<std::string> string_array;
-// 	std::stringstream ss(this->_clients[i - 1].getBuffer());
-// 	std::string line;
-// 	std::string tmp;
-//  	while(std::getline(ss, line))
+	
+// 	this->_clients[i - 1].setBuffer(string);
+// 	std::string str = this->_clients[i - 1].getBuffer();
+// 	std::cout << str.length() << std::endl;
+// 	std::string del = "\r\n";
+
+// 	size_t pos = str.rfind(del);
+// 	if (pos != std::string::npos)
 // 	{
-// 		size_t pos = line.find_first_of("\r\n");
-// 		string_array.push_back(line.substr(0,pos));
+// 		if (pos + 2 == std::string::npos)
+// 			return;
+// 		string_array.push_back(str.substr(0, pos));
+// 		std::cout << string_array[0].length() << std::endl;
+//     }
+// 	else{
+// 		return;
 // 	}
 
 // 	for (size_t j =0; j < string_array.size(); j++)
@@ -188,61 +233,3 @@ void	Server::bufferParsing(int i, std::string string)
 // 	if (string_array[0].compare(0, 4, "QUIT") != 0)
 // 		this->_clients[i - 1].getBuffer().clear();
 // }
-
-int		Server::isRegistered(int i)
-{
-	if (this->_clients[i - 1].getNickname().empty()
-		|| this->_clients[i - 1].getUsername().empty()
-		|| this->_clients[i - 1].getPasswordIsCorrect() == 0)
-	{
-		return (0);
-	}
-	else
-	{
-		return (1);
-	}
-}
-
-// Channel Server::findChannelByName(const std::string& channelName)
-// {
-//     for (size_t j = 0; j < this->_channels.size(); j++)
-//     {
-//         if (this->_channels[j].getName() == channelName)
-//             return (this->_channels[j]);
-//     }
-//     return Channel();
-// }
-// Client Server::findClientByNickname(const std::string& nickname)
-// {
-//     for (size_t j = 0; j < this->_clients.size(); j++)
-// 	{
-//         if (this->_clients[j].getNickname() == nickname)
-//             return (this->_clients[j]);
-//     }
-//     return Client();
-// }
-
-bool Server::isValidChannelName(const std::string& channelName)
-{
-    // start with # and no space
-	// std::cout << "NOT OK 2" << std::endl;
-    // return !channelName.empty() && channelName[0] == '#' && channelName.find(' ') == std::string::npos;
-	int j = 0;
-	while (channelName[j])
-	{
-		// std::cout << "OK 3" << channelName[j] << std::endl;
-		if (channelName[0] != '#')
-		{
-			return 0;
-		}
-		if (channelName[j] == ',' || channelName[j] == ' ' || channelName[j] == 7)
-		{
-
-			// std::cout <<  "OK 4" <<  channelName[j] << std::endl;
-			return 0;
-
-		}
-		j++;
-	}
-	return 1;
-}

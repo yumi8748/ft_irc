@@ -24,3 +24,17 @@ int	Server::checkStringFormat(std::string str)
 	}
 	return 0;
 }
+
+int		Server::isRegistered(int i)
+{
+	if (this->_clients[i - 1].getNickname().empty()
+		|| this->_clients[i - 1].getUsername().empty()
+		|| this->_clients[i - 1].getPasswordIsCorrect() == 0)
+	{
+		return (0);
+	}
+	else
+	{
+		return (1);
+	}
+}

@@ -6,7 +6,7 @@ int		Server::cmdUserErrors(int i, std::vector<std::string> string_array)
 	std::string target = this->_clients[i - 1].getNickname();
 	if (this->_clients[i - 1].getPasswordIsCorrect() == 0)
 	{
-		msg = "Error : Need to enter correct password first\r\n";
+		msg = ":localhost 464 " + target + " :Password incorrect\r\n";
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		return (1);
 	}

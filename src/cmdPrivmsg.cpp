@@ -96,6 +96,7 @@ void Server::channelMsg(int i, std::vector<std::string> string_array, std::strin
 {
 	std::string msg;
 	std::string message;
+	std::string sender = this->_clients[i - 1].getNickname() + "!" + this->_clients[i - 1].getUsername() + "@localhost";
 	int pos = buffer.find("#");
 	int pos2 = buffer.find(" ", pos) + 1;
 	message = buffer.substr(pos2);
@@ -113,7 +114,7 @@ void Server::channelMsg(int i, std::vector<std::string> string_array, std::strin
 			{
 				if (this->_clients[i - 1].getNickname() != (*it).getClients()[j].getNickname())
 				{
-					msg = ":" + this->_clients[i - 1].getNickname() + "!" + this->_clients[i - 1].getUsername() + "@localhost PRIVMSG " + string_array[1] + " " + message + "\r\n";
+					msg = ":" + sender + " PRIVMSG " + string_array[1] + " " + message + "\r\n";
 					send((*it).getClients()[j].getFd(), msg.c_str(), msg.length(), 0);
 				}
 				j++;

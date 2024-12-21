@@ -46,8 +46,10 @@ class Channel{
         void broadcastMessage(const std::string &message, const Client &excludeClient);
         void changeCh_pwd(std::string newCh_pwd);
         //client join&leave channel(s)
-        void joinChannel(Client &client, const std::string& password);
+        void cmdJoinExistingChannel(Client &client, const std::string& password);
+		int  cmdJoinErrorsExistingChannel(Client &client, const std::string& password);
         void partChannel(Client &client, const std::string& message = "");
+		void cmdJoinSend(Client &client);
         //channel operators commands:
         bool isOperator(const Client &client) const;
         void addOperator(const Client &client);

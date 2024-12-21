@@ -62,12 +62,15 @@ class Server{
         void setMode(const std::string& mode, const std::string& value);
 
 		int		cmdPassErrors(int i, std::vector<std::string> string_array);
+		int		cmdJoinErrors(int i, std::vector<std::string> string_array);
+		
 		int		cmdNickErrors(int i, std::vector<std::string> string_array);
 		int		cmdUserErrors(int i, std::vector<std::string> string_array);
 		int		cmdPrivmsgErrors(int i, std::vector<std::string> string_array);
 		int		cmdPrivmsgErrorsNoSuchNick(int i, std::vector<std::string> string_array);
 		int		cmdPrivmsgErrorsNoSuchChannel(int i, std::vector<std::string> string_array);
 		int		cmdPrivmsgErrorsNotInChannel(int i, std::vector<std::string> string_array);
+		int		cmdJoinErrorsInvalidName(int i, std::string channelName);
 
     private:
         // VARIABLES:

@@ -63,8 +63,9 @@ class Server{
 
 		int		cmdPassErrors(int i, std::vector<std::string> string_array);
 		int		cmdJoinErrors(int i, std::vector<std::string> string_array);
-		
-		int		cmdNickErrors(int i, std::vector<std::string> string_array);
+		int		cmdPartErrors(int i, std::vector<std::string> string_array);
+		int		cmdPartErrorsChannel(int i, std::string channelName);
+        int		cmdNickErrors(int i, std::vector<std::string> string_array);
 		int		cmdUserErrors(int i, std::vector<std::string> string_array);
 		int		cmdPrivmsgErrors(int i, std::vector<std::string> string_array);
 		int		cmdPrivmsgErrorsNoSuchNick(int i, std::vector<std::string> string_array);

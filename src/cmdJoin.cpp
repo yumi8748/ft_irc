@@ -116,7 +116,7 @@ void Channel::cmdJoinSend(Client &client)
 		msg = ":localhost 332 " + clientNick + " " + name + " " + getTopic() + "\r\n";
 		send(client.getFd(), msg.c_str(), msg.length(), 0);
 	}
-	msg = "353 " + sender + " = " + name + " :";
+	msg = ":localhost 353 " + sender + " = " + name + " :";
     for (std::size_t j = 0; j < clients.size(); ++j)
     {
         if (j > 0)
@@ -127,6 +127,6 @@ void Channel::cmdJoinSend(Client &client)
     }
     msg += "\r\n";
     send(client.getFd(), msg.c_str(), msg.length(), 0);
-    msg = "366 " + sender + " " + name + " :End of NAMES list\r\n";
+    msg = ":localhost 366 " + sender + " " + name + " :End of NAMES list\r\n";
     send(client.getFd(), msg.c_str(), msg.length(), 0);
 }

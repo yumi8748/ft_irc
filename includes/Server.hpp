@@ -61,6 +61,10 @@ class Server{
         // Client findClientByNickname(const std::string& nickname);
         void setMode(const std::string& mode, const std::string& value);
 
+		int		cmdPassErrors(int i, std::vector<std::string> string_array);
+		int		cmdNickErrors(int i, std::vector<std::string> string_array);
+		int		cmdUserErrors(int i, std::vector<std::string> string_array);
+
     private:
         // VARIABLES:
         int _port;

@@ -12,7 +12,7 @@ int		Server::cmdInviteErrors(int i, std::vector<std::string> string_array)
 	}
 	if (string_array.size() < 3)
     {
-		std::string msg = ":localhost 461 " + target + " JOIN :Not enough parameters\r\n";
+		std::string msg = ":localhost 461 " + target + " INVITE :Not enough parameters\r\n";
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
         return (1);
     }
@@ -96,11 +96,11 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
 		return;
     std::string nickInvited = string_array[1];
     std::string channelName = string_array[2];
-	Channel* channel = NULL;
 	if (cmdInviteErrorsChannel(i, channelName) == 1)
 		return;
 	if (cmdInviteErrorsNickname(i, nickInvited) == 1)
 		return;
+	Channel* channel = NULL;
     for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
     {
         if (it->getName() == channelName)
@@ -118,13 +118,13 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
             break;
         }
     }
+	if (channel->cmdInviteErrorsOnChannel(_clients[i - 1], *clientInvited) == 1)
+		return;
     channel->inviteClient(_clients[i - 1], *clientInvited);
 }
 
 void Channel::inviteClient(Client &client, Client &clientInvited)
 {
-	if (cmdInviteErrorsOnChannel(client, clientInvited) == 1)
-		return;
 	std::string msg;
 	std::string target = client.getNickname();
 	std::string nickInvited = clientInvited.getNickname();

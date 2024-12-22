@@ -49,13 +49,14 @@ class Channel{
         void cmdJoinExistingChannel(Client &client, const std::string& password);
 		int  cmdJoinErrorsExistingChannel(Client &client, const std::string& password);
 		int  cmdInviteErrorsOnChannel(Client &client, Client &targetclient);
+		int  cmdKickErrorsNotOnChannel(Client &client, Client &targetclient);
         void partChannel(Client &client, const std::string& reason, const std::string& channelname);
 		void cmdJoinSend(Client &client);
         //channel operators commands:
         bool isOperator(const Client &client) const;
         void addOperator(const Client &client);
         void removeOperator(const Client &client);
-        void kickClient(Client &client);
+        void kickClient(Client &client, const std::string& reason, const std::string& channelName, Client &clientKicked);
         void inviteClient(Client &client, Client &targetclient);
         // void inviteClient(Client &client);
         void addInvitedClient(const Client &client);

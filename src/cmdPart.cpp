@@ -97,3 +97,11 @@ void Channel::partChannel(Client& client, const std::string& reason, const std::
 		removeInvitedClient(client);
     }
 }
+
+void Channel::removeInvitedClient(const Client &client)
+{
+    std::vector<Client>::iterator it = std::find(invitedClients.begin(), invitedClients.end(), client);
+    if (it != invitedClients.end()) {
+        invitedClients.erase(it);
+    }
+}

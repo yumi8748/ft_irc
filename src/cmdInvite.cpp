@@ -1,29 +1,29 @@
 #include "../includes/Irc.hpp"
 
-void	Server::cmdInvite(int i, std::vector<std::string> string_array)
+int		Server::cmdInviteErrors(int i, std::vector<std::string> string_array)
 {
-	if (this->isRegistered(i) == 0)
+	std::string msg;
+	std::string target = this->_clients[i - 1].getNickname();
+	if (this->_clients[i - 1].getIsRegistered() == 0)
 	{
-		this->_clients[i - 1].sendMessage(":localhost 451 " + _clients[i - 1].getNickname() +  " :You have not registered\r\n");
-		return ;
+		msg = ":localhost 451 " + target + " :You have not registered\r\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+		return (1);
 	}
-    for (std::string::size_type i = 0; i < string_array.size(); i++)
-        std::cout << YELLOW << string_array[i] << std::endl;
-    std::cout << RESET;
-    // If the user doesn't specify the channel, IRSSI will append the current channel the user is in
-    // to the INVITE command 
-    // e.g. /INVITE yu-chen (from user in channel #a) --> string_array ==  INVITE yu-chen #a
-    // CONDITIONAL JUMPS IN CMDINVITE
-    if (string_array.size() < 3)
+	if (string_array.size() < 3)
     {
-        this->_clients[i - 1].sendMessage(":localhost 461 " + _clients[i - 1].getNickname() + " INVITE :Not enough parameters\r\n");
-        return;
+		std::string msg = ":localhost 461 " + target + " JOIN :Not enough parameters\r\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+        return (1);
     }
-    std::cout << "out\n";
-    std::string targetNickname = string_array[1];
-    std::string channelName = string_array[2];
+	return (0);
+}
 
-    Channel* channel = NULL;
+int		Server::cmdInviteErrorsChannel(int i, std::string channelName)
+{
+	std::string msg;
+	std::string target = this->_clients[i - 1].getNickname();
+	Channel* channel = NULL;
     for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
     {
         if (it->getName() == channelName)
@@ -32,89 +32,117 @@ void	Server::cmdInvite(int i, std::vector<std::string> string_array)
             break;
         }
     }
-
     if (channel == NULL)
-    {
-        this->_clients[i - 1].sendMessage(":localhost 403 " + _clients[i - 1].getNickname() + channelName + " :No such channel\r\n");
-        return;
-    }
-
-    if (!channel->isClientInChannel(_clients[i - 1]))
 	{
-		this->_clients[i - 1].sendMessage(":localhost 442 " + _clients[i - 1].getNickname() + " " + channelName + " :You aren't on that channel\r\n");
-		return ;
+		msg = ":localhost 403 " + target + " " + channelName + " :No such channel\r\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+		return (1);
 	}
-
-    // Channel channel = findChannelByName(channelName);
-    // if (channel == Channel())
-    // {
-    //     this->_clients[i - 1].sendMessage(":localhost 403 " + channelName + " :No such channel");
-    //     return;
-    // }
-
-    std::cout << "Checking if client " << this->_clients[i - 1].getName() << " is an operator in channel " << channelName << std::endl;
-    // std::cout << "Client address in cmdInvite: " << &this->_clients[i - 1] << std::endl;
-    if (!channel->isOperator(this->_clients[i - 1]))
+	if (!channel->isClientInChannel(_clients[i - 1]))
+	{
+		msg = ":localhost 442 " + target + " " + channelName + " :You aren't on that channel\r\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+		return (1);
+	}
+	if (!channel->isOperator(this->_clients[i - 1]))
     {
-        this->_clients[i - 1].sendMessage(":localhost 482 " + _clients[i - 1].getNickname() + " " + channelName + " :You're not a channel operator\r\n");
-        return;
+		msg = ":localhost 482 " + target + " " + channelName + " :You're not channel operator\r\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+		return (1);
     }
+	return (0);
+}
 
-    Client* targetClient = NULL;
-
+int		Server::cmdInviteErrorsNickname(int i, std::string nickInvited)
+{
+	std::string msg;
+	std::string target = this->_clients[i - 1].getNickname();
+	Client* clientInvited = NULL;
     for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
     {
-        if (it->getNickname() == targetNickname)
+        if (it->getNickname() == nickInvited)
         {
-            targetClient = &(*it);
+            clientInvited = &(*it);
             break;
         }
     }
-
-    if (targetClient == NULL)
+    if (clientInvited == NULL)
     {
-        this->_clients[i - 1].sendMessage(":localhost 401 " + _clients[i - 1].getNickname() + " " + targetNickname + " :No such nick\r\n");
-        return;
+		msg = ":localhost 401 " + target + " " + nickInvited + ": No such nick/channel\r\n";
+		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
+        return (1);
     }
-    // if (std::find(channel->getClients().begin(), channel->getClients().end(), *targetClient) != channel->getClients().end())
-    // {
-    //     this->_clients[i - 1].sendMessage(":localhost 443 " + _clients[i - 1].getNickname() + " " + targetClient->getNickname() + " " + channel->getName() + " :is already on channel\r\n");
-    //     return ;
-    // } 
-    channel->inviteClient(_clients[i - 1], *targetClient);
-    // this->_clients[i - 1].sendMessage(":localhost 341 " + this->_clients[i - 1].getNickname() + " " + targetNickname + " " + channelName + "\r\n");
-    // targetClient->sendMessage(":localhost :You have been invited to join " + channelName + " by " + this->_clients[i - 1].getNickname() + "\r\n");
+	return (0);
 }
 
-// void Channel::inviteClient(Client &client)
-void Channel::inviteClient(Client &client, Client &targetclient)
+int		Channel::cmdInviteErrorsOnChannel(Client &client, Client &clientInvited)
 {
-    if (std::find(clients.begin(), clients.end(), targetclient) != clients.end())
+	std::string msg;
+	std::string target = client.getNickname();
+	std::string nickInvited = clientInvited.getNickname();
+	std::string channeName = this->getName();
+	if (std::find(clients.begin(), clients.end(), clientInvited) != clients.end())
     {
-        client.sendMessage(":localhost 443 " + client.getNickname() + " " + targetclient.getNickname() + " " + this->getName() + " :is already on channel\r\n");
-        return ;
+		msg = ":localhost 443 " + target + " " + nickInvited + " " + channeName + " :is already on channel\r\n";
+		send(client.getFd(), msg.c_str(), msg.length(), 0);
+        return (1);
     }
-    clients.push_back(targetclient);
-    targetclient.addChannel(*this);
-	addInvitedClient(targetclient);
-    client.sendMessage(":localhost 341 " + client.getNickname() + " " + targetclient.getNickname() + " " + this->getName() + "\r\n");
-    targetclient.sendMessage(":localhost :You have been invited to join " + this->getName() + " by " + client.getNickname() + "\r\n");
-    std::cout << "Client " << client.getNickname() << " has been invited to the channel " << name << "." << std::endl;
+	return (0);
 }
 
-void Channel::addInvitedClient(const Client &client) {
+void	Server::cmdInvite(int i, std::vector<std::string> string_array)
+{
+	if (cmdInviteErrors(i, string_array) == 1)
+		return;
+    std::string nickInvited = string_array[1];
+    std::string channelName = string_array[2];
+	Channel* channel = NULL;
+	if (cmdInviteErrorsChannel(i, channelName) == 1)
+		return;
+	if (cmdInviteErrorsNickname(i, nickInvited) == 1)
+		return;
+    for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        if (it->getName() == channelName)
+        {
+            channel = &(*it);
+            break;
+        }
+    }
+	Client* clientInvited = NULL;
+    for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+    {
+        if (it->getNickname() == nickInvited)
+        {
+            clientInvited = &(*it);
+            break;
+        }
+    }
+    channel->inviteClient(_clients[i - 1], *clientInvited);
+}
+
+void Channel::inviteClient(Client &client, Client &clientInvited)
+{
+	if (cmdInviteErrorsOnChannel(client, clientInvited) == 1)
+		return;
+	std::string msg;
+	std::string target = client.getNickname();
+	std::string nickInvited = clientInvited.getNickname();
+	std::string channeName = this->getName();
+	std::string sender = client.getNickname() + "!" + client.getUsername() + "@localhost";
+    clients.push_back(clientInvited);
+    clientInvited.addChannel(*this);
+	addInvitedClient(clientInvited);
+    msg = ":localhost 341 " + target + " " + nickInvited + " " + channeName + "\r\n";
+	send(client.getFd(), msg.c_str(), msg.length(), 0);
+	msg = ":" + sender + " INVITE " + nickInvited + " " + channeName + "\r\n";
+	send(clientInvited.getFd(), msg.c_str(), msg.length(), 0);
+
+}
+
+void Channel::addInvitedClient(const Client &client)
+{
     if (std::find(invitedClients.begin(), invitedClients.end(), client) == invitedClients.end()) {
         invitedClients.push_back(client);
     }
-}
-
-void Channel::removeInvitedClient(const Client &client) {
-    std::vector<Client>::iterator it = std::find(invitedClients.begin(), invitedClients.end(), client);
-    if (it != invitedClients.end()) {
-        invitedClients.erase(it);
-    }
-}
-
-const std::vector<Client>& Channel::getInvitedClients() const {
-    return invitedClients;
 }

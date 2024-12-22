@@ -140,3 +140,8 @@ std::string Client::getName(void) const
 {
 	return this->nick;
 }
+
+const std::vector<Client>& Channel::getInvitedClients() const
+{
+    return invitedClients;
+}

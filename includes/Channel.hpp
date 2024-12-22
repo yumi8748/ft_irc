@@ -48,6 +48,7 @@ class Channel{
         //client join&leave channel(s)
         void cmdJoinExistingChannel(Client &client, const std::string& password);
 		int  cmdJoinErrorsExistingChannel(Client &client, const std::string& password);
+		int  cmdInviteErrorsOnChannel(Client &client, Client &targetclient);
         void partChannel(Client &client, const std::string& reason, const std::string& channelname);
 		void cmdJoinSend(Client &client);
         //channel operators commands:

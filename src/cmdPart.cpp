@@ -84,12 +84,12 @@ void Channel::partChannel(Client& client, const std::string& reason, const std::
 {
 	std::string msg;
 	std::string sender = client.getNickname() + "!" + client.getUsername() + "@localhost";
-	std::vector<Client>::iterator it = std::find(clients.begin(), clients.end(), client);
 	for (std::size_t k = 0; k < clients.size(); ++k)
     {
 		msg = ":" + sender + " PART " + channelName + " :" + reason + "\r\n";
         send(clients[k].getFd(), msg.c_str(), msg.length(), 0);
     }
+	std::vector<Client>::iterator it = std::find(clients.begin(), clients.end(), client);
     if (it != clients.end())
     {
         client.removeChannel(*this);

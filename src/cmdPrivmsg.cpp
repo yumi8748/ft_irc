@@ -38,7 +38,7 @@ int		Server::cmdPrivmsgErrorsNoSuchChannel(int i, std::vector<std::string> strin
 	}
 	if (k == static_cast<int>(getChannels().size()))
 	{
-		msg = ":localhost 401 " + target + " " + string_array[1] + " : No such nick/channel\r\n";
+		msg = ":localhost 401 " + target + " " + string_array[1] + ": No such nick/channel\r\n";
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		return (1);
 	}
@@ -58,6 +58,7 @@ int		Server::cmdPrivmsgErrorsNoSuchNick(int i, std::vector<std::string> string_a
 	}
 	if (k == static_cast<int>(getClients().size()))
 	{
+		
 		msg = ":localhost 401 " + target + " " + string_array[1] + ": No such nick/channel\r\n";
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		return (1);

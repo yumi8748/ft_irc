@@ -12,7 +12,7 @@ int		Server::cmdKickErrors(int i, std::vector<std::string> string_array)
 	}
 	if (string_array.size() < 3)
     {
-		std::string msg = ":localhost 461 " + target + " KICK :Not enough parameters\r\n";
+		msg = ":localhost 461 " + target + " KICK :Not enough parameters\r\n";
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
         return (1);
     }

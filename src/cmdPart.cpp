@@ -64,14 +64,7 @@ void	Server::cmdPart(int i, std::vector<std::string> string_array)
             break;
         }
     }
-	channel->partChannel(_clients[i - 1]);
-	std::string msg;
-	std::string sender = _clients[i - 1].getNickname() + "!" + _clients[i - 1].getUsername() + "@localhost";
-	for (std::size_t k = 0; k < _clients.size(); ++k)
-    {
-		msg = ":" + sender + " PART " + channelName + " :" + reason + "\r\n";
-        send(_clients[k].getFd(), msg.c_str(), msg.length(), 0);
-    }
+	channel->partChannel(_clients[i - 1], reason, channelName);
 	if (channel->isEmpty())
 	{
 		for (std::vector<Channel>::iterator it = this->_channels.begin(); it != this->_channels.end(); ) 
@@ -87,9 +80,16 @@ void	Server::cmdPart(int i, std::vector<std::string> string_array)
 	}
 }
 
-void Channel::partChannel(Client& client)
+void Channel::partChannel(Client& client, const std::string& reason, const std::string& channelName)
 {
-    std::vector<Client>::iterator it = std::find(clients.begin(), clients.end(), client);
+	std::string msg;
+	std::string sender = client.getNickname() + "!" + client.getUsername() + "@localhost";
+	std::vector<Client>::iterator it = std::find(clients.begin(), clients.end(), client);
+	for (std::size_t k = 0; k < clients.size(); ++k)
+    {
+		msg = ":" + sender + " PART " + channelName + " :" + reason + "\r\n";
+        send(clients[k].getFd(), msg.c_str(), msg.length(), 0);
+    }
     if (it != clients.end())
     {
         client.removeChannel(*this);

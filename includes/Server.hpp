@@ -65,8 +65,10 @@ class Server{
 		int		cmdJoinErrors(int i, std::vector<std::string> string_array);
 		int		cmdPartErrors(int i, std::vector<std::string> string_array);
 		int		cmdInviteErrors(int i, std::vector<std::string> string_array);
+		int		cmdTopicErrors(int i, std::vector<std::string> string_array);
 		int		cmdKickErrors(int i, std::vector<std::string> string_array);
 		int		cmdPartErrorsChannel(int i, std::string channelName);
+		int		cmdTopicErrorsChannel(int i, std::string channelName);
 		int		cmdKickErrorsChannel(int i, std::string channelName);
 		int		cmdInviteErrorsChannel(int i, std::string channelName);
 		int		cmdInviteErrorsNickname(int i, std::string nickname);

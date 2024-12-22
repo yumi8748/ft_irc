@@ -1,22 +1,5 @@
 #include "../includes/Irc.hpp"
 
-std::string intToString(int num)
-{
-    if (num == 0) return "0";
-    std::string result;
-    bool isNegative = (num < 0);
-    if (isNegative) num = -num;
-
-    while (num > 0)
-    {
-        result.insert(result.begin(), '0' + (num % 10));
-        num /= 10;
-    }
-
-    if (isNegative) result.insert(result.begin(), '-');
-    return result;
-}
-
 int		Server::cmdModeErrors(int i, std::vector<std::string> string_array, std::string modeStr)
 {
 	std::string msg;
@@ -86,7 +69,6 @@ void Server::cmdMode(int i, std::vector<std::string> string_array)
 	if (cmdModeErrorsChannel(i, channelName) == 1)
 		return;
 	Client curr = _clients[i - 1];
-    std::string extra_cmd = (string_array.size() > 3) ? string_array[3] : "";
     Channel* channel = NULL;
     for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
     {
@@ -96,131 +78,89 @@ void Server::cmdMode(int i, std::vector<std::string> string_array)
             break;
         }
     }
-    channel->setMode(mode, extra_cmd, curr);
+    channel->setMode(mode, string_array, curr);
 }
 
-
-
-void Channel::setMode(const std::string& modeStr, const std::string& value, const Client& client)
+void Channel::setMode(const std::string& modeStr, std::vector<std::string> string_array, const Client& client)
 {
 	std::string cliname = client.getNickname() + " ";
+    std::string modeMessage;
+    std::string usrId = USER_ID(client.getNickname(), client.getUsername());
+    int arrayMax = string_array.size();
     char operation = modeStr[0]; // '+' or '-'
-    // Apply modes one by one
+    int arrayIndex = 3;
+
     for (size_t i = 1; i < modeStr.size(); ++i)
     {
-        char mode = modeStr[i];
-        std::string modeMessage;  // Standard IRC MODE message
-        std::string feedback;    // Intuitive message for the client
-		std::string usrId = USER_ID(client.getNickname(), client.getUsername());
-        switch (mode)
+        if (modeStr[i] == '-' || modeStr[i] == '+')
         {
-            case 'i':
-                inviteOnly = (operation == '+');
-                modeMessage = usrId + " MODE " + name + " " + operation + "i";
+            operation = modeStr[i];
+            i++;
+            if (i == modeStr.size())
                 break;
-
-            case 't':
-                topicRestricted = (operation == '+');
-                modeMessage = usrId + " MODE " + name + " " + operation + "t";
-                break;
-
-            case 'k':
-                if (operation == '+')
-                {
-                    Ch_pwd = value;
-               		modeMessage = usrId + " MODE " + name + " " + operation + "k";
-                }
-                else
-                {
-                    Ch_pwd.clear();
-               		modeMessage = usrId + " MODE " + name + " " + operation + "k";
-                }
-                break;
-
-            case 'o':
-            {
-                Client* targetClient = NULL;
-				for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it)
-				{
-					if (it->getNickname() == value)
-					{
-						targetClient = &(*it);
-						break;
-					}
-				}
-
-				if (!targetClient)
-                {
-                    client.sendMessage(":localhost 401 " + cliname + value + " :No such nick/channel\r\n");
-                    continue;
-                }
-
-                if (operation == '+')
-                {
-                    if (!isOperator(*targetClient))
-                    {
-                        addOperator(*targetClient);
-               			modeMessage = usrId + " MODE " + name + " " + operation + "o " + value;
-                        feedback = "You have granted operator privileges to " + value + "." + "\r\n";
-
-                        // Notify targetClient
-                        targetClient->sendMessage(":localhost NOTICE " + targetClient->getNickname() + 
-                            " :You have been granted operator privileges in channel " + name + "." + "\r\n");
-                    }
-                    else
-                    {
-                        client.sendMessage(":localhost 324 " + cliname + " " + name + " " + value + " " + " :is already an operator\r\n");
-                        continue;
-                    }
-                }
-                else
-                {
-                    if (isOperator(*targetClient))
-                    {
-                        removeOperator(*targetClient);
-               		modeMessage = usrId + " MODE " + name + " " + operation + "o " + value;
-                        feedback = "You have removed operator privileges from " + value + "." + "\r\n";
-
-                        // Notify targetClient
-                        targetClient->sendMessage(":localhost NOTICE " + targetClient->getNickname() + 
-                            " :Your operator privileges in channel " + name + " have been revoked." + "\r\n");
-                    }
-                    else
-                    {
-                        client.sendMessage(":localhost 324 " + cliname + " " + name + " " + value + " " + " :is not an operator and cannot be removed" + "\r\n"); //not yet
-                        continue;
-                    }
-                }
-                break;
-            }
-
-            case 'l': // User limit
-                if (operation == '+')
-                {
-                    userLimits = std::atoi(value.c_str());
-					modeMessage = usrId + " MODE " + name + " " + operation + "l " + intToString(userLimits);
-                    feedback = "You have set the channel user limit to " + intToString(userLimits) + "." + "\r\n";
-                }
-                else
-                {
-                    userLimits = -1; // Remove limit
-					modeMessage = usrId + " MODE " + name + " " + operation + "l";
-                    feedback = "You have removed the user limit for the channel\r\n.";
-                }
-                break;
-
-            default:
-                client.sendMessage(":localhost 472 " + cliname + std::string(1, mode) + " :is unknown mode char to me" + "\r\n");
-                continue;
         }
-
-        // Send standard IRC mode message
-        client.sendMessage(modeMessage + "\r\n");
-		std::cout << YELLOW << modeMessage << "\n" << feedback << RESET << std::endl;
-        // broadcastMessage(modeMessage, client);
-
-        // Send intuitive feedback to the client
-        client.sendMessage(":localhost NOTICE " + cliname + " :" + feedback + "\r\n");
+        char mode = modeStr[i];
+        if (mode == 'i')
+        {
+            inviteOnly = (operation == '+');
+            modeMessage = usrId + " MODE " + name + " " + operation + "i" + "\r\n";
+        }
+        else if (mode == 't')
+        {
+            topicRestricted = (operation == '+');
+            modeMessage = usrId + " MODE " + name + " " + operation + "t" + "\r\n";
+        }
+        else if (mode == 'k' && arrayIndex < arrayMax)
+        {
+            if (operation == '+')
+                Ch_pwd = string_array[arrayIndex];
+            else if (operation == '-')
+                Ch_pwd.clear();
+            arrayIndex++;
+            modeMessage = usrId + " MODE " + name + " " + operation + "k" + "\r\n";
+        }
+        else if (mode == 'l' && operation == '+' && arrayIndex < arrayMax)
+        {
+            userLimits = std::atoi(string_array[arrayIndex].c_str());
+            arrayIndex++;
+			modeMessage = usrId + " MODE " + name + " " + operation + "l " + "\r\n";
+        }
+        else if (mode == 'l' && operation == '-')
+        {
+            userLimits = -1;
+			modeMessage = usrId + " MODE " + name + " " + operation + "l " + "\r\n";
+        }
+        else if (mode == 'o' && arrayIndex < arrayMax)
+        {
+            Client* targetClient = NULL;
+            for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it)
+            {
+                if (it->getNickname() == string_array[arrayIndex])
+                {
+                    targetClient = &(*it);
+                    break;
+                }
+            }
+            if (!targetClient)
+            {
+                modeMessage = ":localhost 401 " + cliname + " " + string_array[arrayIndex] + " :No such nick/channel\r\n";
+            }
+            else if (operation == '+' && !isOperator(*targetClient))
+            {
+                addOperator(*targetClient);
+                modeMessage = usrId + " MODE " + name + " " + operation + "o " + string_array[arrayIndex] + "\r\n";
+            }
+            else if (operation == '-' && isOperator(*targetClient))
+            {
+                removeOperator(*targetClient);
+               	modeMessage = usrId + " MODE " + name + " " + operation + "o " + string_array[arrayIndex] + "\r\n";
+            }
+            arrayIndex++;
+        }
+        for (std::size_t k = 0; k < clients.size(); ++k)
+        {
+            send(clients[k].getFd(), modeMessage.c_str(), modeMessage.length(), 0);
+        }
     }
 }
 

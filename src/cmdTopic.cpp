@@ -21,7 +21,8 @@ int		Server::cmdTopicErrors(int i, std::vector<std::string> string_array)
 
 int		Server::cmdTopicErrorsChannel(int i, std::string channelName)
 {
-	std::string msg;
+	
+    std::string msg;
 	std::string target = this->_clients[i - 1].getNickname();
 	Channel* channel = NULL;
     for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
@@ -44,9 +45,9 @@ int		Server::cmdTopicErrorsChannel(int i, std::string channelName)
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		return (1);
 	}
-	if (!channel->isOperator(this->_clients[i - 1]))
+	if (channel->getTopicRestricted() == true && !channel->isOperator(this->_clients[i - 1]))
     {
-		msg = ":localhost 482 " + target + " " + channelName + " :You're not channel operator\r\n";
+        msg = ":localhost 482 " + target + " " + channelName + " :You're not channel operator\r\n";
 		send(this->_clients[i - 1].getFd(), msg.c_str(), msg.length(), 0);
 		return (1);
     }
@@ -61,7 +62,9 @@ void Server::cmdTopic(int i, std::vector<std::string> string_array)
     std::string msg;
 	std::string target = this->_clients[i - 1].getNickname();
 	std::string sender = this->_clients[i - 1].getNickname() + "!" + this->_clients[i - 1].getUsername() + "@localhost";
-	Channel* channel = NULL;
+	if (cmdTopicErrorsChannel(i, channelName) == 1)
+		return;
+    Channel* channel = NULL;
     for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
     {
         if (it->getName() == channelName)

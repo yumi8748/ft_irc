@@ -50,6 +50,7 @@ class Channel{
 		int  cmdJoinErrorsExistingChannel(Client &client, const std::string& password);
 		int  cmdInviteErrorsOnChannel(Client &client, Client &targetclient);
 		int  cmdKickErrorsNotOnChannel(Client &client, Client &targetclient);
+        int		cmdModeErrorsOperator(int i, std::string nickOperator);
         void partChannel(Client &client, const std::string& reason, const std::string& channelname);
 		void cmdJoinSend(Client &client);
         //channel operators commands:
@@ -66,7 +67,7 @@ class Channel{
         const std::vector<Client>& getInvitedClients() const;
         void setTopic(const std::string& newTopic);
         std::string getTopic() const;
-        void setMode(const std::string& modeStr, const std::string& value, const Client &client);
+        void setMode(const std::string& modeStr, std::vector<std::string> string_array, const Client &client);
         std::string getMode(const std::string& mode) const;
         bool getTopicRestricted() const;
 

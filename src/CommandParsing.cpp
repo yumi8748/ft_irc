@@ -51,7 +51,7 @@ void	Server::lineParsing(std::string line, int i)
 	else if (line_splitted[0] == "NICK")
 		cmdNick(i, line_splitted);
 	else if (line_splitted[0] == "QUIT")
-		cmdQuit(i);
+		cmdQuit(i, line_splitted);
 	else if (line_splitted[0] == "PRIVMSG")
 		cmdPrivmsg(i, line_splitted, line);
 	else if (line_splitted[0] == "JOIN")

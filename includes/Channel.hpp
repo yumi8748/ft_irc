@@ -70,7 +70,7 @@ class Channel{
         void setMode(const std::string& modeStr, std::vector<std::string> string_array, const Client &client);
         std::string getMode(const std::string& mode) const;
         bool getTopicRestricted() const;
-
+	void quitClient(Client &clientKicked, const std::string& reason);
 
 		std::vector<Client> getClients(void);
 };

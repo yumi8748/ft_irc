@@ -18,7 +18,7 @@ void Channel::addClient(const Client &client)
         return ;
     }
     clients.push_back(client);
-    std::cerr << "Client" << client.getNickname() << " joined channel: " << name << std::endl;
+    // std::cerr << "Client" << client.getNickname() << " joined channel: " << name << std::endl;
 }
 
 // void Channel::removeClient(Client client)
@@ -81,11 +81,11 @@ void Channel::addOperator(const Client &client)
     if (!isOperator(client))
     {
         operators.push_back(client);
-        std::cout << "Added operator: " << client.getName() << std::endl;
+        // std::cout << "Added operator: " << client.getName() << std::endl;
     }
     else
     {
-        std::cout << "Client is already an operator: " << client.getName() << std::endl;
+        // std::cout << "Client is already an operator: " << client.getName() << std::endl;
     }
 }
 

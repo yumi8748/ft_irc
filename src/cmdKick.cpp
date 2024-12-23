@@ -138,7 +138,7 @@ void Channel::kickClient(Client &client, const std::string& reason, const std::s
 		msg = ":" + sender + " KICK " + channelName + " " + nickKicked + " " + reason + "\r\n";
         send(clients[k].getFd(), msg.c_str(), msg.length(), 0);
     }
-	std::vector<Client >::iterator it = std::find(clients.begin(), clients.end(), clientKicked);
+	std::vector<Client>::iterator it = std::find(clients.begin(), clients.end(), clientKicked);
 	if (it != clients.end())
 	{
 		clients.erase(it);

@@ -95,6 +95,7 @@ void Channel::partChannel(Client& client, const std::string& reason, const std::
         client.removeChannel(*this);
         clients.erase(it);
 		removeInvitedClient(client);
+		removeOperator(client);
     }
 }
 

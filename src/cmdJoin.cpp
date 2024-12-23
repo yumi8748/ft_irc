@@ -73,8 +73,8 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array)
     for (size_t j = 0; j < param_splitted.size(); ++j)
     {
         channelName = param_splitted[j];
-        // if (cmdJoinErrorsInvalidName(i, channelName) == 1)
-        	// return;
+        if (cmdJoinErrorsInvalidName(i, channelName) == 1)
+        	return;
         Channel* channel = NULL;
         for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
         {

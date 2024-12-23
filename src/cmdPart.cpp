@@ -51,31 +51,44 @@ void	Server::cmdPart(int i, std::vector<std::string> string_array)
 {
 	if (cmdPartErrors(i, string_array) == 1)
 		return;
-	std::string &channelName = string_array[1];
 	std::string reason = string_array.size() > 2 ? string_array[2] : "No reason provided";
-	if (cmdPartErrorsChannel(i, channelName) == 1)
-		return;
-	Channel* channel = NULL;
-    for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
-    {
-        if (it->getName() == channelName)
-        {
-            channel = &(*it);
-            break;
-        }
-    }
-	channel->partChannel(_clients[i - 1], reason, channelName);
-	if (channel->isEmpty())
+	std::string channelName;
+
+	std::vector<std::string> param_splitted;
+	std::stringstream ss(string_array[1]);
+	std::string tmp;
+	char del = ',';
+ 	while(std::getline(ss, tmp, del))
 	{
-		for (std::vector<Channel>::iterator it = this->_channels.begin(); it != this->_channels.end(); ) 
+		param_splitted.push_back(tmp);
+	}
+	for (size_t j = 0; j < param_splitted.size(); ++j)
+    {
+		channelName = param_splitted[j];
+		if (cmdPartErrorsChannel(i, channelName) == 1)
+			continue;
+		Channel* channel = NULL;
+		for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
 		{
-    		if ((*it) == *channel)
+			if (it->getName() == channelName)
 			{
-        		it = this->_channels.erase(it);
-        		break;
-    		}
-			else
-				++it;
+				channel = &(*it);
+				break;
+			}
+		}
+		channel->partChannel(_clients[i - 1], reason, channelName);
+		if (channel->isEmpty())
+		{
+			for (std::vector<Channel>::iterator it = this->_channels.begin(); it != this->_channels.end(); ) 
+			{
+				if ((*it) == *channel)
+				{
+					it = this->_channels.erase(it);
+					break;
+				}
+				else
+					++it;
+			}
 		}
 	}
 }

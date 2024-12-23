@@ -58,29 +58,43 @@ void	Server::cmdJoin(int i, std::vector<std::string> string_array)
 {
 	if (cmdJoinErrors(i, string_array) == 1)
 		return;
-    std::string channelName = string_array[1];
     std::string pwd = (string_array.size() > 2) ? string_array[2] : "";
-	if (cmdJoinErrorsInvalidName(i, channelName) == 1)
-		return;
-    Channel* channel = NULL;
-    for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+	std::string channelName;
+
+    std::vector<std::string> param_splitted;
+	std::stringstream ss(string_array[1]);
+	std::string tmp;
+	char del = ',';
+ 	while(std::getline(ss, tmp, del))
+	{
+		param_splitted.push_back(tmp);
+ 
+	}
+    for (size_t j = 0; j < param_splitted.size(); ++j)
     {
-        if (it->getName() == channelName)
+        channelName = param_splitted[j];
+        // if (cmdJoinErrorsInvalidName(i, channelName) == 1)
+        	// return;
+        Channel* channel = NULL;
+        for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
         {
-            channel = &(*it);
-            break;
+            if (it->getName() == channelName)
+            {
+                channel = &(*it);
+                break;
+            }
+        }	
+        if (channel == NULL)
+        {
+            this->_channels.push_back(Channel(channelName));
+            channel = &_channels.back();
+            channel->addClient(this->_clients[i - 1]);
+            channel->addOperator(this->_clients[i - 1]);
+            channel->cmdJoinSend(this->_clients[i - 1]);
         }
-    }	
-    if (channel == NULL)
-    {
-        this->_channels.push_back(Channel(channelName));
-        channel = &_channels.back();
-        channel->addClient(this->_clients[i - 1]);
-        channel->addOperator(this->_clients[i - 1]);
-		channel->cmdJoinSend(this->_clients[i - 1]);
+        else
+            channel->cmdJoinExistingChannel(this->_clients[i - 1], pwd);
     }
-    else
-        channel->cmdJoinExistingChannel(this->_clients[i - 1], pwd);
 }
 
 void Channel::cmdJoinExistingChannel(Client &client, const std::string& password)

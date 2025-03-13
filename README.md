@@ -1,4 +1,4 @@
-# IRC Server
+# IRC Server 🌐💬
 
 ### Overview
 This project involves creating your own IRC (Internet Relay Chat) server. The server allows real-time messaging between clients, enabling both private direct messages and public group channel interactions. You will use an actual IRC client to connect to your server and test its functionality.
@@ -11,11 +11,11 @@ Internet Relay Chat (IRC) is a text-based communication protocol on the Internet
 - Multiple IRC servers can be connected together to form an IRC network.
 - Each server operates according to standardized protocols, allowing for seamless communication across the network.
 
-### Features
+### Features ✨
 - **Real-time messaging**: Send direct messages or join group channels.
 - **Public and private communication**: Users can join public channels or send private messages to other users.
 
-### To compile the program:
+### To compile the program 💻:
 #### `make` To start the Server
 
 #### ```./ircserv <port> <password>```
@@ -26,7 +26,7 @@ Internet Relay Chat (IRC) is a text-based communication protocol on the Internet
 - IP ADDRESS: Host IP address.
 - PORT: The PORT that the server listening on.
 
-### commands specific to channel
+### commands specific to channel 📋
 operators:
 - KICK - Eject a client from the channel
 - INVITE - Invite a client to a channel

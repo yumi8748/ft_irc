@@ -16,12 +16,12 @@ Internet Relay Chat (IRC) is a text-based communication protocol on the Internet
 - **Public and private communication**: Users can join public channels or send private messages to other users.
 
 ### To compile the program:
-- `make` To start the Server
+#### `make` To start the Server
 
-```./ircserv <port> <password>```
+#### ```./ircserv <port> <password>```
 - port: The port number on which your IRC server will be listening to for incoming IRC connections.
 - password: The connection password. It will be needed by any IRC client that tries to connect to your server. 
-          To connect to the server, you can use:
+#### To connect to the server, you can use:
 ```nc <IP ADDRESS> <PORT>```
 - IP ADDRESS: Host IP address.
 - PORT: The PORT that the server listening on.
